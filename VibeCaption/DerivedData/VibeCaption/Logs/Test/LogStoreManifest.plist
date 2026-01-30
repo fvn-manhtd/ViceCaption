@@ -6,14 +6,14 @@
 	<integer>12</integer>
 	<key>logs</key>
 	<dict>
-		<key>00B6B034-E21C-4778-964D-982CD731D571</key>
+		<key>5E1ECC9C-81E4-4F92-B675-EA91BEDB5907</key>
 		<dict>
 			<key>auxiliaryLogUniqueIdentifier</key>
-			<string>B56FEA89-BD85-4CAC-8E08-4CB7194D3A4E</string>
+			<string>03500C1C-EFD7-46EE-A0B4-20DF94D3BC5D</string>
 			<key>auxiliaryObservable</key>
 			<dict>
 				<key>highLevelStatus</key>
-				<string>W</string>
+				<string>S</string>
 				<key>totalNumberOfAnalyzerIssues</key>
 				<integer>0</integer>
 				<key>totalNumberOfErrors</key>
@@ -21,7 +21,7 @@
 				<key>totalNumberOfTestFailures</key>
 				<integer>0</integer>
 				<key>totalNumberOfWarnings</key>
-				<integer>2</integer>
+				<integer>0</integer>
 			</dict>
 			<key>className</key>
 			<string>IDESchemeActionsInvocationRecord</string>
@@ -30,7 +30,7 @@
 			<key>domainType</key>
 			<string>com.apple.dt.unit.cocoaUnitTest</string>
 			<key>fileName</key>
-			<string>Test-VibeCaption-2026.01.30_11-30-31-+0900.xcresult</string>
+			<string>Test-VibeCaption-2026.01.30_16-39-57-+0900.xcresult</string>
 			<key>hasAuxiliaryLog</key>
 			<true/>
 			<key>hasCoverageData</key>
@@ -40,70 +40,7 @@
 			<key>primaryObservable</key>
 			<dict>
 				<key>highLevelStatus</key>
-				<string>W</string>
-				<key>totalCodeCoverage</key>
-				<real>0.86021505376344087</real>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>0</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>2</integer>
-			</dict>
-			<key>schemeIdentifier-containerName</key>
-			<string>VibeCaption project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>VibeCaption</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Test VibeCaption</string>
-			<key>timeStartedRecording</key>
-			<real>791433031.34055805</real>
-			<key>timeStoppedRecording</key>
-			<real>791433038.08438396</real>
-			<key>title</key>
-			<string>Test VibeCaption</string>
-			<key>uniqueIdentifier</key>
-			<string>00B6B034-E21C-4778-964D-982CD731D571</string>
-		</dict>
-		<key>B0146A1C-8BE7-48B9-9080-35662024324A</key>
-		<dict>
-			<key>auxiliaryLogUniqueIdentifier</key>
-			<string>5E4A61A0-0705-4951-806C-2E1BD1D44AC1</string>
-			<key>auxiliaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>W</string>
-				<key>totalNumberOfAnalyzerIssues</key>
-				<integer>0</integer>
-				<key>totalNumberOfErrors</key>
-				<integer>0</integer>
-				<key>totalNumberOfTestFailures</key>
-				<integer>0</integer>
-				<key>totalNumberOfWarnings</key>
-				<integer>3</integer>
-			</dict>
-			<key>className</key>
-			<string>IDESchemeActionsInvocationRecord</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>com.apple.dt.unit.cocoaUnitTest</string>
-			<key>fileName</key>
-			<string>Test-VibeCaption-2026.01.30_11-38-51-+0900.xcresult</string>
-			<key>hasAuxiliaryLog</key>
-			<true/>
-			<key>hasCoverageData</key>
-			<true/>
-			<key>hasPrimaryLog</key>
-			<true/>
-			<key>primaryObservable</key>
-			<dict>
-				<key>highLevelStatus</key>
-				<string>W</string>
+				<string>S</string>
 				<key>totalCodeCoverage</key>
 				<real>0.93834586466165415</real>
 				<key>totalNumberOfAnalyzerIssues</key>
@@ -113,7 +50,7 @@
 				<key>totalNumberOfTestFailures</key>
 				<integer>0</integer>
 				<key>totalNumberOfWarnings</key>
-				<integer>3</integer>
+				<integer>0</integer>
 			</dict>
 			<key>schemeIdentifier-containerName</key>
 			<string>VibeCaption project</string>
@@ -124,13 +61,139 @@
 			<key>signature</key>
 			<string>Test VibeCaption</string>
 			<key>timeStartedRecording</key>
-			<real>791433531.15658498</real>
+			<real>791451597.64748704</real>
 			<key>timeStoppedRecording</key>
-			<real>791433534.76536596</real>
+			<real>791451599.86401999</real>
 			<key>title</key>
 			<string>Test VibeCaption</string>
 			<key>uniqueIdentifier</key>
-			<string>B0146A1C-8BE7-48B9-9080-35662024324A</string>
+			<string>5E1ECC9C-81E4-4F92-B675-EA91BEDB5907</string>
+		</dict>
+		<key>78239663-F26C-485B-A863-549AD2E27B73</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>53ECB37B-CCB8-4D87-8C46-1BB9AB9C0F95</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>2</integer>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.unit.cocoaUnitTest</string>
+			<key>fileName</key>
+			<string>Test-VibeCaption-2026.01.30_16-39-37-+0900.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasCoverageData</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalCodeCoverage</key>
+				<real>0.094736842105263161</real>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>2</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Test VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791451577.46859705</real>
+			<key>timeStoppedRecording</key>
+			<real>791451583.98071003</real>
+			<key>title</key>
+			<string>Test VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>78239663-F26C-485B-A863-549AD2E27B73</string>
+		</dict>
+		<key>F7370B63-0E27-4C4E-8CB5-97CB711E446B</key>
+		<dict>
+			<key>auxiliaryLogUniqueIdentifier</key>
+			<string>E1E89A9A-6329-4489-842C-FD1C05089F1C</string>
+			<key>auxiliaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>className</key>
+			<string>IDESchemeActionsInvocationRecord</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>com.apple.dt.unit.cocoaUnitTest</string>
+			<key>fileName</key>
+			<string>Test-VibeCaption-2026.01.30_16-39-45-+0900.xcresult</string>
+			<key>hasAuxiliaryLog</key>
+			<true/>
+			<key>hasCoverageData</key>
+			<true/>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalCodeCoverage</key>
+				<real>0.094736842105263161</real>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Test VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791451585.25948095</real>
+			<key>timeStoppedRecording</key>
+			<real>791451587.40763605</real>
+			<key>title</key>
+			<string>Test VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>F7370B63-0E27-4C4E-8CB5-97CB711E446B</string>
 		</dict>
 	</dict>
 </dict>

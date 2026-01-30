@@ -1,4 +1,0 @@
-Target dependency graph (2 targets)
-Target 'VibeCaptionTests' in project 'VibeCaption'
-➜ Explicit dependency on target 'VibeCaption' in project 'VibeCaption'
-Target 'VibeCaption' in project 'VibeCaption' (no dependencies)

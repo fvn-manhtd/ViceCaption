@@ -18,12 +18,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify all valid/invalid state transitions
   - [x] test: Verify state preservation
 
-- [ ] **3. Settings & Persistence Layer**
-  - [ ] Create `AppSettings` model
-  - [ ] Implement `SettingsManager` with UserDefaults persistence
-  - [ ] Implement `FontSize` enum and default values
-  - [ ] test: Verify persistence survives app restart
-  - [ ] test: Verify path validation
+- [x] **3. Settings & Persistence Layer** ✅
+  - [x] Create `AppSettings` model
+  - [x] Implement `SettingsManager` with UserDefaults persistence
+  - [x] Implement `FontSize` enum and default values
+  - [x] test: Verify persistence survives app restart
+  - [x] test: Verify path validation
 
 - [ ] **4. Transcript Data Model & Formatting**
   - [ ] Create data models: `TranscriptBlock`, `TranscriptSession`, `PauseMarker`

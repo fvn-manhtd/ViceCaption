@@ -13,172 +13,172 @@
 				<key>testBeginTranslationFromListening</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00069105625152587891</real>
+					<real>0.0017729997634887695</real>
 				</dict>
 				<key>testBeginTranslationThrowsFromIdle</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00056302547454833984</real>
+					<real>0.00085997581481933594</real>
 				</dict>
 				<key>testCallbackInvokedForEachTransition</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00069701671600341797</real>
+					<real>0.0013509988784790039</real>
 				</dict>
 				<key>testCanPauseProperty</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00055205821990966797</real>
+					<real>0.00070893764495849609</real>
 				</dict>
 				<key>testCanStartListeningProperty</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00061893463134765625</real>
+					<real>0.00062191486358642578</real>
 				</dict>
 				<key>testDisplayNames</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00055491924285888672</real>
+					<real>0.00071799755096435547</real>
 				</dict>
 				<key>testEndTranslationReturnsToListening</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00053298473358154297</real>
+					<real>0.00068104267120361328</real>
 				</dict>
 				<key>testInitialStateIsIdle</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00052309036254882812</real>
+					<real>0.00076997280120849609</real>
 				</dict>
 				<key>testIsCapturingProperty</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.000659942626953125</real>
+					<real>0.00085699558258056641</real>
 				</dict>
 				<key>testIsProcessingProperty</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00058901309967041016</real>
+					<real>0.00069904327392578125</real>
 				</dict>
 				<key>testModelsNotLoadedByDefault</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00056910514831542969</real>
+					<real>0.00065898895263671875</real>
 				</dict>
 				<key>testOverlayNotVisibleByDefault</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00061798095703125</real>
+					<real>0.00067305564880371094</real>
 				</dict>
 				<key>testOverlayVisibilityTracking</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00059390068054199219</real>
+					<real>0.00056397914886474609</real>
 				</dict>
 				<key>testPauseFromListening</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00068497657775878906</real>
+					<real>0.00083303451538085938</real>
 				</dict>
 				<key>testPauseFromTranslating</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.0045789480209350586</real>
+					<real>0.00059199333190917969</real>
 				</dict>
 				<key>testPauseThrowsWhenAlreadyPaused</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00062298774719238281</real>
+					<real>0.0071840286254882812</real>
 				</dict>
 				<key>testPauseThrowsWhenIdle</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.0006389617919921875</real>
+					<real>0.00069403648376464844</real>
 				</dict>
 				<key>testPreservedStateAvailableAfterShow</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.0021350383758544922</real>
+					<real>0.00067901611328125</real>
 				</dict>
 				<key>testResumeFromPaused</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00060689449310302734</real>
+					<real>0.0014110803604125977</real>
 				</dict>
 				<key>testResumeThrowsWhenListening</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.0022720098495483398</real>
+					<real>0.00059497356414794922</real>
 				</dict>
 				<key>testResumeThrowsWhenNotPaused</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00054097175598144531</real>
+					<real>0.00071299076080322266</real>
 				</dict>
 				<key>testStartListeningSucceedsWhenModelsLoaded</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00052201747894287109</real>
+					<real>0.00058805942535400391</real>
 				</dict>
 				<key>testStartListeningThrowsWhenAlreadyListening</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.0012600421905517578</real>
+					<real>0.00063598155975341797</real>
 				</dict>
 				<key>testStartListeningThrowsWhenModelsNotLoaded</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00057196617126464844</real>
+					<real>0.00057101249694824219</real>
 				</dict>
 				<key>testStateChangeCallbackInvoked</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.0005340576171875</real>
+					<real>0.00067603588104248047</real>
 				</dict>
 				<key>testStatePreservedWhenOverlayHidden</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00049996376037597656</real>
+					<real>0.00067591667175292969</real>
 				</dict>
 				<key>testStopListeningFromIdleIsNoOp</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00049901008605957031</real>
+					<real>0.00062096118927001953</real>
 				</dict>
 				<key>testStopListeningFromListening</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00054693222045898438</real>
+					<real>0.00060105323791503906</real>
 				</dict>
 				<key>testStopListeningFromPaused</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.0025039911270141602</real>
+					<real>0.0020819902420043945</real>
 				</dict>
 				<key>testToggleFromIdleStartsListening</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00054502487182617188</real>
+					<real>0.00059497356414794922</real>
 				</dict>
 				<key>testToggleFromIdleThrowsIfModelsNotLoaded</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00054299831390380859</real>
+					<real>0.00062489509582519531</real>
 				</dict>
 				<key>testToggleFromListeningPauses</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.0019500255584716797</real>
+					<real>0.00061893463134765625</real>
 				</dict>
 				<key>testToggleFromPausedResumes</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00054800510406494141</real>
+					<real>0.00065910816192626953</real>
 				</dict>
 				<key>testToggleFromTranslatingPauses</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00056600570678710938</real>
+					<real>0.0022680759429931641</real>
 				</dict>
 			</dict>
 			<key>VibeCaptionTests</key>
@@ -186,17 +186,17 @@
 				<key>testBundleIdentifier</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00080895423889160156</real>
+					<real>0.00073397159576416016</real>
 				</dict>
 				<key>testBundleInfo</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00060701370239257812</real>
+					<real>0.00061094760894775391</real>
 				</dict>
 				<key>testMinimumDeploymentTarget</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00058495998382568359</real>
+					<real>0.0011849403381347656</real>
 				</dict>
 			</dict>
 		</dict>
