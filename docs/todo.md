@@ -11,12 +11,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] implementation: Verify app launches and quits correctly
   - [x] test: Verify bundle identifier and deployment target
 
-- [ ] **2. App State Machine Foundation**
-  - [ ] Create `AppState` enum (idle, listening, translating, paused)
-  - [ ] Implement `AppStateManager` (transitions, validation, overlay tracking)
-  - [ ] Implement `toggleListening()` logic
-  - [ ] test: Verify all valid/invalid state transitions
-  - [ ] test: Verify state preservation
+- [x] **2. App State Machine Foundation** ✅
+  - [x] Create `AppState` enum (idle, listening, translating, paused)
+  - [x] Implement `AppStateManager` (transitions, validation, overlay tracking)
+  - [x] Implement `toggleListening()` logic
+  - [x] test: Verify all valid/invalid state transitions
+  - [x] test: Verify state preservation
 
 - [ ] **3. Settings & Persistence Layer**
   - [ ] Create `AppSettings` model

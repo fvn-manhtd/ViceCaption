@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		A1000001A1000001A1000001 /* VibeCaptionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002A1000002A1000002 /* VibeCaptionApp.swift */; };
 		A1000003A1000003A1000003 /* VibeCaptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004A1000004A1000004 /* VibeCaptionTests.swift */; };
+		B1000001B1000001B1000001 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000002B1000002B1000002 /* AppState.swift */; };
+		B1000003B1000003B1000003 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000004B1000004B1000004 /* AppStateManager.swift */; };
+		B1000005B1000005B1000005 /* AppStateManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000006B1000006B1000006 /* AppStateManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,6 +31,9 @@
 		A1000009A1000009A1000009 /* VibeCaptionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VibeCaptionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A100000AA100000AA100000A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A100000BA100000BA100000B /* VibeCaption.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VibeCaption.entitlements; sourceTree = "<group>"; };
+		B1000002B1000002B1000002 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		B1000004B1000004B1000004 /* AppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManager.swift; sourceTree = "<group>"; };
+		B1000006B1000006B1000006 /* AppStateManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +97,8 @@
 		A1000014A1000014A1000014 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				B1000002B1000002B1000002 /* AppState.swift */,
+				B1000004B1000004B1000004 /* AppStateManager.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -136,6 +144,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000004A1000004A1000004 /* VibeCaptionTests.swift */,
+				B1000006B1000006B1000006 /* AppStateManagerTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -255,6 +264,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000001A1000001A1000001 /* VibeCaptionApp.swift in Sources */,
+				B1000001B1000001B1000001 /* AppState.swift in Sources */,
+				B1000003B1000003B1000003 /* AppStateManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,6 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000003A1000003A1000003 /* VibeCaptionTests.swift in Sources */,
+				B1000005B1000005B1000005 /* AppStateManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

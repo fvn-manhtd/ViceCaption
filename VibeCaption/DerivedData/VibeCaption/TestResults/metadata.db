@@ -8,22 +8,195 @@
 	<dict>
 		<key>VibeCaptionTests</key>
 		<dict>
+			<key>AppStateManagerTests</key>
+			<dict>
+				<key>testBeginTranslationFromListening</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00069105625152587891</real>
+				</dict>
+				<key>testBeginTranslationThrowsFromIdle</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00056302547454833984</real>
+				</dict>
+				<key>testCallbackInvokedForEachTransition</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00069701671600341797</real>
+				</dict>
+				<key>testCanPauseProperty</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00055205821990966797</real>
+				</dict>
+				<key>testCanStartListeningProperty</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00061893463134765625</real>
+				</dict>
+				<key>testDisplayNames</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00055491924285888672</real>
+				</dict>
+				<key>testEndTranslationReturnsToListening</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00053298473358154297</real>
+				</dict>
+				<key>testInitialStateIsIdle</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00052309036254882812</real>
+				</dict>
+				<key>testIsCapturingProperty</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.000659942626953125</real>
+				</dict>
+				<key>testIsProcessingProperty</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00058901309967041016</real>
+				</dict>
+				<key>testModelsNotLoadedByDefault</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00056910514831542969</real>
+				</dict>
+				<key>testOverlayNotVisibleByDefault</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00061798095703125</real>
+				</dict>
+				<key>testOverlayVisibilityTracking</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00059390068054199219</real>
+				</dict>
+				<key>testPauseFromListening</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00068497657775878906</real>
+				</dict>
+				<key>testPauseFromTranslating</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.0045789480209350586</real>
+				</dict>
+				<key>testPauseThrowsWhenAlreadyPaused</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00062298774719238281</real>
+				</dict>
+				<key>testPauseThrowsWhenIdle</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.0006389617919921875</real>
+				</dict>
+				<key>testPreservedStateAvailableAfterShow</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.0021350383758544922</real>
+				</dict>
+				<key>testResumeFromPaused</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00060689449310302734</real>
+				</dict>
+				<key>testResumeThrowsWhenListening</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.0022720098495483398</real>
+				</dict>
+				<key>testResumeThrowsWhenNotPaused</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00054097175598144531</real>
+				</dict>
+				<key>testStartListeningSucceedsWhenModelsLoaded</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00052201747894287109</real>
+				</dict>
+				<key>testStartListeningThrowsWhenAlreadyListening</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.0012600421905517578</real>
+				</dict>
+				<key>testStartListeningThrowsWhenModelsNotLoaded</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00057196617126464844</real>
+				</dict>
+				<key>testStateChangeCallbackInvoked</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.0005340576171875</real>
+				</dict>
+				<key>testStatePreservedWhenOverlayHidden</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00049996376037597656</real>
+				</dict>
+				<key>testStopListeningFromIdleIsNoOp</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00049901008605957031</real>
+				</dict>
+				<key>testStopListeningFromListening</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00054693222045898438</real>
+				</dict>
+				<key>testStopListeningFromPaused</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.0025039911270141602</real>
+				</dict>
+				<key>testToggleFromIdleStartsListening</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00054502487182617188</real>
+				</dict>
+				<key>testToggleFromIdleThrowsIfModelsNotLoaded</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00054299831390380859</real>
+				</dict>
+				<key>testToggleFromListeningPauses</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.0019500255584716797</real>
+				</dict>
+				<key>testToggleFromPausedResumes</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00054800510406494141</real>
+				</dict>
+				<key>testToggleFromTranslatingPauses</key>
+				<dict>
+					<key>mrnet</key>
+					<real>0.00056600570678710938</real>
+				</dict>
+			</dict>
 			<key>VibeCaptionTests</key>
 			<dict>
 				<key>testBundleIdentifier</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.0013089179992675781</real>
+					<real>0.00080895423889160156</real>
 				</dict>
 				<key>testBundleInfo</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00058698654174804688</real>
+					<real>0.00060701370239257812</real>
 				</dict>
 				<key>testMinimumDeploymentTarget</key>
 				<dict>
 					<key>mrnet</key>
-					<real>0.00097298622131347656</real>
+					<real>0.00058495998382568359</real>
 				</dict>
 			</dict>
 		</dict>

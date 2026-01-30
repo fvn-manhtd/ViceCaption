@@ -48,6 +48,90 @@
 			<key>uniqueIdentifier</key>
 			<string>4EC048B0-B841-46B7-96EF-C467A9B2395B</string>
 		</dict>
+		<key>5E4A61A0-0705-4951-806C-2E1BD1D44AC1</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>5E4A61A0-0705-4951-806C-2E1BD1D44AC1.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>3</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791433531.15592802</real>
+			<key>timeStoppedRecording</key>
+			<real>791433533.30794597</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>5E4A61A0-0705-4951-806C-2E1BD1D44AC1</string>
+		</dict>
+		<key>67CDD360-6DBC-4189-AAF2-E501E2B5A309</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>67CDD360-6DBC-4189-AAF2-E501E2B5A309.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>E</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>1</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791433453.52138603</real>
+			<key>timeStoppedRecording</key>
+			<real>791433455.09111595</real>
+			<key>title</key>
+			<string>Building project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>67CDD360-6DBC-4189-AAF2-E501E2B5A309</string>
+		</dict>
 		<key>B56FEA89-BD85-4CAC-8E08-4CB7194D3A4E</key>
 		<dict>
 			<key>className</key>
