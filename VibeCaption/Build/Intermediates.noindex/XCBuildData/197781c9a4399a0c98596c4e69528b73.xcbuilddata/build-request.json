@@ -1,0 +1,67 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildAndRun"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "789e1a815a811697bf94e2fac4a56e3e8ee9ce91d0f796f552473e3858bf82a9"
+    },
+    {
+      "guid" : "789e1a815a811697bf94e2fac4a56e3e5aef80178416e57f7e3076e683a55a17"
+    }
+  ],
+  "containerPath" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/VibeCaption.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "macosx",
+      "sdk" : "macosx26.2",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Products",
+      "derivedDataPath" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/DerivedData/VibeCaption/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/DerivedData/VibeCaption/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "CLANG_COVERAGE_MAPPING" : "YES",
+          "CLANG_PROFILE_DATA_DIRECTORY" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/CodeCoverage/ProfileData",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "test",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}
