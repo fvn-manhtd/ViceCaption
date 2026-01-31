@@ -6,7 +6,7 @@
 	<integer>12</integer>
 	<key>logs</key>
 	<dict>
-		<key>03500C1C-EFD7-46EE-A0B4-20DF94D3BC5D</key>
+		<key>02562C6B-4EAE-4884-A92C-7DA903FE0268</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -15,7 +15,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>03500C1C-EFD7-46EE-A0B4-20DF94D3BC5D.xcactivitylog</string>
+			<string>02562C6B-4EAE-4884-A92C-7DA903FE0268.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -40,15 +40,15 @@
 			<key>signature</key>
 			<string>Testing project VibeCaption with scheme VibeCaption</string>
 			<key>timeStartedRecording</key>
-			<real>791451597.64674401</real>
+			<real>791522815.407745</real>
 			<key>timeStoppedRecording</key>
-			<real>791451598.58767796</real>
+			<real>791522816.25618601</real>
 			<key>title</key>
 			<string>Testing project VibeCaption with scheme VibeCaption</string>
 			<key>uniqueIdentifier</key>
-			<string>03500C1C-EFD7-46EE-A0B4-20DF94D3BC5D</string>
+			<string>02562C6B-4EAE-4884-A92C-7DA903FE0268</string>
 		</dict>
-		<key>53ECB37B-CCB8-4D87-8C46-1BB9AB9C0F95</key>
+		<key>1804EFCA-67DF-4640-9C67-60032D43E4DD</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -57,7 +57,217 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>53ECB37B-CCB8-4D87-8C46-1BB9AB9C0F95.xcactivitylog</string>
+			<string>1804EFCA-67DF-4640-9C67-60032D43E4DD.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522827.23069501</real>
+			<key>timeStoppedRecording</key>
+			<real>791522828.007056</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>1804EFCA-67DF-4640-9C67-60032D43E4DD</string>
+		</dict>
+		<key>3162C48C-38EA-47F9-A1EC-3761E2531A66</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>3162C48C-38EA-47F9-A1EC-3761E2531A66.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522812.50659597</real>
+			<key>timeStoppedRecording</key>
+			<real>791522813.24210405</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>3162C48C-38EA-47F9-A1EC-3761E2531A66</string>
+		</dict>
+		<key>4081821F-72B5-43B0-82D1-2CA73FA1B389</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>4081821F-72B5-43B0-82D1-2CA73FA1B389.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>E</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>1</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522963.20784903</real>
+			<key>timeStoppedRecording</key>
+			<real>791522964.32166302</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>4081821F-72B5-43B0-82D1-2CA73FA1B389</string>
+		</dict>
+		<key>819A6CA7-AD5C-48AD-8ED7-A0CF272C8D3F</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>819A6CA7-AD5C-48AD-8ED7-A0CF272C8D3F.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>3</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791523015.952263</real>
+			<key>timeStoppedRecording</key>
+			<real>791523017.62349105</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>819A6CA7-AD5C-48AD-8ED7-A0CF272C8D3F</string>
+		</dict>
+		<key>8EC99434-B45E-4E93-8293-851C4A26D18C</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>8EC99434-B45E-4E93-8293-851C4A26D18C.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522835.922858</real>
+			<key>timeStoppedRecording</key>
+			<real>791522836.61713898</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>8EC99434-B45E-4E93-8293-851C4A26D18C</string>
+		</dict>
+		<key>98D78F90-0E36-4A54-98C9-F6C8D569B383</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>98D78F90-0E36-4A54-98C9-F6C8D569B383.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -82,15 +292,15 @@
 			<key>signature</key>
 			<string>Testing project VibeCaption with scheme VibeCaption</string>
 			<key>timeStartedRecording</key>
-			<real>791451577.46706998</real>
+			<real>791522759.83544695</real>
 			<key>timeStoppedRecording</key>
-			<real>791451581.72151804</real>
+			<real>791522763.71162498</real>
 			<key>title</key>
 			<string>Testing project VibeCaption with scheme VibeCaption</string>
 			<key>uniqueIdentifier</key>
-			<string>53ECB37B-CCB8-4D87-8C46-1BB9AB9C0F95</string>
+			<string>98D78F90-0E36-4A54-98C9-F6C8D569B383</string>
 		</dict>
-		<key>E1E89A9A-6329-4489-842C-FD1C05089F1C</key>
+		<key>A535F75B-3C0E-4E99-9D8D-2D75F070D1D1</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -99,7 +309,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>E1E89A9A-6329-4489-842C-FD1C05089F1C.xcactivitylog</string>
+			<string>A535F75B-3C0E-4E99-9D8D-2D75F070D1D1.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -124,13 +334,307 @@
 			<key>signature</key>
 			<string>Testing project VibeCaption with scheme VibeCaption</string>
 			<key>timeStartedRecording</key>
-			<real>791451585.25867295</real>
+			<real>791522844.75042498</real>
 			<key>timeStoppedRecording</key>
-			<real>791451586.20325196</real>
+			<real>791522845.42830503</real>
 			<key>title</key>
 			<string>Testing project VibeCaption with scheme VibeCaption</string>
 			<key>uniqueIdentifier</key>
-			<string>E1E89A9A-6329-4489-842C-FD1C05089F1C</string>
+			<string>A535F75B-3C0E-4E99-9D8D-2D75F070D1D1</string>
+		</dict>
+		<key>B88A6B56-89C8-4A05-8E2B-20CC05448D60</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>B88A6B56-89C8-4A05-8E2B-20CC05448D60.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>E</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>1</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522971.07886398</real>
+			<key>timeStoppedRecording</key>
+			<real>791522972.19181705</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>B88A6B56-89C8-4A05-8E2B-20CC05448D60</string>
+		</dict>
+		<key>BEF43786-EA46-4CD1-A396-B2CFF4E397AE</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>BEF43786-EA46-4CD1-A396-B2CFF4E397AE.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>2</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522781.86555898</real>
+			<key>timeStoppedRecording</key>
+			<real>791522783.03368998</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>BEF43786-EA46-4CD1-A396-B2CFF4E397AE</string>
+		</dict>
+		<key>CB9E3B07-E09B-4E13-86E5-F8B29118AC8D</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>CB9E3B07-E09B-4E13-86E5-F8B29118AC8D.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522766.72773397</real>
+			<key>timeStoppedRecording</key>
+			<real>791522767.46676505</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>CB9E3B07-E09B-4E13-86E5-F8B29118AC8D</string>
+		</dict>
+		<key>D40EA13E-F1D4-4BBE-A328-32C7CC877AEB</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>D40EA13E-F1D4-4BBE-A328-32C7CC877AEB.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>E</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>1</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522960.86479294</real>
+			<key>timeStoppedRecording</key>
+			<real>791522962.20748603</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>D40EA13E-F1D4-4BBE-A328-32C7CC877AEB</string>
+		</dict>
+		<key>D7A2C288-3E8C-413B-BAFE-739D5FB11D0B</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>D7A2C288-3E8C-413B-BAFE-739D5FB11D0B.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522793.878865</real>
+			<key>timeStoppedRecording</key>
+			<real>791522794.62859595</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>D7A2C288-3E8C-413B-BAFE-739D5FB11D0B</string>
+		</dict>
+		<key>F10120DC-0315-49B8-9AF0-FCC1D8E0FBC6</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>F10120DC-0315-49B8-9AF0-FCC1D8E0FBC6.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791523020.16770506</real>
+			<key>timeStoppedRecording</key>
+			<real>791523020.95003498</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>F10120DC-0315-49B8-9AF0-FCC1D8E0FBC6</string>
+		</dict>
+		<key>F98D9089-CBA5-44FE-B28A-CAAB344AB967</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>F98D9089-CBA5-44FE-B28A-CAAB344AB967.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>VibeCaption project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>VibeCaption</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>timeStartedRecording</key>
+			<real>791522803.16322005</real>
+			<key>timeStoppedRecording</key>
+			<real>791522803.86337197</real>
+			<key>title</key>
+			<string>Testing project VibeCaption with scheme VibeCaption</string>
+			<key>uniqueIdentifier</key>
+			<string>F98D9089-CBA5-44FE-B28A-CAAB344AB967</string>
 		</dict>
 	</dict>
 </dict>

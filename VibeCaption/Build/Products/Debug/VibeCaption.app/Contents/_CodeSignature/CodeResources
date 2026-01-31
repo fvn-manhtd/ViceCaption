@@ -91,10 +91,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			vWlpX7gcxYfRgjdSgpcOvpPGVE8=
+			j3E0ZVNi3HcBteGU/8MK4JrqhXw=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"bd69695fb81cc587d182375282970ebe93c6544f"</string>
+			<string>cdhash H"8f7134655362dc7701b5e194ffc30ae09aea857c"</string>
 		</dict>
 		<key>MacOS/__preview.dylib</key>
 		<dict>
@@ -109,10 +109,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			q9JwEhaG3wBuVUwH900QojjWw/8=
+			EFVOHpdbP7gwNKHkTURzAnD4fpQ=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"abd270121686df006e554c07f74d10a238d6c3ff"</string>
+			<string>cdhash H"10554e1e975b3fb83034a1e44d44730270f87e94"</string>
 		</dict>
 	</dict>
 	<key>rules</key>

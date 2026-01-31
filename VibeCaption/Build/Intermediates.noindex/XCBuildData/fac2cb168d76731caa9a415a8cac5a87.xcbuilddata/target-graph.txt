@@ -1,2 +1,0 @@
-Target dependency graph (1 target)
-Target 'VibeCaption' in project 'VibeCaption' (no dependencies)

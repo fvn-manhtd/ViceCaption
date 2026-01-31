@@ -191,9 +191,10 @@ final class SettingsManagerTests: XCTestCase {
         XCTAssertTrue(result)
         XCTAssertTrue(FileManager.default.fileExists(atPath: testPath))
         
-        // Cleanup - remove parent
-        let parent = NSTemporaryDirectory() + "vibecaption-test-\(testPath.components(separatedBy: "/vibecaption-test-").last?.components(separatedBy: "/").first ?? "")"
-        try? FileManager.default.removeItem(atPath: (testPath as NSString).deletingLastPathComponent.deletingLastPathComponent)
+        // Cleanup - remove parent directories
+        let pathNS = testPath as NSString
+        let parentPath = (pathNS.deletingLastPathComponent as NSString).deletingLastPathComponent
+        try? FileManager.default.removeItem(atPath: parentPath)
     }
     
     // MARK: - Reset to Defaults Tests

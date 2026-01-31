@@ -16,6 +16,46 @@
     "swift-dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/AppStateManagerTests.swiftdeps",
     "swiftmodule" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/AppStateManagerTests~partial.swiftmodule"
   },
+  "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/SettingsManagerTests.swift" : {
+    "const-values" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/SettingsManagerTests.swiftconstvalues",
+    "dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/SettingsManagerTests.d",
+    "diagnostics" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/SettingsManagerTests.dia",
+    "index-unit-output-path" : "/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/SettingsManagerTests.o",
+    "llvm-bc" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/SettingsManagerTests.bc",
+    "object" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/SettingsManagerTests.o",
+    "swift-dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/SettingsManagerTests.swiftdeps",
+    "swiftmodule" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/SettingsManagerTests~partial.swiftmodule"
+  },
+  "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/TranscriptFormatterTests.swift" : {
+    "const-values" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptFormatterTests.swiftconstvalues",
+    "dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptFormatterTests.d",
+    "diagnostics" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptFormatterTests.dia",
+    "index-unit-output-path" : "/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptFormatterTests.o",
+    "llvm-bc" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptFormatterTests.bc",
+    "object" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptFormatterTests.o",
+    "swift-dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptFormatterTests.swiftdeps",
+    "swiftmodule" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptFormatterTests~partial.swiftmodule"
+  },
+  "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/TranscriptManagerTests.swift" : {
+    "const-values" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptManagerTests.swiftconstvalues",
+    "dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptManagerTests.d",
+    "diagnostics" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptManagerTests.dia",
+    "index-unit-output-path" : "/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptManagerTests.o",
+    "llvm-bc" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptManagerTests.bc",
+    "object" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptManagerTests.o",
+    "swift-dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptManagerTests.swiftdeps",
+    "swiftmodule" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptManagerTests~partial.swiftmodule"
+  },
+  "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/TranscriptModelsTests.swift" : {
+    "const-values" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptModelsTests.swiftconstvalues",
+    "dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptModelsTests.d",
+    "diagnostics" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptModelsTests.dia",
+    "index-unit-output-path" : "/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptModelsTests.o",
+    "llvm-bc" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptModelsTests.bc",
+    "object" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptModelsTests.o",
+    "swift-dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptModelsTests.swiftdeps",
+    "swiftmodule" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/TranscriptModelsTests~partial.swiftmodule"
+  },
   "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/VibeCaptionTests.swift" : {
     "const-values" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/VibeCaptionTests.swiftconstvalues",
     "dependencies" : "/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Build/Intermediates.noindex/VibeCaption.build/Debug/VibeCaptionTests.build/Objects-normal/arm64/VibeCaptionTests.d",

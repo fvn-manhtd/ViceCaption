@@ -1,2 +1,6 @@
 /Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/VibeCaptionTests.swift
 /Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/AppStateManagerTests.swift
+/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/SettingsManagerTests.swift
+/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/TranscriptModelsTests.swift
+/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/TranscriptFormatterTests.swift
+/Users/tranmanh/Desktop/LEARN/code/VibeCaption/VibeCaption/Tests/UnitTests/TranscriptManagerTests.swift

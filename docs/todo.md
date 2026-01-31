@@ -25,12 +25,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify persistence survives app restart
   - [x] test: Verify path validation
 
-- [ ] **4. Transcript Data Model & Formatting**
-  - [ ] Create data models: `TranscriptBlock`, `TranscriptSession`, `PauseMarker`
-  - [ ] Implement `TranscriptFormatter` (display vs file format)
-  - [ ] Implement `TranscriptManager`
-  - [ ] test: Verify timestamp and file formatting matches spec
-  - [ ] test: Verify clear/discard behavior
+- [x] **4. Transcript Data Model & Formatting** ✅
+  - [x] Create data models: `TranscriptBlock`, `TranscriptSession`, `PauseMarker`
+  - [x] Implement `TranscriptFormatter` (display vs file format)
+  - [x] Implement `TranscriptManager`
+  - [x] test: Verify timestamp and file formatting matches spec
+  - [x] test: Verify clear/discard behavior
 
 - [ ] **5. Error Handling Infrastructure**
   - [ ] Define `VibeCaptionError` types and `RecoveryAction` enum

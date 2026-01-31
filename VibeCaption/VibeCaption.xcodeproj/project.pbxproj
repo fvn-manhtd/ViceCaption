@@ -12,6 +12,17 @@
 		B1000001B1000001B1000001 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000002B1000002B1000002 /* AppState.swift */; };
 		B1000003B1000003B1000003 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000004B1000004B1000004 /* AppStateManager.swift */; };
 		B1000005B1000005B1000005 /* AppStateManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000006B1000006B1000006 /* AppStateManagerTests.swift */; };
+		C1000001C1000001C1000001 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1000002C1000002C1000002 /* AppSettings.swift */; };
+		C1000003C1000003C1000003 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1000004C1000004C1000004 /* SettingsManager.swift */; };
+		C1000005C1000005C1000005 /* SettingsManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1000006C1000006C1000006 /* SettingsManagerTests.swift */; };
+		D1000001D1000001D1000001 /* TranscriptBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000002D1000002D1000002 /* TranscriptBlock.swift */; };
+		D1000003D1000003D1000003 /* PauseMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000004D1000004D1000004 /* PauseMarker.swift */; };
+		D1000005D1000005D1000005 /* TranscriptSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000006D1000006D1000006 /* TranscriptSession.swift */; };
+		D1000007D1000007D1000007 /* TranscriptFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000008D1000008D1000008 /* TranscriptFormatter.swift */; };
+		D1000009D1000009D1000009 /* TranscriptManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D100000AD100000AD100000A /* TranscriptManager.swift */; };
+		D100000BD100000BD100000B /* TranscriptModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D100000CD100000CD100000C /* TranscriptModelsTests.swift */; };
+		D100000DD100000DD100000D /* TranscriptFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D100000ED100000ED100000E /* TranscriptFormatterTests.swift */; };
+		D100000FD100000FD100000F /* TranscriptManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000010D1000010D1000010 /* TranscriptManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +45,17 @@
 		B1000002B1000002B1000002 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		B1000004B1000004B1000004 /* AppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManager.swift; sourceTree = "<group>"; };
 		B1000006B1000006B1000006 /* AppStateManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManagerTests.swift; sourceTree = "<group>"; };
+		C1000002C1000002C1000002 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		C1000004C1000004C1000004 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
+		C1000006C1000006C1000006 /* SettingsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManagerTests.swift; sourceTree = "<group>"; };
+		D1000002D1000002D1000002 /* TranscriptBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptBlock.swift; sourceTree = "<group>"; };
+		D1000004D1000004D1000004 /* PauseMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PauseMarker.swift; sourceTree = "<group>"; };
+		D1000006D1000006D1000006 /* TranscriptSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptSession.swift; sourceTree = "<group>"; };
+		D1000008D1000008D1000008 /* TranscriptFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptFormatter.swift; sourceTree = "<group>"; };
+		D100000AD100000AD100000A /* TranscriptManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptManager.swift; sourceTree = "<group>"; };
+		D100000CD100000CD100000C /* TranscriptModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptModelsTests.swift; sourceTree = "<group>"; };
+		D100000ED100000ED100000E /* TranscriptFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptFormatterTests.swift; sourceTree = "<group>"; };
+		D1000010D1000010D1000010 /* TranscriptManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +121,9 @@
 			children = (
 				B1000002B1000002B1000002 /* AppState.swift */,
 				B1000004B1000004B1000004 /* AppStateManager.swift */,
+				C1000004C1000004C1000004 /* SettingsManager.swift */,
+				D1000008D1000008D1000008 /* TranscriptFormatter.swift */,
+				D100000AD100000AD100000A /* TranscriptManager.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -120,6 +145,10 @@
 		A1000017A1000017A1000017 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C1000002C1000002C1000002 /* AppSettings.swift */,
+				D1000002D1000002D1000002 /* TranscriptBlock.swift */,
+				D1000004D1000004D1000004 /* PauseMarker.swift */,
+				D1000006D1000006D1000006 /* TranscriptSession.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -145,6 +174,10 @@
 			children = (
 				A1000004A1000004A1000004 /* VibeCaptionTests.swift */,
 				B1000006B1000006B1000006 /* AppStateManagerTests.swift */,
+				C1000006C1000006C1000006 /* SettingsManagerTests.swift */,
+				D100000CD100000CD100000C /* TranscriptModelsTests.swift */,
+				D100000ED100000ED100000E /* TranscriptFormatterTests.swift */,
+				D1000010D1000010D1000010 /* TranscriptManagerTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -266,6 +299,13 @@
 				A1000001A1000001A1000001 /* VibeCaptionApp.swift in Sources */,
 				B1000001B1000001B1000001 /* AppState.swift in Sources */,
 				B1000003B1000003B1000003 /* AppStateManager.swift in Sources */,
+				C1000001C1000001C1000001 /* AppSettings.swift in Sources */,
+				C1000003C1000003C1000003 /* SettingsManager.swift in Sources */,
+				D1000001D1000001D1000001 /* TranscriptBlock.swift in Sources */,
+				D1000003D1000003D1000003 /* PauseMarker.swift in Sources */,
+				D1000005D1000005D1000005 /* TranscriptSession.swift in Sources */,
+				D1000007D1000007D1000007 /* TranscriptFormatter.swift in Sources */,
+				D1000009D1000009D1000009 /* TranscriptManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +315,10 @@
 			files = (
 				A1000003A1000003A1000003 /* VibeCaptionTests.swift in Sources */,
 				B1000005B1000005B1000005 /* AppStateManagerTests.swift in Sources */,
+				C1000005C1000005C1000005 /* SettingsManagerTests.swift in Sources */,
+				D100000BD100000BD100000B /* TranscriptModelsTests.swift in Sources */,
+				D100000DD100000DD100000D /* TranscriptFormatterTests.swift in Sources */,
+				D100000FD100000FD100000F /* TranscriptManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
