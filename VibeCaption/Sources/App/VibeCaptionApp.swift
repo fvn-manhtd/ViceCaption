@@ -41,6 +41,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Initialize the state manager
         setupStateManager()
         
+        // Initialize audio device detection
+        setupAudioDevices()
+        
         setupMenuBar()
     }
     
@@ -54,6 +57,47 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         logger.debug("AppStateManager initialized, current state: \(self.appStateManager.currentState.displayName)")
+    }
+    
+    /// Sets up audio device detection and logs available devices
+    private func setupAudioDevices() {
+        let audioManager = AudioDeviceManager.shared
+        
+        // Refresh devices (also done automatically on init, but ensures latest)
+        audioManager.refreshDevices()
+        
+        // Log detected devices
+        logger.info("=== Audio Devices Detected ===")
+        
+        logger.info("Input Devices (\(audioManager.inputDevices.count)):")
+        for device in audioManager.inputDevices {
+            let blackHoleTag = device.isBlackHole ? " (BlackHole)" : ""
+            logger.info("  - \(device.name) [\(device.uid)]\(blackHoleTag)")
+        }
+        
+        logger.info("Output Devices (\(audioManager.outputDevices.count)):")
+        for device in audioManager.outputDevices {
+            logger.info("  - \(device.name) [\(device.uid)]")
+        }
+        
+        // Log BlackHole status
+        if audioManager.isBlackHoleInstalled() {
+            if let blackHoleDevice = audioManager.getBlackHoleInputDevice() {
+                logger.info("✓ BlackHole detected: \(blackHoleDevice.name)")
+            }
+        } else {
+            logger.warning("⚠ BlackHole is NOT installed. System audio capture will not work.")
+        }
+        
+        // Log default devices
+        if let defaultInput = audioManager.getDefaultInputDevice() {
+            logger.debug("Default input device: \(defaultInput.name)")
+        }
+        if let defaultOutput = audioManager.getDefaultOutputDevice() {
+            logger.debug("Default output device: \(defaultOutput.name)")
+        }
+        
+        logger.info("=== End Audio Devices ===")
     }
     
     /// Sets up the menu bar status item with icon and menu

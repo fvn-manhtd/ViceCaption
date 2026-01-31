@@ -41,12 +41,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
 
 ## Phase 2: Audio Pipeline
 
-- [ ] **6. Audio Device Detection & Management**
-  - [ ] Create `AudioDevice` model
-  - [ ] Implement `AudioDeviceManager` (CoreAudio enumeration)
-  - [ ] Implement BlackHole detection logic
-  - [ ] test: Verify device enumeration and detection
-  - [ ] test: Verify device change handling
+- [x] **6. Audio Device Detection & Management** ✅
+  - [x] Create `AudioDevice` model
+  - [x] Implement `AudioDeviceManager` (CoreAudio enumeration)
+  - [x] Implement BlackHole detection logic
+  - [x] test: Verify device enumeration and detection
+  - [x] test: Verify device change handling
 
 - [ ] **7. Audio Capture Engine**
   - [ ] Implement `AudioCaptureEngine` (AVAudioEngine)

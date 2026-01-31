@@ -23,6 +23,14 @@
 		D100000BD100000BD100000B /* TranscriptModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D100000CD100000CD100000C /* TranscriptModelsTests.swift */; };
 		D100000DD100000DD100000D /* TranscriptFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D100000ED100000ED100000E /* TranscriptFormatterTests.swift */; };
 		D100000FD100000FD100000F /* TranscriptManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000010D1000010D1000010 /* TranscriptManagerTests.swift */; };
+		E1000001E1000001E1000001 /* VibeCaptionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002E1000002E1000002 /* VibeCaptionError.swift */; };
+		E1000003E1000003E1000003 /* RecoveryAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000004E1000004E1000004 /* RecoveryAction.swift */; };
+		E1000005E1000005E1000005 /* ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000006E1000006E1000006 /* ErrorHandler.swift */; };
+		E1000007E1000007E1000007 /* ErrorModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000008E1000008E1000008 /* ErrorModalView.swift */; };
+		E1000009E1000009E1000009 /* ErrorHandlingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E100000AE100000AE100000A /* ErrorHandlingTests.swift */; };
+		F1000001F1000001F1000001 /* AudioDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000002F1000002F1000002 /* AudioDevice.swift */; };
+		F1000003F1000003F1000003 /* AudioDeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000004F1000004F1000004 /* AudioDeviceManager.swift */; };
+		F1000005F1000005F1000005 /* AudioDeviceManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000006F1000006F1000006 /* AudioDeviceManagerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +64,14 @@
 		D100000CD100000CD100000C /* TranscriptModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptModelsTests.swift; sourceTree = "<group>"; };
 		D100000ED100000ED100000E /* TranscriptFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptFormatterTests.swift; sourceTree = "<group>"; };
 		D1000010D1000010D1000010 /* TranscriptManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptManagerTests.swift; sourceTree = "<group>"; };
+		E1000002E1000002E1000002 /* VibeCaptionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeCaptionError.swift; sourceTree = "<group>"; };
+		E1000004E1000004E1000004 /* RecoveryAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryAction.swift; sourceTree = "<group>"; };
+		E1000006E1000006E1000006 /* ErrorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandler.swift; sourceTree = "<group>"; };
+		E1000008E1000008E1000008 /* ErrorModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorModalView.swift; sourceTree = "<group>"; };
+		E100000AE100000AE100000A /* ErrorHandlingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandlingTests.swift; sourceTree = "<group>"; };
+		F1000002F1000002F1000002 /* AudioDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDevice.swift; sourceTree = "<group>"; };
+		F1000004F1000004F1000004 /* AudioDeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceManager.swift; sourceTree = "<group>"; };
+		F1000006F1000006F1000006 /* AudioDeviceManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDeviceManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,13 +140,25 @@
 				C1000004C1000004C1000004 /* SettingsManager.swift */,
 				D1000008D1000008D1000008 /* TranscriptFormatter.swift */,
 				D100000AD100000AD100000A /* TranscriptManager.swift */,
+				E1000006E1000006E1000006 /* ErrorHandler.swift */,
+				E100000CE100000CE100000C /* Errors */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		E100000CE100000CE100000C /* Errors */ = {
+			isa = PBXGroup;
+			children = (
+				E1000002E1000002E1000002 /* VibeCaptionError.swift */,
+				E1000004E1000004E1000004 /* RecoveryAction.swift */,
+			);
+			path = Errors;
 			sourceTree = "<group>";
 		};
 		A1000015A1000015A1000015 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				E1000008E1000008E1000008 /* ErrorModalView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -138,6 +166,7 @@
 		A1000016A1000016A1000016 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F1000004F1000004F1000004 /* AudioDeviceManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -149,6 +178,7 @@
 				D1000002D1000002D1000002 /* TranscriptBlock.swift */,
 				D1000004D1000004D1000004 /* PauseMarker.swift */,
 				D1000006D1000006D1000006 /* TranscriptSession.swift */,
+				F1000002F1000002F1000002 /* AudioDevice.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -178,6 +208,8 @@
 				D100000CD100000CD100000C /* TranscriptModelsTests.swift */,
 				D100000ED100000ED100000E /* TranscriptFormatterTests.swift */,
 				D1000010D1000010D1000010 /* TranscriptManagerTests.swift */,
+				E100000AE100000AE100000A /* ErrorHandlingTests.swift */,
+				F1000006F1000006F1000006 /* AudioDeviceManagerTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -306,6 +338,12 @@
 				D1000005D1000005D1000005 /* TranscriptSession.swift in Sources */,
 				D1000007D1000007D1000007 /* TranscriptFormatter.swift in Sources */,
 				D1000009D1000009D1000009 /* TranscriptManager.swift in Sources */,
+				E1000001E1000001E1000001 /* VibeCaptionError.swift in Sources */,
+				E1000003E1000003E1000003 /* RecoveryAction.swift in Sources */,
+				E1000005E1000005E1000005 /* ErrorHandler.swift in Sources */,
+				E1000007E1000007E1000007 /* ErrorModalView.swift in Sources */,
+				F1000001F1000001F1000001 /* AudioDevice.swift in Sources */,
+				F1000003F1000003F1000003 /* AudioDeviceManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,6 +357,8 @@
 				D100000BD100000BD100000B /* TranscriptModelsTests.swift in Sources */,
 				D100000DD100000DD100000D /* TranscriptFormatterTests.swift in Sources */,
 				D100000FD100000FD100000F /* TranscriptManagerTests.swift in Sources */,
+				E1000009E1000009E1000009 /* ErrorHandlingTests.swift in Sources */,
+				F1000005F1000005F1000005 /* AudioDeviceManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
