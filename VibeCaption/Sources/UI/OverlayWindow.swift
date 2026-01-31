@@ -153,5 +153,31 @@ class OverlayWindow: NSWindow {
         super.close()
     }
     
+    // MARK: - Content Attachment
+    
+    /// Attaches the SwiftUI overlay content to the window.
+    func attachContent(transcriptManager: TranscriptManager, settingsManager: SettingsManager, visibleLines: Int = 10) {
+        let view = OverlayContentView(
+            transcriptManager: transcriptManager,
+            settingsManager: settingsManager,
+            visibleLines: visibleLines
+        )
+        let hv = NSHostingView(rootView: AnyView(view))
+        hv.translatesAutoresizingMaskIntoConstraints = false
+        self.contentView = hv
+        
+        // Pin to window contentView bounds
+        if let contentView = self.contentView {
+            NSLayoutConstraint.activate([
+                hv.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+                hv.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+                hv.topAnchor.constraint(equalTo: contentView.topAnchor),
+                hv.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            ])
+        }
+        
+        self.layoutIfNeeded()
+    }
+    
 
 }

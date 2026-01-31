@@ -137,10 +137,10 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify visibility toggling
 
 - [ ] **18. Overlay Caption Display**
-  - [ ] Implement `OverlayContentView` (Scrollable list)
-  - [ ] Implement `CaptionBlockView` (Speaker, Timestamp, JA/EN text)
-  - [ ] Apply styling preferences (Font size, width)
-  - [ ] test: Verify rendering of block components
+  - [x] Implement `OverlayContentView` (Scrollable list)
+  - [x] Implement `CaptionBlockView` (Speaker, Timestamp, JA/EN text)
+  - [x] Apply styling preferences (Font size, width)
+  - [x] test: Verify rendering of block components
 
 - [ ] **19. Overlay Controls & Status**
   - [ ] Implement `OverlayControlsView` (Status dot, Pause button)

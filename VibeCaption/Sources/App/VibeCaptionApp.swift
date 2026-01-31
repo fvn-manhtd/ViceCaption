@@ -36,6 +36,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// The settings manager
     private(set) var settingsManager: SettingsManager!
     
+    /// The transcript manager powering the overlay content
+    private(set) var transcriptManager: TranscriptManager!
+    
     /// The menu bar controller
     private var menuBarController: MenuBarController?
     
@@ -75,6 +78,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Initialize App State Manager
         appStateManager = AppStateManager()
         
+        // Initialize Transcript Manager
+        transcriptManager = TranscriptManager(settingsManager: settingsManager)
+        
         // Subscribe to state changes for debugging
         appStateManager.onStateChange = { [weak self] oldState, newState in
             self?.logger.info("App state changed: \(oldState.displayName) → \(newState.displayName)")
@@ -87,6 +93,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let viewModel = OverlayViewModel()
         self.overlayViewModel = viewModel
         self.overlayWindow = OverlayWindow(viewModel: viewModel)
+        
+        // Attach SwiftUI content to the overlay window
+        if let overlayWindow, let transcriptManager, let settingsManager {
+            overlayWindow.attachContent(
+                transcriptManager: transcriptManager,
+                settingsManager: settingsManager,
+                visibleLines: 10
+            )
+        }
         
         // Bind AppStateManager.isOverlayVisible <-> OverlayViewModel.isVisible
         

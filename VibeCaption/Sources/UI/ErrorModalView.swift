@@ -165,27 +165,25 @@ public struct ErrorModalContainer: View {
 // MARK: - Preview
 
 #if DEBUG
-#Preview("Audio Error") {
-    ErrorModalView(
-        error: .audioRoutingFailed(device: "BlackHole 2ch", reason: "Device not available"),
-        onDismiss: {},
-        onRecovery: {}
-    )
-}
-
-#Preview("Model Error") {
-    ErrorModalView(
-        error: .modelMissing(modelName: "Whisper"),
-        onDismiss: {},
-        onRecovery: {}
-    )
-}
-
-#Preview("Out of Memory") {
-    ErrorModalView(
-        error: .outOfMemory,
-        onDismiss: {},
-        onRecovery: {}
-    )
+struct ErrorModalView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            ErrorModalView(
+                error: .audioRoutingFailed(device: "BlackHole 2ch", reason: "Device not available"),
+                onDismiss: {},
+                onRecovery: {}
+            )
+            ErrorModalView(
+                error: .modelMissing(modelName: "Whisper"),
+                onDismiss: {},
+                onRecovery: {}
+            )
+            ErrorModalView(
+                error: .outOfMemory,
+                onDismiss: {},
+                onRecovery: {}
+            )
+        }
+    }
 }
 #endif

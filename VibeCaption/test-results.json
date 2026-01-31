@@ -1,0 +1,947 @@
+{
+  "_type" : {
+    "_name" : "ActionsInvocationRecord"
+  },
+  "actions" : {
+    "_type" : {
+      "_name" : "Array"
+    },
+    "_values" : [
+      {
+        "_type" : {
+          "_name" : "ActionRecord"
+        },
+        "actionResult" : {
+          "_type" : {
+            "_name" : "ActionResult"
+          },
+          "coverage" : {
+            "_type" : {
+              "_name" : "CodeCoverageInfo"
+            },
+            "hasCoverageData" : {
+              "_type" : {
+                "_name" : "Bool"
+              },
+              "_value" : "true"
+            }
+          },
+          "diagnosticsRef" : {
+            "_type" : {
+              "_name" : "Reference"
+            },
+            "id" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "0~iNtwyWBBEVitReDAmwrDZ3EmzHr5rQAvTpL-cKHicTnTycyHMyOT7L37q1SAKWhkMSSAgXn1iv9GoWnH3Ms30Q=="
+            }
+          },
+          "issues" : {
+            "_type" : {
+              "_name" : "ResultIssueSummaries"
+            },
+            "errorSummaries" : {
+              "_type" : {
+                "_name" : "Array"
+              },
+              "_values" : [
+                {
+                  "_type" : {
+                    "_name" : "IssueSummary"
+                  },
+                  "issueType" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Uncategorized"
+                  },
+                  "message" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Testing cancelled because the build failed."
+                  }
+                }
+              ]
+            }
+          },
+          "logRef" : {
+            "_type" : {
+              "_name" : "Reference"
+            },
+            "id" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "0~Wn3d08EGlLaolEvVFD5UXb0S5Awm43e15LE6Xw3CWLYSxLTYUWK52EsaZopUqDVwJaqPhuYpiEfOe9TStCbNwQ=="
+            },
+            "targetType" : {
+              "_type" : {
+                "_name" : "TypeDefinition"
+              },
+              "name" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "ActivityLogSection"
+              }
+            }
+          },
+          "metrics" : {
+            "_type" : {
+              "_name" : "ResultMetrics"
+            },
+            "errorCount" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "1"
+            }
+          },
+          "resultName" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "action"
+          },
+          "status" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "cancelled"
+          },
+          "testsRef" : {
+            "_type" : {
+              "_name" : "Reference"
+            },
+            "id" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "0~3tdcR6bwWxdzU22qUxcKe3glLeiYH8_XaDCQvx9TbExlAgQti1qiRQMlvHkmkDeb8RlcrUaKL8To60JB7E1wdA=="
+            },
+            "targetType" : {
+              "_type" : {
+                "_name" : "TypeDefinition"
+              },
+              "name" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "ActionTestPlanRunSummaries"
+              }
+            }
+          }
+        },
+        "buildResult" : {
+          "_type" : {
+            "_name" : "ActionResult"
+          },
+          "coverage" : {
+            "_type" : {
+              "_name" : "CodeCoverageInfo"
+            }
+          },
+          "issues" : {
+            "_type" : {
+              "_name" : "ResultIssueSummaries"
+            },
+            "errorSummaries" : {
+              "_type" : {
+                "_name" : "Array"
+              },
+              "_values" : [
+                {
+                  "_type" : {
+                    "_name" : "IssueSummary"
+                  },
+                  "documentLocationInCreatingWorkspace" : {
+                    "_type" : {
+                      "_name" : "DocumentLocation"
+                    },
+                    "concreteTypeName" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "DVTTextDocumentLocation"
+                    },
+                    "url" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/UI\/Overlay\/OverlayContentView.swift#EndingColumnNumber=17&EndingLineNumber=59&StartingColumnNumber=17&StartingLineNumber=59&Timestamp=791554998.302132"
+                    }
+                  },
+                  "issueType" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Swift Compiler Error"
+                  },
+                  "message" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "'onChange(of:initial:_:)' is only available in macOS 14.0 or newer"
+                  }
+                }
+              ]
+            },
+            "warningSummaries" : {
+              "_type" : {
+                "_name" : "Array"
+              },
+              "_values" : [
+                {
+                  "_type" : {
+                    "_name" : "IssueSummary"
+                  },
+                  "documentLocationInCreatingWorkspace" : {
+                    "_type" : {
+                      "_name" : "DocumentLocation"
+                    },
+                    "concreteTypeName" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "DVTTextDocumentLocation"
+                    },
+                    "url" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/UI\/ErrorModalView.swift#EndingColumnNumber=58&EndingLineNumber=147&StartingColumnNumber=58&StartingLineNumber=147&Timestamp=791554998.302132"
+                    }
+                  },
+                  "issueType" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Swift Compiler Warning"
+                  },
+                  "message" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode"
+                  }
+                },
+                {
+                  "_type" : {
+                    "_name" : "IssueSummary"
+                  },
+                  "documentLocationInCreatingWorkspace" : {
+                    "_type" : {
+                      "_name" : "DocumentLocation"
+                    },
+                    "concreteTypeName" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "DVTTextDocumentLocation"
+                    },
+                    "url" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/Services\/AudioDeviceManager.swift#EndingColumnNumber=12&EndingLineNumber=330&StartingColumnNumber=12&StartingLineNumber=330&Timestamp=791554998.302132"
+                    }
+                  },
+                  "issueType" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "No-usage"
+                  },
+                  "message" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Initialization of immutable value 'bufferCount' was never used; consider replacing with assignment to '_' or removing it"
+                  }
+                },
+                {
+                  "_type" : {
+                    "_name" : "IssueSummary"
+                  },
+                  "documentLocationInCreatingWorkspace" : {
+                    "_type" : {
+                      "_name" : "DocumentLocation"
+                    },
+                    "concreteTypeName" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "DVTTextDocumentLocation"
+                    },
+                    "url" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/Services\/AudioDeviceManager.swift#EndingColumnNumber=12&EndingLineNumber=252&StartingColumnNumber=12&StartingLineNumber=252&Timestamp=791554998.302132"
+                    }
+                  },
+                  "issueType" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Swift Compiler Warning"
+                  },
+                  "message" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference."
+                  }
+                },
+                {
+                  "_type" : {
+                    "_name" : "IssueSummary"
+                  },
+                  "documentLocationInCreatingWorkspace" : {
+                    "_type" : {
+                      "_name" : "DocumentLocation"
+                    },
+                    "concreteTypeName" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "DVTTextDocumentLocation"
+                    },
+                    "url" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/Services\/AudioDeviceManager.swift#EndingColumnNumber=12&EndingLineNumber=279&StartingColumnNumber=12&StartingLineNumber=279&Timestamp=791554998.302132"
+                    }
+                  },
+                  "issueType" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Swift Compiler Warning"
+                  },
+                  "message" : {
+                    "_type" : {
+                      "_name" : "String"
+                    },
+                    "_value" : "Forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference."
+                  }
+                }
+              ]
+            }
+          },
+          "logRef" : {
+            "_type" : {
+              "_name" : "Reference"
+            },
+            "id" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "0~vES4cnPcKTu9F0005v8qNg1ZkAFqljzjpu1zfThaWRq82pvcbLPNtzjJYQohVAqXGP2RHJlTJFuh3BaquDFatQ=="
+            },
+            "targetType" : {
+              "_type" : {
+                "_name" : "TypeDefinition"
+              },
+              "name" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "ActivityLogSection"
+              }
+            }
+          },
+          "metrics" : {
+            "_type" : {
+              "_name" : "ResultMetrics"
+            },
+            "errorCount" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "1"
+            },
+            "warningCount" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "4"
+            }
+          },
+          "resultName" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "build"
+          },
+          "status" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "failed"
+          }
+        },
+        "endedTime" : {
+          "_type" : {
+            "_name" : "Date"
+          },
+          "_value" : "2026-01-31T21:23:27.189+0900"
+        },
+        "runDestination" : {
+          "_type" : {
+            "_name" : "ActionRunDestinationRecord"
+          },
+          "displayName" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "My Mac"
+          },
+          "localComputerRecord" : {
+            "_type" : {
+              "_name" : "ActionDeviceRecord"
+            },
+            "busSpeedInMHz" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "0"
+            },
+            "cpuCount" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "1"
+            },
+            "cpuKind" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "Apple M1 Pro"
+            },
+            "cpuSpeedInMHz" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "0"
+            },
+            "identifier" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "00006000-000438C93623801E"
+            },
+            "isConcreteDevice" : {
+              "_type" : {
+                "_name" : "Bool"
+              },
+              "_value" : "true"
+            },
+            "logicalCPUCoresPerPackage" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "8"
+            },
+            "modelCode" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "MacBookPro18,3"
+            },
+            "modelName" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "MacBook Pro"
+            },
+            "modelUTI" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "com.apple.macbookpro-14-2021"
+            },
+            "name" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "My Mac"
+            },
+            "nativeArchitecture" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "arm64e"
+            },
+            "operatingSystemVersion" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "15.6.1"
+            },
+            "operatingSystemVersionWithBuildNumber" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "15.6.1 (24G90)"
+            },
+            "physicalCPUCoresPerPackage" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "8"
+            },
+            "platformRecord" : {
+              "_type" : {
+                "_name" : "ActionPlatformRecord"
+              },
+              "identifier" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "com.apple.platform.macosx"
+              },
+              "userDescription" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "macOS"
+              }
+            },
+            "ramSizeInMegabytes" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "16384"
+            }
+          },
+          "targetArchitecture" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "arm64"
+          },
+          "targetDeviceRecord" : {
+            "_type" : {
+              "_name" : "ActionDeviceRecord"
+            },
+            "busSpeedInMHz" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "0"
+            },
+            "cpuCount" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "1"
+            },
+            "cpuKind" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "Apple M1 Pro"
+            },
+            "cpuSpeedInMHz" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "0"
+            },
+            "identifier" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "00006000-000438C93623801E"
+            },
+            "isConcreteDevice" : {
+              "_type" : {
+                "_name" : "Bool"
+              },
+              "_value" : "true"
+            },
+            "logicalCPUCoresPerPackage" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "8"
+            },
+            "modelCode" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "MacBookPro18,3"
+            },
+            "modelName" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "MacBook Pro"
+            },
+            "modelUTI" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "com.apple.macbookpro-14-2021"
+            },
+            "name" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "My Mac"
+            },
+            "nativeArchitecture" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "arm64e"
+            },
+            "operatingSystemVersion" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "15.6.1"
+            },
+            "operatingSystemVersionWithBuildNumber" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "15.6.1 (24G90)"
+            },
+            "physicalCPUCoresPerPackage" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "8"
+            },
+            "platformRecord" : {
+              "_type" : {
+                "_name" : "ActionPlatformRecord"
+              },
+              "identifier" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "com.apple.platform.macosx"
+              },
+              "userDescription" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "macOS"
+              }
+            },
+            "ramSizeInMegabytes" : {
+              "_type" : {
+                "_name" : "Int"
+              },
+              "_value" : "16384"
+            }
+          },
+          "targetSDKRecord" : {
+            "_type" : {
+              "_name" : "ActionSDKRecord"
+            },
+            "identifier" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "macosx26.2"
+            },
+            "name" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "macOS 26.2"
+            },
+            "operatingSystemVersion" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "26.2"
+            }
+          }
+        },
+        "schemeCommandName" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "Test"
+        },
+        "schemeTaskName" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "BuildAndAction"
+        },
+        "startedTime" : {
+          "_type" : {
+            "_name" : "Date"
+          },
+          "_value" : "2026-01-31T21:23:17.948+0900"
+        },
+        "testPlanName" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "VibeCaption"
+        },
+        "title" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "Testing project VibeCaption with scheme VibeCaption"
+        }
+      }
+    ]
+  },
+  "issues" : {
+    "_type" : {
+      "_name" : "ResultIssueSummaries"
+    },
+    "errorSummaries" : {
+      "_type" : {
+        "_name" : "Array"
+      },
+      "_values" : [
+        {
+          "_type" : {
+            "_name" : "IssueSummary"
+          },
+          "documentLocationInCreatingWorkspace" : {
+            "_type" : {
+              "_name" : "DocumentLocation"
+            },
+            "concreteTypeName" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "DVTTextDocumentLocation"
+            },
+            "url" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/UI\/Overlay\/OverlayContentView.swift#EndingColumnNumber=17&EndingLineNumber=59&StartingColumnNumber=17&StartingLineNumber=59&Timestamp=791554998.302132"
+            }
+          },
+          "issueType" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Swift Compiler Error"
+          },
+          "message" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "'onChange(of:initial:_:)' is only available in macOS 14.0 or newer"
+          }
+        },
+        {
+          "_type" : {
+            "_name" : "IssueSummary"
+          },
+          "issueType" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Uncategorized"
+          },
+          "message" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Testing cancelled because the build failed."
+          }
+        }
+      ]
+    },
+    "warningSummaries" : {
+      "_type" : {
+        "_name" : "Array"
+      },
+      "_values" : [
+        {
+          "_type" : {
+            "_name" : "IssueSummary"
+          },
+          "documentLocationInCreatingWorkspace" : {
+            "_type" : {
+              "_name" : "DocumentLocation"
+            },
+            "concreteTypeName" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "DVTTextDocumentLocation"
+            },
+            "url" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/UI\/ErrorModalView.swift#EndingColumnNumber=58&EndingLineNumber=147&StartingColumnNumber=58&StartingLineNumber=147&Timestamp=791554998.302132"
+            }
+          },
+          "issueType" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Swift Compiler Warning"
+          },
+          "message" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Main actor-isolated static property 'shared' can not be referenced from a nonisolated context; this is an error in the Swift 6 language mode"
+          }
+        },
+        {
+          "_type" : {
+            "_name" : "IssueSummary"
+          },
+          "documentLocationInCreatingWorkspace" : {
+            "_type" : {
+              "_name" : "DocumentLocation"
+            },
+            "concreteTypeName" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "DVTTextDocumentLocation"
+            },
+            "url" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/Services\/AudioDeviceManager.swift#EndingColumnNumber=12&EndingLineNumber=330&StartingColumnNumber=12&StartingLineNumber=330&Timestamp=791554998.302132"
+            }
+          },
+          "issueType" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "No-usage"
+          },
+          "message" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Initialization of immutable value 'bufferCount' was never used; consider replacing with assignment to '_' or removing it"
+          }
+        },
+        {
+          "_type" : {
+            "_name" : "IssueSummary"
+          },
+          "documentLocationInCreatingWorkspace" : {
+            "_type" : {
+              "_name" : "DocumentLocation"
+            },
+            "concreteTypeName" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "DVTTextDocumentLocation"
+            },
+            "url" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/Services\/AudioDeviceManager.swift#EndingColumnNumber=12&EndingLineNumber=252&StartingColumnNumber=12&StartingLineNumber=252&Timestamp=791554998.302132"
+            }
+          },
+          "issueType" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Swift Compiler Warning"
+          },
+          "message" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference."
+          }
+        },
+        {
+          "_type" : {
+            "_name" : "IssueSummary"
+          },
+          "documentLocationInCreatingWorkspace" : {
+            "_type" : {
+              "_name" : "DocumentLocation"
+            },
+            "concreteTypeName" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "DVTTextDocumentLocation"
+            },
+            "url" : {
+              "_type" : {
+                "_name" : "String"
+              },
+              "_value" : "file:\/\/\/Users\/tranmanh\/Desktop\/LEARN\/code\/VibeCaption\/VibeCaption\/Sources\/Services\/AudioDeviceManager.swift#EndingColumnNumber=12&EndingLineNumber=279&StartingColumnNumber=12&StartingLineNumber=279&Timestamp=791554998.302132"
+            }
+          },
+          "issueType" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Swift Compiler Warning"
+          },
+          "message" : {
+            "_type" : {
+              "_name" : "String"
+            },
+            "_value" : "Forming 'UnsafeMutableRawPointer' to a variable of type 'CFString'; this is likely incorrect because 'CFString' may contain an object reference."
+          }
+        }
+      ]
+    }
+  },
+  "metadataRef" : {
+    "_type" : {
+      "_name" : "Reference"
+    },
+    "id" : {
+      "_type" : {
+        "_name" : "String"
+      },
+      "_value" : "0~cJEKvzNS2jPr50X-KYarsJQGd7njfrz-YC_BG9oqtMXycHG9c1XibReoE62WDYDfqsAREI1YYn5v2j8ys4Kd4w=="
+    },
+    "targetType" : {
+      "_type" : {
+        "_name" : "TypeDefinition"
+      },
+      "name" : {
+        "_type" : {
+          "_name" : "String"
+        },
+        "_value" : "ActionsInvocationMetadata"
+      }
+    }
+  },
+  "metrics" : {
+    "_type" : {
+      "_name" : "ResultMetrics"
+    },
+    "errorCount" : {
+      "_type" : {
+        "_name" : "Int"
+      },
+      "_value" : "2"
+    },
+    "warningCount" : {
+      "_type" : {
+        "_name" : "Int"
+      },
+      "_value" : "4"
+    }
+  }
+}
