@@ -11,6 +11,7 @@ class CaptionPipeline: ObservableObject {
     private let captureEngine: AudioCaptureEngine
     private let vad: VoiceActivityDetector
     private let segmenter: AudioSegmenter
+    private let asrService: ASRServiceProtocol
     
     private let logger = Logger(subsystem: "com.vibecaption", category: "CaptionPipeline")
     
@@ -24,6 +25,7 @@ class CaptionPipeline: ObservableObject {
         self.captureEngine = captureEngine
         self.vad = VoiceActivityDetector()
         self.segmenter = AudioSegmenter()
+        self.asrService = ASRServiceFactory.getService(useMock: true)
         
         setupPipeline()
     }
@@ -61,10 +63,30 @@ class CaptionPipeline: ObservableObject {
     
     private func handleSegment(_ segment: AudioSegment) {
         logger.info("Generated Audio Segment: \(segment.duration)s, \(segment.estimatedWordCount) est. words")
-        
-        // 3. Queue for ASR (Stub)
-        // ASRQueue.shared.enqueue(segment)
-        // print("Sent to ASR queue")
+
+        // Process ASR for the completed segment
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                let result = try await self.asrService.transcribe(segment)
+                let blocks = self.convertToTranscriptBlocks(result)
+                let joined = blocks.map { $0.japaneseText }.joined(separator: " | ")
+                self.logger.info("ASR Result: \(joined)")
+            } catch {
+                self.logger.error("ASR failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // MARK: - Conversion
+    private func convertToTranscriptBlocks(_ asr: ASRResult) -> [TranscriptBlock] {
+        asr.segments.map { seg in
+            TranscriptBlock(
+                speakerLabel: seg.speakerID.map { "Speaker \($0)" },
+                japaneseText: seg.text,
+                confidence: seg.confidence
+            )
+        }
     }
     
     // MARK: - Control

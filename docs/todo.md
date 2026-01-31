@@ -85,12 +85,14 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify model path generation
   - [x] test: Verify checksum validation
 
-- [ ] **12. ASR Service Interface & Mock**
-  - [ ] Define `ASRServiceProtocol` and `ASRResult`
-  - [ ] Implement `MockASRService` (Configurable delays/errors)
-  - [ ] Implement `ASRServiceFactory`
-  - [ ] test: Verify mock returns expected segments
-  - [ ] test: Verify factory switching
+- [x] **12. ASR Service Interface & Mock** ✅
+  - [x] Define `ASRServiceProtocol`, `ASRResult`, `ASRSegment`
+  - [x] Implement `MockASRService` (configurable delays/errors/empty + speaker IDs)
+  - [x] Implement `ASRServiceFactory` (mock in debug/tests)
+  - [x] test: Verify mock returns expected segments and delays
+  - [x] test: Verify failure simulation and speaker consistency
+  - [x] test: Verify factory switching
+  - [x] Integration: pipeline now calls ASR and logs results; conversion to `TranscriptBlock` added
 
 - [ ] **13. Translation Service Interface & Mock**
   - [ ] Define `TranslationServiceProtocol` and `TranslationResult`
