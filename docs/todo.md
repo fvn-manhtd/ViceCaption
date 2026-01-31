@@ -48,12 +48,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify device enumeration and detection
   - [x] test: Verify device change handling
 
-- [ ] **7. Audio Capture Engine**
-  - [ ] Implement `AudioCaptureEngine` (AVAudioEngine)
-  - [ ] Implement `AudioRingBuffer` (Thread-safe)
-  - [ ] Implement RMS level calculation for meter
-  - [ ] test: Verify ring buffer read/write/overflow
-  - [ ] test: Verify engine configuration
+- [x] **7. Audio Capture Engine** ✅
+  - [x] Implement `AudioCaptureEngine` (AVAudioEngine)
+  - [x] Implement `AudioRingBuffer` (Thread-safe)
+  - [x] Implement RMS level calculation for meter
+  - [x] test: Verify ring buffer read/write/overflow
+  - [x] test: Verify engine configuration
 
 - [ ] **8. Audio Monitoring Passthrough**
   - [ ] Add monitoring support to `AudioCaptureEngine`
