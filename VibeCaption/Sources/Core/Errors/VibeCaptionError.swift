@@ -94,7 +94,7 @@ extension VibeCaptionError {
         case .inputDeviceMismatch(let expected, let actual):
             return "Audio input device mismatch: expected \"\(expected)\" but found \"\(actual)\""
             
-        case .feedbackLoopDetected(let inputDevice, let outputDevice):
+        case .feedbackLoopDetected(let inputDevice, _):
             return "Audio feedback loop detected: \"\(inputDevice)\" cannot be used for both input and output"
             
         case .modelMissing(let modelName):
