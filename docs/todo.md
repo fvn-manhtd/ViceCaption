@@ -123,11 +123,11 @@ This checklist tracks the implementation progress of VibeCaption, following the 
 
 ## Phase 4: UI Components
 
-- [ ] **16. Menu Bar Implementation**
-  - [ ] Implement `MenuBarController`
-  - [ ] Connect menu items to `AppStateManager`
-  - [ ] Implement dynamic icon states (Listening/Paused)
-  - [ ] test: Verify menu item state updates
+- [x] **16. Menu Bar Implementation** ✅
+  - [x] Implement `MenuBarController`
+  - [x] Connect menu items to `AppStateManager`
+  - [x] Implement dynamic icon states (Listening/Paused)
+  - [x] test: Verify menu item state updates
 
 - [ ] **17. Floating Overlay Window Foundation**
   - [ ] Implement `OverlayWindow` (NSWindow subclass, auto-save position)

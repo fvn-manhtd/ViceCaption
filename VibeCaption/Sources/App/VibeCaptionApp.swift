@@ -32,6 +32,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// The application state manager - single source of truth for app state.
     private(set) var appStateManager: AppStateManager!
     
+    /// The settings manager
+    private(set) var settingsManager: SettingsManager!
+    
+    /// The menu bar controller
+    private var menuBarController: MenuBarController?
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
         logger.info("VibeCaption launched")
         
@@ -39,16 +45,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
         
         // Initialize the state manager
-        setupStateManager()
+        setupManagers()
         
         // Initialize audio device detection
         setupAudioDevices()
         
-        setupMenuBar()
+        // Setup Menu Bar Controller
+        menuBarController = MenuBarController(
+            appStateManager: appStateManager,
+            settingsManager: settingsManager
+        )
     }
     
-    /// Sets up the AppStateManager and subscribes to state changes
-    private func setupStateManager() {
+    /// Sets up the AppStateManager and SettingsManager
+    private func setupManagers() {
+        // Initialize Settings Manager
+        settingsManager = SettingsManager()
+        
+        // Initialize App State Manager
         appStateManager = AppStateManager()
         
         // Subscribe to state changes for debugging
@@ -56,7 +70,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self?.logger.info("App state changed: \(oldState.displayName) → \(newState.displayName)")
         }
         
-        logger.debug("AppStateManager initialized, current state: \(self.appStateManager.currentState.displayName)")
+        logger.debug("Managers initialized, current state: \(self.appStateManager.currentState.displayName)")
     }
     
     /// Sets up audio device detection and logs available devices
@@ -98,35 +112,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         logger.info("=== End Audio Devices ===")
-    }
-    
-    /// Sets up the menu bar status item with icon and menu
-    private func setupMenuBar() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        
-        if let button = statusItem?.button {
-            // Use SF Symbol for the menu bar icon
-            if let image = NSImage(systemSymbolName: "captions.bubble", accessibilityDescription: "VibeCaption") {
-                image.isTemplate = true
-                button.image = image
-            }
-            button.toolTip = "VibeCaption"
-        }
-        
-        // Create the menu
-        let menu = NSMenu()
-        
-        // Quit menu item
-        let quitItem = NSMenuItem(title: "Quit VibeCaption", action: #selector(quitApp), keyEquivalent: "q")
-        quitItem.target = self
-        menu.addItem(quitItem)
-        
-        statusItem?.menu = menu
-    }
-    
-    /// Quits the application
-    @objc private func quitApp() {
-        logger.info("VibeCaption quitting")
-        NSApplication.shared.terminate(nil)
     }
 }
