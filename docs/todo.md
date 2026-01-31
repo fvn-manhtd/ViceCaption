@@ -98,12 +98,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [ ] Implement `TranslationServiceFactory`
   - [ ] test: Verify mock returns expected translations
 
-- [ ] **14. Real VibeVoice-ASR Integration**
-  - [ ] Implement `VibeVoiceASRService`
-  - [ ] Integrate VibeVoice runtime dependencies
+- [ ] **14. Real Whisper ASR Integration**
+  - [ ] Implement `WhisperASRService`
+  - [ ] Integrate Whisper runtime dependencies (e.g., whisper.cpp wrapper)
   - [ ] Implement micro-batching for near-realtime
-  - [ ] test: Verify transcribing sample audio
-  - [ ] test: Verify speaker diarization labels
+  - [ ] test: Verify transcribing sample Japanese audio with timestamps
+  - [ ] test: Verify error handling and memory usage
 
 - [ ] **15. Real NLLB-200 CoreML Translation Integration**
   - [ ] Implement `NLLBTranslationService`

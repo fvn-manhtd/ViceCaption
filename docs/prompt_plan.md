@@ -22,7 +22,7 @@
 │  ├── Audio Capture Service (AVAudioEngine)                      │
 │  ├── Audio Preprocessing (Noise Suppression)                    │
 │  ├── VAD & Segmentation                                         │
-│  ├── ASR Service (VibeVoice-ASR)                                │
+│  ├── ASR Service (Whisper)                                      │
 │  └── Translation Service (NLLB-200 CoreML)                      │
 ├─────────────────────────────────────────────────────────────────┤
 │  Data Layer                                                     │
@@ -751,7 +751,7 @@ nllb-200-600m-optional (optional “quality mode”)
 ```text
 Building on model management, create the ASR service interface with a mock implementation.
 
-Context: We'll integrate VibeVoice-ASR later, but first need a clean interface and mock for testing the full pipeline.
+Context: We'll integrate Whisper ASR later, but first need a clean interface and mock for testing the full pipeline.
 
 Requirements:
 1. Create ASR protocol and models in /Sources/Services/ASR/:
@@ -871,36 +871,36 @@ Deliverables:
 
 ---
 
-### Prompt 14: Real VibeVoice-ASR Integration
+### Prompt 14: Real Whisper ASR Integration
 
 ```text
-Building on the mock ASR, implement the real VibeVoice-ASR integration.
+Building on the mock ASR, implement the real Whisper integration.
 
-Context: VibeVoice-ASR is a Microsoft open-source model for rich transcription with speaker diarization. We need to integrate it for on-device Japanese ASR.
+Context: Whisper is an open-source ASR model suitable for on-device transcription (e.g., via whisper.cpp or a Swift-compatible wrapper). It provides strong transcription quality and timestamps; speaker diarization is not built-in and is out-of-scope for v1.
 
 Requirements:
 1. Research and setup:
-   - Add VibeVoice-ASR as a dependency (via Swift Package Manager or manual integration)
-   - Understand the model input format (audio format, sample rate)
-   - Understand output format (segments, speakers, timestamps)
+   - Add Whisper runtime as a dependency (e.g., whisper.cpp or a Swift package/wrapper)
+   - Understand the model input format (PCM mono, target sample rate)
+   - Understand output format (tokens, text, timestamps per segment)
 
-2. Create `VibeVoiceASRService` implementing ASRServiceProtocol:
+2. Create `WhisperASRService` implementing ASRServiceProtocol:
    - loadModel():
      - Get model path from ModelManager
-     - Initialize VibeVoice runtime
+     - Initialize Whisper runtime
      - Throw modelMissing if not downloaded
      - Throw coreMLLoadFailed on initialization error
    
    - transcribe(_ audio: AudioSegment):
      - Convert AudioSegment to required format
      - Run inference
-     - Parse output to ASRResult
-     - Map speaker IDs to consistent labels
+     - Parse output to ASRResult (text + timestamps)
+     - Speaker labels: leave nil or basic placeholder if diarization not available
 
-3. Handle VibeVoice specifics:
-   - Long-form single-pass emphasis -> micro-batching
-   - Maintain speaker continuity across chunks
-   - Best-effort near-realtime processing
+3. Handle Whisper specifics:
+   - Use chunking/micro-batching for near-realtime
+   - Set language to Japanese (or enable detection if needed)
+   - Maintain timestamp continuity across chunks
 
 4. Performance optimization:
    - Use Apple Neural Engine where possible
@@ -910,7 +910,7 @@ Requirements:
 5. Write integration tests:
    - Test model loading from disk
    - Test transcription of sample Japanese audio
-   - Test speaker diarization output
+   - Test timestamps present on output segments
    - Test error handling for missing model
    - Test memory usage during long transcription
 
@@ -919,10 +919,10 @@ Requirements:
    - Use in production pipeline
 
 Deliverables:
-- VibeVoiceASRService.swift
-- VibeVoiceASRServiceTests.swift
+- WhisperASRService.swift
+- WhisperASRServiceTests.swift
 - Updated ASRServiceFactory
-- Documentation of VibeVoice integration notes
+- Documentation of Whisper integration notes
 ```
 
 ---
@@ -1776,7 +1776,7 @@ Deliverables:
 
 | Model | Size | Notes |
 |-------|------|-------|
-| VibeVoice-ASR | ~500MB-2GB | Japanese specialized, diarization |
+| Whisper | ~74MB-1.5GB | General-purpose ASR, timestamps; no built-in diarization |
 | NLLB-200 distilled | ~600MB-1.2GB | CoreML optimized, ANE acceleration |
 
 ### C. Testing Strategy
@@ -1791,7 +1791,7 @@ Deliverables:
 
 | Risk | Mitigation |
 |------|------------|
-| VibeVoice integration complexity | Mock early, integrate late |
+| Whisper integration complexity | Mock early, integrate late |
 | CoreML model conversion | Test simple model first |
 | Audio routing confusion | Strong wizard guidance |
 | Memory leaks | Profile early and often |

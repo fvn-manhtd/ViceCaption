@@ -16,7 +16,7 @@ import Foundation
 ///
 /// Example:
 /// ```swift
-/// let error = VibeCaptionError.modelMissing(modelName: "VibeVoice-ASR")
+/// let error = VibeCaptionError.modelMissing(modelName: "Whisper")
 /// print(error.localizedDescription)
 /// print(error.recoverySuggestion)
 /// ```

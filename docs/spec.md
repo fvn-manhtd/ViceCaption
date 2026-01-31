@@ -1,6 +1,6 @@
 ## 1. Product overview
 
-**VibeCaption** is a native macOS menu bar app that captures **system audio** (Zoom / Google Meet in Chrome / Teams / Slack Huddles / Discord / YouTube, etc.) via a **virtual audio device** (e.g., BlackHole), performs **on-device Japanese speech recognition with speaker labeling**, translates **Japanese → English on-device**, and displays a **floating always-on-top captions overlay** with both Japanese + English.
+**VibeCaption** is a native macOS menu bar app that captures **system audio** (Zoom / Google Meet in Chrome / Teams / Slack Huddles / Discord / YouTube, etc.) via a **virtual audio device** (e.g., BlackHole), performs **on-device Japanese speech recognition** (optional speaker labeling), translates **Japanese → English on-device**, and displays a **floating always-on-top captions overlay** with both Japanese + English.
 
 ### Primary goal (v1)
 
@@ -24,11 +24,11 @@
 * **OS:** macOS **Ventura 13+**.
 * **Network:** Online is allowed, but **ASR + translation must run on-device** (no external inference calls).
 * **Audio capture:** System audio capture requires a **virtual loopback driver**. V1 supports **BlackHole** (user installs; app detects + guides). BlackHole is a macOS loopback driver. ([GitHub][1])
-* **ASR engine:** **Microsoft VibeVoice-ASR** (open-source model) for rich transcription (speaker, timestamps, content). ([GitHub][2])
+* **ASR engine:** **Whisper** (open-source) for on-device transcription with timestamps; diarization is not built-in and is optional/out-of-scope for v1. ([GitHub][2])
 * **Translation engine:** Use an on-device **Core ML** MT model (recommended: **NLLB-200 distilled** CoreML conversion with ANE/GPU acceleration). ([Hugging Face][3])
 * **Acceleration:** Prefer Apple Neural Engine via **Core ML** where possible. ([Apple Developer][4])
 
-> Important note on latency: earlier “ultra-low (0.5–1s)” conflicts with “final-only” captions and VibeVoice’s long-form framing. V1 should be implemented as **best-effort near-realtime** by chunking/streaming audio into the ASR pipeline while only emitting **finalized segments** (no partials).
+> Important note on latency: earlier “ultra-low (0.5–1s)” conflicts with “final-only” captions. V1 should be implemented as **best-effort near-realtime** by chunking/streaming audio into the ASR pipeline (Whisper) while only emitting **finalized segments** (no partials).
 
 ---
 
@@ -71,7 +71,7 @@
   * **Japanese transcript** (top line)
   * **English translation** (line below)
   * Japanese appears first; English follows shortly after.
-* **Speaker labeling:** “basic speaker detection/labels if possible” using VibeVoice diarization → display as a **small badge above the block** (“Speaker 1”, “Speaker 2”, …).
+* **Speaker labeling:** “basic speaker detection/labels if possible” (no built-in diarization in Whisper). Display as a **small badge above the block** (“Speaker 1”, “Speaker 2”, …) if enabled/available.
 * **Timestamps on-screen:** show **wall-clock** timestamps (e.g., `14:03:12`) **once per block** (not every line).
 
 ### 3.5 Status indicators
@@ -175,7 +175,7 @@ Single global settings set (no profiles).
   * `~/Documents/VibeCaption/Models/` (user-specified preference)
 * Maintain versioned subfolders, e.g.:
 
-  * `.../Models/vibevoice-asr/<version>/`
+  * `.../Models/whisper-asr/<version>/`
   * `.../Models/nllb-coreml/<version>/`
 
 ### 6.2 Transcript storage
@@ -234,10 +234,10 @@ Single global settings set (no profiles).
 
      * Voice activity detection → form utterance chunks.
      * Chunk policy: short rolling window with overlap for robustness.
-4. **ASR: VibeVoice-ASR**
+4. **ASR: Whisper**
 
-   * Use VibeVoice-ASR for transcription with diarization & timestamps (“Who/When/What”). ([GitHub][2])
-   * Note: VibeVoice emphasizes long-form single-pass; for v1 near-realtime, implement micro-batching/chunking while maintaining speaker continuity (best effort).
+   * Use Whisper for transcription with timestamps. No built-in diarization; speaker labeling is optional/out-of-scope for v1. ([GitHub][2])
+   * For v1 near-realtime, implement micro-batching/chunking and set language to Japanese (or enable detection as needed).
 5. **Translation: Core ML MT**
 
    * Use NLLB-200 distilled CoreML conversion optimized for macOS/Apple devices. ([Hugging Face][3])
@@ -258,7 +258,7 @@ Single global settings set (no profiles).
 ### 7.2 Suggested runtime pipeline
 
 * Audio frames (input) → ring buffer → preprocessing (optional) → VAD → utterance chunk
-* ASR chunk → structured segments (speaker/time/text)
+* ASR chunk → structured segments (time/text; optional speaker)
 * Emit Japanese block (final) → enqueue for translation
 * Translation returns → update block with English line
 * Persist to session transcript buffer
@@ -372,7 +372,7 @@ Diagnostics screen must show enough information to troubleshoot:
   * Noisy audio (multiple speakers, crosstalk, background music)
 * Validate:
 
-  * Speaker blocks created (basic)
+  * Speaker labels present if enabled (basic)
   * Timestamps present
   * Japanese appears first, English follows
   * Low-confidence marking appears when expected
@@ -407,7 +407,6 @@ These weren’t specified by you but must be decided during implementation:
 * Exact noise suppression implementation (Apple Voice Processing I/O vs custom denoiser).
 * Exact chunking/VAD parameters to balance “final-only” with responsiveness.
 * UI styling for low-confidence marking.
-* Exact mapping from diarization output to “Speaker 1/2/3”.
+* If diarization is implemented, exact mapping from diarization output to “Speaker 1/2/3”.
 
 ---
-

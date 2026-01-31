@@ -175,7 +175,7 @@ public struct ErrorModalContainer: View {
 
 #Preview("Model Error") {
     ErrorModalView(
-        error: .modelMissing(modelName: "VibeVoice-ASR"),
+        error: .modelMissing(modelName: "Whisper"),
         onDismiss: {},
         onRecovery: {}
     )
