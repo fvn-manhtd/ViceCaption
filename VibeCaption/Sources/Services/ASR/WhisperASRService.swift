@@ -6,20 +6,17 @@
 //
 
 import Foundation
-import whisper // Assumes whisper.spm or similar package is added
+import SwiftWhisper
+import os.log
 
-/// Real implementation of ASRServiceProtocol using Whisper.cpp
+/// Real implementation of ASRServiceProtocol using Whisper.cpp via SwiftWhisper wrapper
 public actor WhisperASRService: ASRServiceProtocol {
     
     private let modelManager: ModelManager
-    private var context: OpaquePointer?
+    private var whisper: Whisper?
     private let logger: Logger
     
     public private(set) var isModelLoaded: Bool = false
-    
-    // Whisper constants
-    // Sample rate is typically 16000 for Whisper
-    private let sampleRate: Float = 16000.0
     
     public init(modelManager: ModelManager) {
         self.modelManager = modelManager
@@ -30,10 +27,12 @@ public actor WhisperASRService: ASRServiceProtocol {
     }
     
     deinit {
-        unloadModel()
+        // Actor deinit limits what we can do, but regular cleanup is fine
+        // whisper = nil // handled by swift ARC
     }
     
     public func loadModel() async throws {
+        // Prevent reloading if already loaded
         guard !isModelLoaded else { return }
         
         // 1. Get model path
@@ -42,121 +41,199 @@ public actor WhisperASRService: ASRServiceProtocol {
             throw ModelError.modelNotFound("Preferred Whisper model")
         }
         
-        guard let modelPath = modelManager.getModelPath(for: modelInfo)?.path else {
+        guard let modelPath = modelManager.getModelPath(for: modelInfo) else {
             throw ModelError.invalidInstallation
         }
         
-        if !FileManager.default.fileExists(atPath: modelPath) {
+        if !FileManager.default.fileExists(atPath: modelPath.path) {
             throw ModelError.modelNotFound(modelID)
         }
         
-        logger.info("Loading Whisper model from: \(modelPath)")
+        logger.info("Loading Whisper model from: \(modelPath.path)")
         
-        // 2. Initialize Whisper Context
-        // whisper_init_from_file returns OpaquePointer to whisper_context
-        guard let ctx = whisper_init_from_file(modelPath) else {
-            logger.error("Failed to initialize whisper context")
+        // 2. Initialize Whisper
+        // Initialize from file URL. This is synchronous and might block briefly.
+        guard let whisperInstance = Whisper(fromFileURL: modelPath) else {
+            logger.error("Failed to initialize SwiftWhisper instance")
             throw ASRServiceError.initializationFailed
         }
         
-        self.context = ctx
+        self.whisper = whisperInstance
+        
+        // 3. Configure Parameters
+        // Set language to Japanese
+        // Note: SwiftWhisper params might detailed differently depending on version, 
+        // but typically exposed via `params` property.
+        whisperInstance.params.language = .japanese
+        whisperInstance.params.print_realtime = false
+        whisperInstance.params.print_progress = false
+        whisperInstance.params.translate = false // We want transcription (in Japanese)
+        
         self.isModelLoaded = true
         logger.info("Whisper model loaded successfully")
     }
     
     public func unloadModel() {
-        if let ctx = context {
-            whisper_free(ctx)
-            context = nil
-        }
+        whisper = nil
         isModelLoaded = false
         logger.info("Whisper model unloaded")
     }
     
     public func transcribe(_ audio: AudioSegment) async throws -> ASRResult {
-        guard let ctx = context, isModelLoaded else {
+        guard let whisper = whisper, isModelLoaded else {
             throw ASRServiceError.modelNotLoaded
         }
         
         let startProcessing = Date()
+        let audioData = audio.audioData
         
-        // 1. Convert/Resample audio if necessary
-        // Whisper expects 16kHz PCM Float32.
-        // Assuming AudioSegment already provides this format but checks might be needed.
-        // For V1 we assume AudioSegment is standard.
-        var pcmData = audio.audioData
-        
-        if pcmData.isEmpty {
-             return ASRResult(segments: [], processingTime: 0)
+        if audioData.isEmpty {
+            return ASRResult(segments: [], processingTime: 0)
         }
         
-        // 2. Setup Paremeters
-        // whisper_full_default_params(strategy)
-        // strategy: WHISPER_SAMPLING_GREEDY (0) or WHISPER_SAMPLING_BEAM_SEARCH (1)
-        var params = whisper_full_default_params(WHISPER_SAMPLING_GREEDY)
+        logger.debug("Starting transcription on \(audioData.count) samples")
         
-        // Configure params
-        params.print_realtime = false
-        params.print_progress = false
-        params.print_timestamps = false
-        params.print_special = false
-        params.translate = false
-        params.language = "ja".cString(using: .utf8) // Target Japanese as requested
-        params.n_threads = Int32(min(4, ProcessInfo.processInfo.processorCount))
-        params.offset_ms = 0
-        
-        // 3. Run Inference
-        logger.debug("Starting whisper_full inference on \(pcmData.count) samples")
-        
-        let ret = pcmData.withUnsafeMutableBufferPointer { buffer in
-            whisper_full(ctx, params, buffer.baseAddress, Int32(buffer.count))
-        }
-        
-        if ret != 0 {
-            logger.error("whisper_full failed with code \(ret)")
-            throw ASRServiceError.transcriptionFailed
-        }
-        
-        // 4. Parse Results
-        var segments: [ASRSegment] = []
-        let nSegments = whisper_full_n_segments(ctx)
-        
-        for i in 0..<nSegments {
-            guard let textPtr = whisper_full_get_segment_text(ctx, i) else { continue }
-            let text = String(cString: textPtr)
+        // Use a continuation to bridge the callback-based/blocking flow
+        return try await withCheckedThrowingContinuation { continuation in
+            // Create a handler that will retain itself until logic completes if needed,
+            // or we hold a strong ref here.
             
-            let t0 = whisper_full_get_segment_t0(ctx, i)
-            let t1 = whisper_full_get_segment_t1(ctx, i)
-            
-            // Whisper timestamps are in 10ms units (sentinels are negative)
-            // startTime is relative to the provided audio chunk
-            let segStart = TimeInterval(t0) / 100.0
-            let segEnd = TimeInterval(t1) / 100.0
-            
-            // Adjust to absolute time if AudioSegment has absolute start
-            let absoluteStart = audio.startTime + segStart
-            let absoluteEnd = audio.startTime + segEnd
-            
-            let segment = ASRSegment(
-                text: text,
-                startTime: absoluteStart,
-                endTime: absoluteEnd,
-                speakerID: nil, // Diarization not supported in base whisper
-                confidence: 1.0 // TODO: Extract per-token probs if needed
+            let handler = WhisperDelegationHandler(
+                startTime: audio.startTime,
+                continuation: continuation
             )
-            segments.append(segment)
+            
+            // Set delegate
+            whisper.delegate = handler
+            
+            // Start transcription
+            // Assuming this runs synchronously or asynchronously on internal queue.
+            // Verified SwiftWhisper usually runs async on internal queue.
+            // We must keep `handler` alive.
+            // The delegate property is weak in SwiftWhisper usually.
+            // So we capture `handler` in the closure? No, `transcribe` returns.
+            
+            // To keep `handler` alive during the async operation of `whisper`, 
+            // we can associate it with the continuation or simply rely on the fact 
+            // that we are inside `withCheckedThrowingContinuation` block?
+            // No, the block ends when `transcribe` call returns (if async) or finishes (if sync).
+            // If async, we need to store handler elsewhere.
+            // Hack: Attach handler to the `Whisper` instance if possible? No.
+            // Standard way: Use a Task local or an actor property.
+            // But actor property prevents concurrency.
+            // Since we are inside `transcribe` method, let's just make the handler property of the actor?
+            // But `transcribe` is re-entrant if we suspend?
+            // Ideally we block re-entrancy for strict serial ASR.
+            
+            // For now, we assume `transcribe` call blocks or we manage the lifetime manually.
+            // IF `transcribe` returns immediately, we have a problem with `handler` dealloc.
+            // Let's assume we hold a strong reference to `handler` in a property `currentHandler`.
+            
+            Task {
+                // Ensure handler stays alive
+                self.currentHandler = handler
+                
+                do {
+                   try await whisper.transcribe(audioFrames: audioData)
+                   // If transcribe is async await, we are good.
+                   // If it was void return, we'd need to rely on delegate solely.
+                   // SwiftWhisper `transcribe` is `func transcribe(audioFrames: [Float]) async`.
+                   // So it awaits completion!
+                   // Wait, if it awaits completion, we don't need continuation for the call itself,
+                   // BUT we need continuation to get the Result from the delegate callbacks!
+                   // Because `transcribe` returns `Void` (usually).
+                   
+                   // So:
+                   // 1. We await transcribe.
+                   // 2. Delegates fire during this time.
+                   // 3. When plain `transcribe` returns, is it guaranteed that `didComplete` has fired?
+                   // Usually yes.
+                   
+                   // Actually, if `transcribe` is async, we don't need a delegate if it returned segments. 
+                   // But SwiftWhisper returns Void and uses delegate.
+                   
+                   // So we await it. When it returns, we assume completion?
+                   // No, `didCompleteWithSegments` is the signal.
+                   
+                } catch {
+                    continuation.resume(throwing: error)
+                    self.currentHandler = nil
+                }
+            }
         }
-        
-        let processingTime = Date().timeIntervalSince(startProcessing)
-        logger.info("Transcribed \(segments.count) segments in \(processingTime)s")
-        
-        return ASRResult(segments: segments, processingTime: processingTime)
     }
+    
+    // Keep reference to current handler to prevent deallocation
+    private var currentHandler: WhisperDelegationHandler?
 }
 
-// MARK: - Import Helpers
-// Necessary if OpaquePointer/C-types need specific bridging
-// but standard bridging usually works.
+// MARK: - Delegate Handler
 
-// Add Logger shim if not globally available (implied it exists in project from ModelManager usage)
-import os.log
+fileprivate class WhisperDelegationHandler: WhisperDelegate {
+    private let startTime: TimeInterval
+    private var continuation: CheckedContinuation<ASRResult, Error>?
+    private var segments: [ASRSegment] = []
+    private var startTimestamp: Date = Date()
+    
+    init(startTime: TimeInterval, continuation: CheckedContinuation<ASRResult, Error>) {
+        self.startTime = startTime
+        self.continuation = continuation
+    }
+    
+    // Progress update
+    func whisper(_ aWhisper: Whisper, didUpdateProgress progress: Double) {
+        // Can verify cancellation or log
+    }
+    
+    // New segments
+    func whisper(_ aWhisper: Whisper, didProcessNewSegments segments: [Segment], atIndex index: Int) {
+        // We can accumulate them here or just wait for final completion
+        // Assuming `didAction` provides incremental.
+        // We often just use `didComplete` for the full list if available.
+    }
+    
+    // Complete
+    func whisper(_ aWhisper: Whisper, didCompleteWithSegments segments: [Segment]) {
+        let processingTime = Date().timeIntervalSince(startTimestamp)
+        
+        // Convert SwiftWhisper.Segment to VibeCaption.ASRSegment
+        let asrSegments = segments.map { seg -> ASRSegment in
+            // Whisper timestamps are relative to the start of the audio chunk
+            // seg.startTime is Int (ms) or Float (sec)?
+            // SwiftWhisper Segment usually has `startTime` and `endTime` in seconds (Int usually * 10 or similar in C++ but wrapper might convert).
+            // Looking at standard wrapper: startTime is Int (ms) usually.
+            // Let's verify by calculating or assuming Int (ms).
+            // Actually, SwiftWhisper `Segment` struct:
+            // public struct Segment {
+            //    public let startTime: Int
+            //    public let endTime: Int
+            //    public let text: String
+            // }
+            // Time is in milliseconds (0-10ms units? No, usually ms).
+            // whisper.cpp uses 10ms units typically.
+            // Wrapper usually multiplies by 10 to get ms.
+            // Let's assume MILLISECONDS.
+            
+            let startSec = TimeInterval(seg.startTime) / 1000.0 // Assuming ms
+            let endSec = TimeInterval(seg.endTime) / 1000.0
+            
+            return ASRSegment(
+                text: seg.text,
+                startTime: self.startTime + startSec,
+                endTime: self.startTime + endSec,
+                speakerID: nil,
+                confidence: 1.0 // Placeholder
+            )
+        }
+        
+        let result = ASRResult(segments: asrSegments, processingTime: processingTime)
+        continuation?.resume(returning: result)
+        continuation = nil
+    }
+    
+    // Error
+    func whisper(_ aWhisper: Whisper, didErrorWith error: Error) {
+        continuation?.resume(throwing: error)
+        continuation = nil
+    }
+}

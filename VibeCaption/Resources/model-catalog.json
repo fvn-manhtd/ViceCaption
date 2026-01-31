@@ -3,9 +3,9 @@
     "id": "whisper-asr",
     "displayName": "Whisper ASR (Base)",
     "version": "1.0.0",
-    "downloadURL": "https://example.com/models/whisper-base-coreml.zip",
-    "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "sizeBytes": 150000000,
+    "downloadURL": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
+    "checksum": "60ed5bc3dd18eea85089825e467b9624",
+    "sizeBytes": 147964211,
     "isRequired": true
   },
   {

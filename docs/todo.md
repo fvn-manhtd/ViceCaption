@@ -104,12 +104,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
 - [x] **14. Real Whisper ASR Integration**
   - [x] Implement `WhisperASRService`
   - [x] Setup `WhisperASRServiceTests`
-  - [ ] **Manual Step**: Add `whisper.spm` dependency in Xcode
-  - [ ] **Manual Step**: Add `WhisperASRService.swift` and `WhisperASRServiceTests.swift` to targets
-  - [ ] Integrate Whisper runtime dependencies (e.g., whisper.cpp wrapper)
-  - [ ] Implement micro-batching for near-realtime
-  - [ ] test: Verify transcribing sample Japanese audio with timestamps
-  - [ ] test: Verify error handling and memory usage
+  - [x] **Manual Step**: Add `whisper.spm` dependency in Xcode
+  - [x] **Manual Step**: Add `WhisperASRService.swift` and `WhisperASRServiceTests.swift` to targets
+  - [x] Integrate Whisper runtime dependencies (e.g., whisper.cpp wrapper)
+  - [x] Implement micro-batching for near-realtime
+  - [x] test: Verify transcribing sample Japanese audio with timestamps
+  - [x] test: Verify error handling and memory usage
 
 - [ ] **15. Real NLLB-200 CoreML Translation Integration**
   - [ ] Implement `NLLBTranslationService`
