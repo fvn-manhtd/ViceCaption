@@ -32,12 +32,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify timestamp and file formatting matches spec
   - [x] test: Verify clear/discard behavior
 
-- [ ] **5. Error Handling Infrastructure**
-  - [ ] Define `VibeCaptionError` types and `RecoveryAction` enum
-  - [ ] Implement singleton `ErrorHandler`
-  - [ ] Create `ErrorModalView` for UI
-  - [ ] test: Verify recovery action mapping
-  - [ ] test: Verify error logging
+- [x] **5. Error Handling Infrastructure** ✅
+  - [x] Define `VibeCaptionError` types and `RecoveryAction` enum
+  - [x] Implement singleton `ErrorHandler`
+  - [x] Create `ErrorModalView` for UI
+  - [x] test: Verify recovery action mapping
+  - [x] test: Verify error logging
 
 ## Phase 2: Audio Pipeline
 
