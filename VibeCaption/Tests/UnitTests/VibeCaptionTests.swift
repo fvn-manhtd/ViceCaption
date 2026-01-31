@@ -12,7 +12,7 @@ final class VibeCaptionTests: XCTestCase {
     
     /// Test that the app bundle identifier is correct
     func testBundleIdentifier() {
-        let expectedBundleID = "com.yourcompany.vibecaption"
+        let expectedBundleID = "com.project.vibecaption"
         let actualBundleID = Bundle.main.bundleIdentifier
         
         XCTAssertEqual(actualBundleID, expectedBundleID, "Bundle identifier should be \(expectedBundleID)")

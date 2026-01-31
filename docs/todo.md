@@ -129,12 +129,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] Implement dynamic icon states (Listening/Paused)
   - [x] test: Verify menu item state updates
 
-- [ ] **17. Floating Overlay Window Foundation**
-  - [ ] Implement `OverlayWindow` (NSWindow subclass, auto-save position)
-  - [ ] Implement `OverlayViewModel`
-  - [ ] Handle click-through vs focused states
-  - [ ] test: Verify persistence of window position/size
-  - [ ] test: Verify visibility toggling
+- [x] **17. Floating Overlay Window Foundation**
+  - [x] Implement `OverlayWindow` (NSWindow subclass, auto-save position)
+  - [x] Implement `OverlayViewModel`
+  - [x] Handle click-through vs focused states
+  - [x] test: Verify persistence of window position/size
+  - [x] test: Verify visibility toggling
 
 - [ ] **18. Overlay Caption Display**
   - [ ] Implement `OverlayContentView` (Scrollable list)

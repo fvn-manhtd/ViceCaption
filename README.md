@@ -15,3 +15,8 @@ xcodebuild test -scheme VibeCaption -destination 'platform=macOS'
 This command performs the following:
 1. Builds the project for the macOS platform.
 2. Runs the tests defined in the `VibeCaptionTests` target.
+
+
+```bash
+xcodebuild test -scheme VibeCaption -destination 'platform=macOS' CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED="NO"
+```

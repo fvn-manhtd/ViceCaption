@@ -8,6 +8,7 @@
 
 import SwiftUI
 import AppKit
+import Combine
 import os.log
 
 /// The main entry point for the VibeCaption application.
@@ -38,6 +39,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// The menu bar controller
     private var menuBarController: MenuBarController?
     
+    /// The overlay window components
+    private var overlayViewModel: OverlayViewModel?
+    private var overlayWindow: OverlayWindow?
+    
+    private var cancellables = Set<AnyCancellable>()
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
         logger.info("VibeCaption launched")
         
@@ -49,6 +56,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Initialize audio device detection
         setupAudioDevices()
+        
+        // Setup Overlay
+        setupOverlay()
         
         // Setup Menu Bar Controller
         menuBarController = MenuBarController(
@@ -71,6 +81,42 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         logger.debug("Managers initialized, current state: \(self.appStateManager.currentState.displayName)")
+    }
+    
+    private func setupOverlay() {
+        let viewModel = OverlayViewModel()
+        self.overlayViewModel = viewModel
+        self.overlayWindow = OverlayWindow(viewModel: viewModel)
+        
+        // Bind AppStateManager.isOverlayVisible <-> OverlayViewModel.isVisible
+        
+        // 1. Manager -> ViewModel
+        appStateManager.$isOverlayVisible
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak viewModel] isVisible in
+                if viewModel?.isVisible != isVisible {
+                    if isVisible { viewModel?.show() }
+                    else { viewModel?.hide() }
+                }
+            }
+            .store(in: &cancellables)
+            
+        // 2. ViewModel -> Manager
+        // This handles if the window is closed via other means (e.g. logic inside VM)
+        viewModel.$isVisible
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isVisible in
+                guard let self = self else { return }
+                if self.appStateManager.isOverlayVisible != isVisible {
+                    if isVisible { self.appStateManager.overlayWillShow() }
+                    else { self.appStateManager.overlayWillHide() }
+                }
+            }
+            .store(in: &cancellables)
+            
+        logger.info("Overlay components initialized")
     }
     
     /// Sets up audio device detection and logs available devices
