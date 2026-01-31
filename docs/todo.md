@@ -69,12 +69,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify noise suppression toggle
   - [x] test: Verify sample rate conversion
 
-- [ ] **10. Voice Activity Detection & Segmentation**
-  - [ ] Implement `VoiceActivityDetector` (Speech/Silence/Uncertain)
-  - [ ] Implement `AudioSegmenter` (Chunking logic)
-  - [ ] Define `AudioSegment` model
-  - [ ] test: Verify speech vs silence detection
-  - [ ] test: Verify segment boundaries and overlap
+- [x] **10. Voice Activity Detection & Segmentation** ✅
+  - [x] Implement `VoiceActivityDetector` (Speech/Silence/Uncertain)
+  - [x] Implement `AudioSegmenter` (Chunking logic)
+  - [x] Define `AudioSegment` model
+  - [x] test: Verify speech vs silence detection
+  - [x] test: Verify segment boundaries and overlap
 
 ## Phase 3: AI Services
 
