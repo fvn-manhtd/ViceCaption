@@ -55,12 +55,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify ring buffer read/write/overflow
   - [x] test: Verify engine configuration
 
-- [ ] **8. Audio Monitoring Passthrough**
-  - [ ] Add monitoring support to `AudioCaptureEngine`
-  - [ ] Implement passthrough to output device
-  - [ ] Handle feedback loops checks
-  - [ ] test: Verify monitoring enable/disable
-  - [ ] test: Verify output volume control
+- [x] **8. Audio Monitoring Passthrough** ✅
+  - [x] Add monitoring support to `AudioCaptureEngine`
+  - [x] Implement passthrough to output device
+  - [x] Handle feedback loops checks
+  - [x] test: Verify monitoring enable/disable
+  - [x] test: Verify output volume control
 
 - [ ] **9. Audio Preprocessing & Noise Suppression**
   - [ ] Implement `AudioPreprocessor`

@@ -114,7 +114,7 @@ public struct ErrorModalView: View {
     /// Icon name based on error type.
     private var errorIcon: String {
         switch error {
-        case .audioRoutingFailed, .noAudioFramesDetected, .blackHoleNotInstalled, .inputDeviceMismatch:
+        case .audioRoutingFailed, .noAudioFramesDetected, .blackHoleNotInstalled, .inputDeviceMismatch, .feedbackLoopDetected:
             return "speaker.slash.fill"
         case .modelMissing, .modelCorrupted, .modelDownloadFailed, .coreMLLoadFailed:
             return "cpu.fill"

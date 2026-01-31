@@ -36,6 +36,9 @@ public enum VibeCaptionError: Error, Equatable, Sendable {
     /// Input device doesn't match expected configuration.
     case inputDeviceMismatch(expected: String, actual: String)
     
+    /// Audio feedback loop detected (same device for input and output).
+    case feedbackLoopDetected(inputDevice: String, outputDevice: String)
+    
     // MARK: - Model Errors
     
     /// Required ML model is not found.
@@ -91,6 +94,9 @@ extension VibeCaptionError {
         case .inputDeviceMismatch(let expected, let actual):
             return "Audio input device mismatch: expected \"\(expected)\" but found \"\(actual)\""
             
+        case .feedbackLoopDetected(let inputDevice, let outputDevice):
+            return "Audio feedback loop detected: \"\(inputDevice)\" cannot be used for both input and output"
+            
         case .modelMissing(let modelName):
             return "Model \"\(modelName)\" is not installed"
             
@@ -129,6 +135,9 @@ extension VibeCaptionError {
         case .inputDeviceMismatch:
             return "The configured audio device has changed. Run the setup wizard to select the correct device."
             
+        case .feedbackLoopDetected:
+            return "Select a different output device for monitoring to prevent audio feedback."
+            
         case .modelMissing:
             return "The required AI model needs to be downloaded. Open model management to download it."
             
@@ -155,7 +164,7 @@ extension VibeCaptionError {
     /// The recommended recovery action for this error.
     public var recoveryAction: RecoveryAction {
         switch self {
-        case .audioRoutingFailed, .inputDeviceMismatch, .blackHoleNotInstalled:
+        case .audioRoutingFailed, .inputDeviceMismatch, .blackHoleNotInstalled, .feedbackLoopDetected:
             return .openSetupWizard
             
         case .noAudioFramesDetected:

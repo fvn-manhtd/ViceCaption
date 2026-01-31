@@ -21,10 +21,20 @@ public protocol AudioCaptureEngineProtocol: AnyObject {
     var audioLevel: Float { get }
     var audioLevelPublisher: Published<Float>.Publisher { get }
     
+    // Monitoring properties
+    var monitoringEnabled: Bool { get }
+    var monitoringVolume: Float { get }
+    var currentMonitoringDevice: AudioDevice? { get }
+    
     func configure(inputDevice: AudioDevice) throws
     func startCapture() throws
     func stopCapture()
     func setAudioCallback(_ callback: @escaping (AVAudioPCMBuffer) -> Void)
+    
+    // Monitoring methods
+    func setMonitoringOutput(device: AudioDevice?) throws
+    func enableMonitoring(_ enabled: Bool) throws
+    func setMonitoringVolume(_ volume: Float)
 }
 
 // MARK: - AudioCaptureEngine
@@ -68,6 +78,12 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     /// Current RMS audio level (0.0-1.0) for UI meter.
     @Published public private(set) var audioLevel: Float = 0.0
     
+    /// Whether audio monitoring is currently enabled.
+    @Published public private(set) var monitoringEnabled: Bool = false
+    
+    /// Current monitoring volume (0.0-1.0).
+    @Published public private(set) var monitoringVolume: Float = 1.0
+    
     /// Publisher for audio level updates.
     public var audioLevelPublisher: Published<Float>.Publisher { $audioLevel }
     
@@ -75,6 +91,9 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     
     /// Currently configured input device.
     public private(set) var currentInputDevice: AudioDevice?
+    
+    /// Currently configured monitoring output device.
+    public private(set) var currentMonitoringDevice: AudioDevice?
     
     /// Internal ring buffer for audio samples.
     public let ringBuffer: AudioRingBuffer
@@ -99,6 +118,15 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     
     /// Timer for periodic audio level logging.
     private var levelLogTimer: Timer?
+    
+    /// Monitoring output engine (separate from capture engine).
+    private var monitoringEngine: AVAudioEngine?
+    
+    /// Monitoring player node for scheduling audio buffers.
+    private var monitoringPlayerNode: AVAudioPlayerNode?
+    
+    /// Audio format for monitoring output.
+    private var monitoringFormat: AVAudioFormat?
     
     /// Logger instance.
     private let logger = Logger(subsystem: "com.vibecaption", category: "AudioCaptureEngine")
@@ -231,6 +259,12 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
         // Remove input tap
         audioEngine.inputNode.removeTap(onBus: 0)
         
+        // Stop monitoring if enabled
+        if monitoringEnabled {
+            teardownMonitoringEngine()
+            monitoringEnabled = false
+        }
+        
         // Stop engine
         audioEngine.stop()
         
@@ -244,6 +278,92 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     /// - Parameter callback: Closure called with each processed audio buffer.
     public func setAudioCallback(_ callback: @escaping (AVAudioPCMBuffer) -> Void) {
         audioCallback = callback
+    }
+    
+    // MARK: - Monitoring Control
+    
+    /// Sets the output device for audio monitoring.
+    ///
+    /// - Parameter device: The audio device to use for monitoring output.
+    ///                     Pass `nil` to use the system default output.
+    /// - Throws: `VibeCaptionError.feedbackLoopDetected` if same device is used for input and output.
+    ///           `VibeCaptionError.audioRoutingFailed` if the device cannot be set.
+    public func setMonitoringOutput(device: AudioDevice?) throws {
+        // Check for feedback loop
+        if let device = device, let inputDevice = currentInputDevice {
+            if device.uid == inputDevice.uid {
+                logger.error("Feedback loop detected: same device for input and output")
+                throw VibeCaptionError.feedbackLoopDetected(
+                    inputDevice: inputDevice.name,
+                    outputDevice: device.name
+                )
+            }
+        }
+        
+        // Verify device is an output device
+        if let device = device {
+            guard device.isOutput else {
+                logger.error("Device is not an output device: \(device.name)")
+                throw VibeCaptionError.audioRoutingFailed(
+                    device: device.name,
+                    reason: "Device does not support audio output"
+                )
+            }
+        }
+        
+        // Stop monitoring if currently enabled
+        let wasEnabled = monitoringEnabled
+        if wasEnabled {
+            try? enableMonitoring(false)
+        }
+        
+        currentMonitoringDevice = device
+        
+        // Restart monitoring if it was enabled
+        if wasEnabled {
+            try? enableMonitoring(true)
+        }
+        
+        logger.info("Monitoring output device set to: \(device?.name ?? "system default")")
+    }
+    
+    /// Enables or disables audio monitoring passthrough.
+    ///
+    /// - Parameter enabled: Whether to enable monitoring.
+    /// - Throws: `VibeCaptionError.feedbackLoopDetected` if same device is used for input and output.
+    public func enableMonitoring(_ enabled: Bool) throws {
+        guard monitoringEnabled != enabled else { return }
+        
+        if enabled {
+            // Check for feedback loop before enabling
+            if let inputDevice = currentInputDevice,
+               let outputDevice = currentMonitoringDevice,
+               inputDevice.uid == outputDevice.uid {
+                logger.error("Cannot enable monitoring: feedback loop detected")
+                throw VibeCaptionError.feedbackLoopDetected(
+                    inputDevice: inputDevice.name,
+                    outputDevice: outputDevice.name
+                )
+            }
+            
+            try setupMonitoringEngine()
+            monitoringEnabled = true
+            logger.info("Audio monitoring enabled")
+        } else {
+            teardownMonitoringEngine()
+            monitoringEnabled = false
+            logger.info("Audio monitoring disabled")
+        }
+    }
+    
+    /// Sets the monitoring output volume.
+    ///
+    /// - Parameter volume: Volume level from 0.0 (mute) to 1.0 (full).
+    public func setMonitoringVolume(_ volume: Float) {
+        let clampedVolume = max(0.0, min(1.0, volume))
+        monitoringVolume = clampedVolume
+        monitoringPlayerNode?.volume = clampedVolume
+        logger.debug("Monitoring volume set to: \(clampedVolume)")
     }
     
     // MARK: - Private Methods
@@ -339,6 +459,11 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
         
         // Write to ring buffer
         ringBuffer.write(outputBuffer)
+        
+        // Send to monitoring if enabled
+        if monitoringEnabled {
+            scheduleMonitoringBuffer(outputBuffer)
+        }
         
         // Call user callback
         audioCallback?(outputBuffer)
@@ -449,6 +574,168 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
             guard let self = self, self.isCapturing else { return }
             self.logger.debug("Audio level: \(String(format: "%.2f", self.audioLevel))")
         }
+    }
+    
+    // MARK: - Monitoring Engine Methods
+    
+    /// Sets up the monitoring audio engine for passthrough.
+    private func setupMonitoringEngine() throws {
+        // Clean up any existing monitoring engine
+        teardownMonitoringEngine()
+        
+        // Create new monitoring engine
+        let engine = AVAudioEngine()
+        let playerNode = AVAudioPlayerNode()
+        
+        engine.attach(playerNode)
+        
+        // Get input format from capture engine (use 16kHz mono target format)
+        let outputFormat: AVAudioFormat
+        if let targetFmt = targetFormat {
+            outputFormat = targetFmt
+        } else {
+            outputFormat = AVAudioFormat(
+                standardFormatWithSampleRate: Self.targetSampleRate,
+                channels: 1
+            )!
+        }
+        
+        // Connect player to main mixer to output
+        engine.connect(playerNode, to: engine.mainMixerNode, format: outputFormat)
+        
+        // Set output device if specified
+        if let device = currentMonitoringDevice {
+            try setMonitoringOutputDevice(device, on: engine)
+        }
+        
+        // Set volume
+        playerNode.volume = monitoringVolume
+        
+        // Start the engine
+        do {
+            try engine.start()
+            playerNode.play()
+        } catch {
+            logger.error("Failed to start monitoring engine: \(error.localizedDescription)")
+            throw VibeCaptionError.audioRoutingFailed(
+                device: currentMonitoringDevice?.name ?? "System Default",
+                reason: error.localizedDescription
+            )
+        }
+        
+        monitoringEngine = engine
+        monitoringPlayerNode = playerNode
+        monitoringFormat = outputFormat
+        
+        logger.info("Monitoring engine started with format: \(outputFormat)")
+    }
+    
+    /// Tears down the monitoring audio engine.
+    private func teardownMonitoringEngine() {
+        monitoringPlayerNode?.stop()
+        monitoringEngine?.stop()
+        
+        if let playerNode = monitoringPlayerNode, let engine = monitoringEngine {
+            engine.detach(playerNode)
+        }
+        
+        monitoringPlayerNode = nil
+        monitoringEngine = nil
+        monitoringFormat = nil
+        
+        logger.debug("Monitoring engine stopped")
+    }
+    
+    /// Schedules an audio buffer for monitoring playback.
+    private func scheduleMonitoringBuffer(_ buffer: AVAudioPCMBuffer) {
+        guard let playerNode = monitoringPlayerNode,
+              let engine = monitoringEngine,
+              engine.isRunning else { return }
+        
+        // Convert buffer to monitoring format if needed
+        let bufferToSchedule: AVAudioPCMBuffer
+        if let monitoringFormat = monitoringFormat,
+           buffer.format.sampleRate != monitoringFormat.sampleRate ||
+           buffer.format.channelCount != monitoringFormat.channelCount {
+            // Need to convert
+            if let converted = convertBufferForMonitoring(buffer, to: monitoringFormat) {
+                bufferToSchedule = converted
+            } else {
+                return // Skip this buffer if conversion fails
+            }
+        } else {
+            bufferToSchedule = buffer
+        }
+        
+        // Schedule buffer for playback
+        playerNode.scheduleBuffer(bufferToSchedule, completionHandler: nil)
+    }
+    
+    /// Converts a buffer for monitoring output.
+    private func convertBufferForMonitoring(
+        _ inputBuffer: AVAudioPCMBuffer,
+        to outputFormat: AVAudioFormat
+    ) -> AVAudioPCMBuffer? {
+        guard let converter = AVAudioConverter(from: inputBuffer.format, to: outputFormat) else {
+            return nil
+        }
+        
+        let ratio = outputFormat.sampleRate / inputBuffer.format.sampleRate
+        let outputFrameCapacity = AVAudioFrameCount(Double(inputBuffer.frameLength) * ratio)
+        
+        guard let outputBuffer = AVAudioPCMBuffer(
+            pcmFormat: outputFormat,
+            frameCapacity: outputFrameCapacity
+        ) else {
+            return nil
+        }
+        
+        var error: NSError?
+        let status = converter.convert(to: outputBuffer, error: &error) { inNumPackets, outStatus in
+            outStatus.pointee = .haveData
+            return inputBuffer
+        }
+        
+        guard status != .error else {
+            logger.error("Monitoring buffer conversion failed: \(error?.localizedDescription ?? "Unknown")")
+            return nil
+        }
+        
+        return outputBuffer
+    }
+    
+    /// Sets the output device on a monitoring engine.
+    private func setMonitoringOutputDevice(_ device: AudioDevice, on engine: AVAudioEngine) throws {
+        #if os(macOS)
+        let outputNode = engine.outputNode
+        let audioUnit = outputNode.audioUnit
+        
+        guard let au = audioUnit else {
+            throw VibeCaptionError.audioRoutingFailed(
+                device: device.name,
+                reason: "Failed to get audio unit from output node"
+            )
+        }
+        
+        var deviceID = device.deviceID
+        let status = AudioUnitSetProperty(
+            au,
+            kAudioOutputUnitProperty_CurrentDevice,
+            kAudioUnitScope_Global,
+            0,
+            &deviceID,
+            UInt32(MemoryLayout<AudioDeviceID>.size)
+        )
+        
+        guard status == noErr else {
+            throw VibeCaptionError.audioRoutingFailed(
+                device: device.name,
+                reason: "Failed to set output device (error: \(status))"
+            )
+        }
+        
+        logger.info("Set monitoring output device to: \(device.name)")
+        #endif
     }
 }
 

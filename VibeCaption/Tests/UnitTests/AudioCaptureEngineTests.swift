@@ -22,15 +22,25 @@ final class MockAudioCaptureEngine: AudioCaptureEngineProtocol {
     private(set) var isCapturing: Bool = false
     private(set) var currentInputDevice: AudioDevice?
     
+    // Monitoring properties
+    private(set) var monitoringEnabled: Bool = false
+    private(set) var monitoringVolume: Float = 1.0
+    var currentMonitoringDevice: AudioDevice?
+    
     var configureCallCount = 0
     var startCaptureCallCount = 0
     var stopCaptureCallCount = 0
+    var setMonitoringOutputCallCount = 0
+    var enableMonitoringCallCount = 0
+    var setMonitoringVolumeCallCount = 0
     var audioCallback: ((AVAudioPCMBuffer) -> Void)?
     
     var shouldThrowOnConfigure = false
     var shouldThrowOnStart = false
+    var shouldThrowOnMonitoring = false
     var configureError: VibeCaptionError?
     var startError: VibeCaptionError?
+    var monitoringError: VibeCaptionError?
     
     func configure(inputDevice: AudioDevice) throws {
         configureCallCount += 1
@@ -55,10 +65,63 @@ final class MockAudioCaptureEngine: AudioCaptureEngineProtocol {
     func stopCapture() {
         stopCaptureCallCount += 1
         isCapturing = false
+        monitoringEnabled = false
     }
     
     func setAudioCallback(_ callback: @escaping (AVAudioPCMBuffer) -> Void) {
         audioCallback = callback
+    }
+    
+    // MARK: - Monitoring Methods
+    
+    func setMonitoringOutput(device: AudioDevice?) throws {
+        setMonitoringOutputCallCount += 1
+        
+        // Check for feedback loop
+        if let device = device, let inputDevice = currentInputDevice {
+            if device.uid == inputDevice.uid {
+                throw VibeCaptionError.feedbackLoopDetected(
+                    inputDevice: inputDevice.name,
+                    outputDevice: device.name
+                )
+            }
+        }
+        
+        // Check if output device
+        if let device = device, !device.isOutput {
+            throw VibeCaptionError.audioRoutingFailed(
+                device: device.name,
+                reason: "Device does not support audio output"
+            )
+        }
+        
+        currentMonitoringDevice = device
+    }
+    
+    func enableMonitoring(_ enabled: Bool) throws {
+        enableMonitoringCallCount += 1
+        
+        if shouldThrowOnMonitoring, let error = monitoringError {
+            throw error
+        }
+        
+        // Check for feedback loop
+        if enabled,
+           let inputDevice = currentInputDevice,
+           let outputDevice = currentMonitoringDevice,
+           inputDevice.uid == outputDevice.uid {
+            throw VibeCaptionError.feedbackLoopDetected(
+                inputDevice: inputDevice.name,
+                outputDevice: outputDevice.name
+            )
+        }
+        
+        monitoringEnabled = enabled
+    }
+    
+    func setMonitoringVolume(_ volume: Float) {
+        setMonitoringVolumeCallCount += 1
+        monitoringVolume = max(0.0, min(1.0, volume))
     }
     
     /// Simulate receiving audio at a given level.
@@ -344,5 +407,171 @@ final class AudioCaptureEngineTests: XCTestCase {
         
         XCTAssertEqual(mock.stopCaptureCallCount, 1)
         XCTAssertFalse(mock.isCapturing)
+    }
+    
+    // MARK: - Monitoring Tests
+    
+    /// Test monitoring defaults to disabled.
+    func testMonitoringDefaultsToDisabled() {
+        XCTAssertFalse(sut.monitoringEnabled)
+        XCTAssertNil(sut.currentMonitoringDevice)
+    }
+    
+    /// Test monitoring volume defaults to 1.0.
+    func testMonitoringVolumeDefaults() {
+        XCTAssertEqual(sut.monitoringVolume, 1.0, accuracy: 0.001)
+    }
+    
+    /// Test monitoring can be enabled.
+    func testMonitoringCanBeEnabled() {
+        let mock = MockAudioCaptureEngine()
+        let inputDevice = makeDevice(uid: "input-uid", isInput: true, isOutput: false)
+        let outputDevice = makeDevice(uid: "output-uid", isInput: false, isOutput: true)
+        
+        try? mock.configure(inputDevice: inputDevice)
+        try? mock.setMonitoringOutput(device: outputDevice)
+        try? mock.enableMonitoring(true)
+        
+        XCTAssertTrue(mock.monitoringEnabled)
+    }
+    
+    /// Test monitoring can be disabled.
+    func testMonitoringCanBeDisabled() {
+        let mock = MockAudioCaptureEngine()
+        let inputDevice = makeDevice(uid: "input-uid", isInput: true, isOutput: false)
+        let outputDevice = makeDevice(uid: "output-uid", isInput: false, isOutput: true)
+        
+        try? mock.configure(inputDevice: inputDevice)
+        try? mock.setMonitoringOutput(device: outputDevice)
+        try? mock.enableMonitoring(true)
+        try? mock.enableMonitoring(false)
+        
+        XCTAssertFalse(mock.monitoringEnabled)
+    }
+    
+    /// Test monitoring device selection.
+    func testMonitoringDeviceSelection() {
+        let mock = MockAudioCaptureEngine()
+        let inputDevice = makeDevice(uid: "input-uid", name: "Input", isInput: true, isOutput: false)
+        let outputDevice = makeDevice(uid: "output-uid", name: "Output", isInput: false, isOutput: true)
+        
+        try? mock.configure(inputDevice: inputDevice)
+        try? mock.setMonitoringOutput(device: outputDevice)
+        
+        XCTAssertEqual(mock.currentMonitoringDevice?.name, "Output")
+        XCTAssertEqual(mock.setMonitoringOutputCallCount, 1)
+    }
+    
+    /// Test monitoring volume control clamps values.
+    func testMonitoringVolumeControl() {
+        let mock = MockAudioCaptureEngine()
+        
+        mock.setMonitoringVolume(0.5)
+        XCTAssertEqual(mock.monitoringVolume, 0.5, accuracy: 0.001)
+        
+        mock.setMonitoringVolume(1.5) // Above max
+        XCTAssertEqual(mock.monitoringVolume, 1.0, accuracy: 0.001)
+        
+        mock.setMonitoringVolume(-0.5) // Below min
+        XCTAssertEqual(mock.monitoringVolume, 0.0, accuracy: 0.001)
+    }
+    
+    /// Test feedback prevention when same device for input and output.
+    func testFeedbackPrevention() {
+        let mock = MockAudioCaptureEngine()
+        let device = makeDevice(
+            uid: "same-uid",
+            name: "Same Device",
+            isInput: true,
+            isOutput: true
+        )
+        
+        try? mock.configure(inputDevice: device)
+        
+        XCTAssertThrowsError(try mock.setMonitoringOutput(device: device)) { error in
+            guard let vibeCaptionError = error as? VibeCaptionError else {
+                XCTFail("Expected VibeCaptionError")
+                return
+            }
+            
+            if case .feedbackLoopDetected(let inputDevice, let outputDevice) = vibeCaptionError {
+                XCTAssertEqual(inputDevice, "Same Device")
+                XCTAssertEqual(outputDevice, "Same Device")
+            } else {
+                XCTFail("Expected feedbackLoopDetected error")
+            }
+        }
+    }
+    
+    /// Test feedback prevention when enabling monitoring with same device.
+    func testFeedbackPreventionOnEnable() {
+        let mock = MockAudioCaptureEngine()
+        let inputDevice = makeDevice(uid: "same-uid", name: "Same Device", isInput: true, isOutput: false)
+        
+        try? mock.configure(inputDevice: inputDevice)
+        mock.currentMonitoringDevice = makeDevice(uid: "same-uid", name: "Same Device", isInput: false, isOutput: true)
+        
+        XCTAssertThrowsError(try mock.enableMonitoring(true)) { error in
+            guard let vibeCaptionError = error as? VibeCaptionError else {
+                XCTFail("Expected VibeCaptionError")
+                return
+            }
+            
+            if case .feedbackLoopDetected = vibeCaptionError {
+                // Expected
+            } else {
+                XCTFail("Expected feedbackLoopDetected error")
+            }
+        }
+    }
+    
+    /// Test monitoring stops when capture stops.
+    func testMonitoringStopsWithCapture() {
+        let mock = MockAudioCaptureEngine()
+        let inputDevice = makeDevice(uid: "input-uid", isInput: true, isOutput: false)
+        let outputDevice = makeDevice(uid: "output-uid", isInput: false, isOutput: true)
+        
+        try? mock.configure(inputDevice: inputDevice)
+        try? mock.setMonitoringOutput(device: outputDevice)
+        try? mock.startCapture()
+        try? mock.enableMonitoring(true)
+        
+        XCTAssertTrue(mock.monitoringEnabled)
+        
+        mock.stopCapture()
+        
+        XCTAssertFalse(mock.monitoringEnabled)
+    }
+    
+    /// Test setting output-only device throws when not output.
+    func testSetMonitoringOutputWithInputOnlyDeviceThrows() {
+        let mock = MockAudioCaptureEngine()
+        let inputDevice = makeDevice(uid: "input-uid", isInput: true, isOutput: false)
+        let inputOnlyDevice = makeDevice(uid: "input-only-uid", name: "Input Only", isInput: true, isOutput: false)
+        
+        try? mock.configure(inputDevice: inputDevice)
+        
+        XCTAssertThrowsError(try mock.setMonitoringOutput(device: inputOnlyDevice)) { error in
+            guard let vibeCaptionError = error as? VibeCaptionError else {
+                XCTFail("Expected VibeCaptionError")
+                return
+            }
+            
+            if case .audioRoutingFailed(let device, let reason) = vibeCaptionError {
+                XCTAssertEqual(device, "Input Only")
+                XCTAssertTrue(reason.contains("output"))
+            } else {
+                XCTFail("Expected audioRoutingFailed error")
+            }
+        }
+    }
+    
+    /// Test mock conforms to protocol with monitoring.
+    func testMockConformsToProtocolWithMonitoring() {
+        let mock: AudioCaptureEngineProtocol = MockAudioCaptureEngine()
+        
+        XCTAssertFalse(mock.monitoringEnabled)
+        XCTAssertEqual(mock.monitoringVolume, 1.0, accuracy: 0.001)
+        XCTAssertNil(mock.currentMonitoringDevice)
     }
 }
