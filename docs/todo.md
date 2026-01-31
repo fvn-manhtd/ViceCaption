@@ -78,12 +78,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
 
 ## Phase 3: AI Services
 
-- [ ] **11. Model Manager Foundation**
-  - [ ] Create `ModelInfo` and `ModelStatus` models
-  - [ ] Implement `ModelManager` (Download, storage paths, checksums)
-  - [ ] Create bundled `model-catalog.json`
-  - [ ] test: Verify model path generation
-  - [ ] test: Verify checksum validation
+- [x] **11. Model Manager Foundation** ✅
+  - [x] Create `ModelInfo` and `ModelStatus` models
+  - [x] Implement `ModelManager` (Download, storage paths, checksums)
+  - [x] Create bundled `model-catalog.json`
+  - [x] test: Verify model path generation
+  - [x] test: Verify checksum validation
 
 - [ ] **12. ASR Service Interface & Mock**
   - [ ] Define `ASRServiceProtocol` and `ASRResult`

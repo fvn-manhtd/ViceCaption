@@ -609,63 +609,139 @@ Deliverables:
 ```text
 Building on the audio pipeline, implement the model management system.
 
-Context: VibeCaption uses two on-device models: VibeVoice-ASR for transcription and NLLB-200 for translation. Models must be downloaded, versioned, and managed.
+Context: VibeCaption uses two on-device models: Whisper-ASR for transcription and a Mac M1 Pro–suitable real-time translation model for translation. Models must be downloaded, versioned, and managed.
+
+Model Choices
+
+ASR (required): Whisper (e.g., whisper-small or whisper-base), packaged for on-device inference.
+
+Translation (required): MarianMT / OPUS-MT compiled to Core ML for the target language pair (e.g., opus-mt-en-ja-coreml, opus-mt-ja-en-coreml) to prioritize low latency on M1 Pro.
+
+Translation (optional high-quality): NLLB-200 600M (only if you want a “quality mode”; may be too slow for real-time on laptop depending on segment length).
 
 Requirements:
-1. Create model definitions in /Sources/Models/:
 
-   ModelInfo.swift:
-   - id: String (e.g., "vibevoice-asr", "nllb-coreml")
-   - displayName: String
-   - version: String
-   - downloadURL: URL
-   - checksum: String (SHA256)
-   - sizeBytes: Int64
-   - isRequired: Bool
+1. Create model definitions in /Sources/Models/
 
-   ModelStatus.swift:
-   - enum: notDownloaded, downloading(progress: Double), downloaded, corrupted, updateAvailable
+ModelInfo.swift
 
-2. Create `ModelManager` in /Sources/Services/:
-   - Properties:
-     - models: [ModelInfo] (published)
-     - modelStatuses: [String: ModelStatus] (published)
-     - downloadProgress: [String: Double] (published)
-   
-   - Methods:
-     - loadModelCatalog() - from bundled JSON or remote
-     - getModelPath(for: ModelInfo) -> URL?
-     - isModelReady(_ modelID: String) -> Bool
-     - downloadModel(_ model: ModelInfo) async throws
-     - verifyModel(_ model: ModelInfo) -> Bool (checksum)
-     - deleteModel(_ model: ModelInfo) throws
-     - getInstalledVersions() -> [String: String]
-     - getTotalDiskUsage() -> Int64
+id: String (e.g., "whisper-asr", "opus-mt-en-ja-coreml", "opus-mt-ja-en-coreml", "nllb-200-600m-optional")
 
-3. Storage structure:
-   - Base path from SettingsManager
-   - ~/Documents/VibeCaption/Models/vibevoice-asr/<version>/
-   - ~/Documents/VibeCaption/Models/nllb-coreml/<version>/
+displayName: String
 
-4. Write unit tests:
-   - Test model catalog loading
-   - Test path generation is correct
-   - Test checksum verification (with known test file)
-   - Test disk usage calculation
-   - Test status transitions
-   - Test download cancellation
+version: String
 
-5. Integration:
-   - Create bundled model-catalog.json with placeholder URLs
-   - Initialize ModelManager on app launch
-   - Check model status and update AppStateManager
+downloadURL: URL
+
+checksum: String (SHA256)
+
+sizeBytes: Int64
+
+isRequired: Bool
+
+ModelStatus.swift
+
+enum: notDownloaded, downloading(progress: Double), downloaded, corrupted, updateAvailable
+
+2. Create ModelManager in /Sources/Services/
+
+Properties
+
+models: [ModelInfo] (published)
+
+modelStatuses: [String: ModelStatus] (published)
+
+downloadProgress: [String: Double] (published)
+
+Methods
+
+loadModelCatalog() — from bundled JSON or remote
+
+getModelPath(for: ModelInfo) -> URL?
+
+isModelReady(_ modelID: String) -> Bool
+
+downloadModel(_ model: ModelInfo) async throws
+
+verifyModel(_ model: ModelInfo) -> Bool (checksum)
+
+deleteModel(_ model: ModelInfo) throws
+
+getInstalledVersions() -> [String: String]
+
+getTotalDiskUsage() -> Int64
+
+Additional behavior (important for “real-time” translation)
+
+Provide helper queries:
+
+getTranslationModelID(for sourceLang: String, targetLang: String) -> String?
+
+getASRModelID() -> String?
+
+Prefer OPUS-MT CoreML translation models by default.
+
+Allow “quality mode” to switch to optional NLLB if installed.
+
+3. Storage structure
+
+Base path from SettingsManager
+
+~/Documents/VibeCaption/Models/whisper-asr/<version>/
+
+~/Documents/VibeCaption/Models/opus-mt-en-ja-coreml/<version>/
+
+~/Documents/VibeCaption/Models/opus-mt-ja-en-coreml/<version>/
+
+(optional) ~/Documents/VibeCaption/Models/nllb-200-600m-optional/<version>/
+
+4. Write unit tests
+
+Test model catalog loading
+
+Test path generation is correct
+
+Test checksum verification (with known test file)
+
+Test disk usage calculation
+
+Test status transitions
+
+Test download cancellation
+
+Test translation model selection logic (EN→JA chooses opus-mt-en-ja-coreml, etc.)
+
+5. Integration
+
+Create bundled model-catalog.json with placeholder URLs
+
+Initialize ModelManager on app launch
+
+Check model status and update AppStateManager
 
 Deliverables:
-- ModelInfo.swift
-- ModelStatus.swift
-- ModelManager.swift
-- model-catalog.json (bundled resource)
-- ModelManagerTests.swift
+
+ModelInfo.swift
+
+ModelStatus.swift
+
+ModelManager.swift
+
+model-catalog.json (bundled resource)
+
+ModelManagerTests.swift
+
+Suggested model-catalog.json IDs (example)
+
+Use these IDs in your catalog so the app can pick the right translation model per language direction:
+
+whisper-asr (required)
+
+opus-mt-en-ja-coreml (required if EN→JA supported)
+
+opus-mt-ja-en-coreml (required if JA→EN supported)
+
+nllb-200-600m-optional (optional “quality mode”)
 ```
 
 ---
