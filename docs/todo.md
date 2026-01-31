@@ -94,11 +94,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify factory switching
   - [x] Integration: pipeline now calls ASR and logs results; conversion to `TranscriptBlock` added
 
-- [ ] **13. Translation Service Interface & Mock**
-  - [ ] Define `TranslationServiceProtocol` and `TranslationResult`
-  - [ ] Implement `MockTranslationService`
-  - [ ] Implement `TranslationServiceFactory`
-  - [ ] test: Verify mock returns expected translations
+- [x] **13. Translation Service Interface & Mock** ✅
+  - [x] Define `TranslationServiceProtocol`, `TranslationResult`, `Language`
+  - [x] Implement `MockTranslationService` (configurable modes & delays)
+  - [x] Implement `TranslationServiceFactory` (mock/real toggling)
+  - [x] test: Verify mock returns expected translations and delays
+  - [x] Integration: translation service wired into `CaptionPipeline` and logs results
 
 - [ ] **14. Real Whisper ASR Integration**
   - [ ] Implement `WhisperASRService`

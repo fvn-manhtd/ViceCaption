@@ -12,6 +12,7 @@ class CaptionPipeline: ObservableObject {
     private let vad: VoiceActivityDetector
     private let segmenter: AudioSegmenter
     private let asrService: ASRServiceProtocol
+    private let translationService: TranslationServiceProtocol
     
     private let logger = Logger(subsystem: "com.vibecaption", category: "CaptionPipeline")
     
@@ -26,8 +27,14 @@ class CaptionPipeline: ObservableObject {
         self.vad = VoiceActivityDetector()
         self.segmenter = AudioSegmenter()
         self.asrService = ASRServiceFactory.getService(useMock: true)
+        self.translationService = TranslationServiceFactory.shared.getService(useMock: true) // Using Mock for now as per requirements
         
         setupPipeline()
+        
+        // Ensure translation model is loaded
+        Task {
+            try? await self.translationService.loadModel()
+        }
     }
     
     // MARK: - Setup
@@ -69,9 +76,29 @@ class CaptionPipeline: ObservableObject {
             guard let self = self else { return }
             do {
                 let result = try await self.asrService.transcribe(segment)
-                let blocks = self.convertToTranscriptBlocks(result)
-                let joined = blocks.map { $0.japaneseText }.joined(separator: " | ")
-                self.logger.info("ASR Result: \(joined)")
+                var blocks = self.convertToTranscriptBlocks(result)
+                
+                // Log ASR results
+                let japaneseLog = blocks.map { $0.japaneseText }.joined(separator: " | ")
+                self.logger.info("ASR Result: \(japaneseLog)")
+                
+                // Translate blocks
+                for i in 0..<blocks.count {
+                    do {
+                        let translation = try await self.translationService.translate(
+                            blocks[i].japaneseText,
+                            from: .japanese,
+                            to: .english
+                        )
+                        blocks[i].englishText = translation.translatedText
+                        self.logger.info("Translation Result: \(translation.translatedText) (Confidence: \(translation.confidence))")
+                    } catch {
+                        self.logger.error("Translation failed for block \(i): \(error.localizedDescription)")
+                    }
+                }
+                
+                // TODO: Emit blocks to TranscriptManager
+                
             } catch {
                 self.logger.error("ASR failed: \(error.localizedDescription)")
             }
