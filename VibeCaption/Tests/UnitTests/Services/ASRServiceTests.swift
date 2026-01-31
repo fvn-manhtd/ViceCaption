@@ -59,11 +59,16 @@ final class ASRServiceTests: XCTestCase {
     }
 
     func testFactoryReturnsCorrectImplementation() {
-        let s1 = ASRServiceFactory.getService(useMock: true)
+        // Setup dependencies for factory
+        let settings = SettingsManager() // Assuming default init exists or is simple
+        let modelManager = ModelManager(settingsManager: settings)
+        
+        let s1 = ASRServiceFactory.getService(modelManager: modelManager, useMock: true)
         XCTAssertTrue(s1 is MockASRService)
 
-        let s2 = ASRServiceFactory.getService(useMock: false)
+        let s2 = ASRServiceFactory.getService(modelManager: modelManager, useMock: false)
         XCTAssertFalse(s2 is MockASRService)
+        XCTAssertTrue(s2 is WhisperASRService)
     }
 
     func testSpeakerIDAssignmentConsistent() async throws {

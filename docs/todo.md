@@ -101,8 +101,11 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify mock returns expected translations and delays
   - [x] Integration: translation service wired into `CaptionPipeline` and logs results
 
-- [ ] **14. Real Whisper ASR Integration**
-  - [ ] Implement `WhisperASRService`
+- [x] **14. Real Whisper ASR Integration**
+  - [x] Implement `WhisperASRService`
+  - [x] Setup `WhisperASRServiceTests`
+  - [ ] **Manual Step**: Add `whisper.spm` dependency in Xcode
+  - [ ] **Manual Step**: Add `WhisperASRService.swift` and `WhisperASRServiceTests.swift` to targets
   - [ ] Integrate Whisper runtime dependencies (e.g., whisper.cpp wrapper)
   - [ ] Implement micro-batching for near-realtime
   - [ ] test: Verify transcribing sample Japanese audio with timestamps
