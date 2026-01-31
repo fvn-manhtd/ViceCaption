@@ -33,6 +33,7 @@ final class MockAudioCaptureEngine: AudioCaptureEngineProtocol {
     var setMonitoringOutputCallCount = 0
     var enableMonitoringCallCount = 0
     var setMonitoringVolumeCallCount = 0
+    var setNoiseSuppressionCallCount = 0
     var audioCallback: ((AVAudioPCMBuffer) -> Void)?
     
     var shouldThrowOnConfigure = false
@@ -127,6 +128,12 @@ final class MockAudioCaptureEngine: AudioCaptureEngineProtocol {
     /// Simulate receiving audio at a given level.
     func simulateAudioLevel(_ level: Float) {
         audioLevel = level
+    }
+    
+    // MARK: - Feature Control
+    
+    func setNoiseSuppression(_ enabled: Bool) {
+        setNoiseSuppressionCallCount += 1
     }
 }
 
@@ -573,5 +580,29 @@ final class AudioCaptureEngineTests: XCTestCase {
         XCTAssertFalse(mock.monitoringEnabled)
         XCTAssertEqual(mock.monitoringVolume, 1.0, accuracy: 0.001)
         XCTAssertNil(mock.currentMonitoringDevice)
+    }
+    
+    // MARK: - Feature Control Tests
+    
+    /// Test noise suppression can be toggled.
+    func testSetNoiseSuppression() {
+        // Verification that the API exists and can be called
+        sut.setNoiseSuppression(true)
+        sut.setNoiseSuppression(false)
+        
+        // Since we can't easily mock AVAudioEngine internal state in unit tests without a detailed mock wrapper,
+        // we mainly ensure the method executes without crashing.
+        // On macOS < 10.14 this does nothing.
+    }
+    
+    /// Test mock records noise suppression calls.
+    func testMockRecordsNoiseSuppressionCalls() {
+        let mock = MockAudioCaptureEngine()
+        
+        mock.setNoiseSuppression(true)
+        XCTAssertEqual(mock.setNoiseSuppressionCallCount, 1)
+        
+        mock.setNoiseSuppression(false)
+        XCTAssertEqual(mock.setNoiseSuppressionCallCount, 2)
     }
 }

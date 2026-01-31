@@ -35,6 +35,9 @@ public protocol AudioCaptureEngineProtocol: AnyObject {
     func setMonitoringOutput(device: AudioDevice?) throws
     func enableMonitoring(_ enabled: Bool) throws
     func setMonitoringVolume(_ volume: Float)
+    
+    // Noise Suppression
+    func setNoiseSuppression(_ enabled: Bool)
 }
 
 // MARK: - AudioCaptureEngine
@@ -101,11 +104,8 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     /// The AVAudioEngine instance.
     private var audioEngine: AVAudioEngine
     
-    /// Audio format converter for 16kHz output.
-    private var converter: AVAudioConverter?
-    
-    /// Target audio format (16kHz mono).
-    private var targetFormat: AVAudioFormat?
+    /// Audio preprocessor for sample rate conversion.
+    private let preprocessor: AudioPreprocessor
     
     /// Callback for processed audio data.
     private var audioCallback: ((AVAudioPCMBuffer) -> Void)?
@@ -140,12 +140,7 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     public init(ringBufferCapacity: Int = Int(targetSampleRate) * 30) {
         self.audioEngine = AVAudioEngine()
         self.ringBuffer = AudioRingBuffer(capacity: ringBufferCapacity)
-        
-        // Create target format (16kHz mono)
-        self.targetFormat = AVAudioFormat(
-            standardFormatWithSampleRate: Self.targetSampleRate,
-            channels: 1
-        )
+        self.preprocessor = AudioPreprocessor(outputSampleRate: Self.targetSampleRate)
         
         logger.info("AudioCaptureEngine initialized")
     }
@@ -159,8 +154,9 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     /// Configures the engine to use the specified input device.
     ///
     /// - Parameter inputDevice: The audio device to use for capture.
+    /// - Parameter noiseSuppressionEnabled: Whether to enable system noise suppression (Voice Processing I/O).
     /// - Throws: `VibeCaptionError.audioRoutingFailed` if the device is not accessible.
-    public func configure(inputDevice: AudioDevice) throws {
+    public func configure(inputDevice: AudioDevice, noiseSuppressionEnabled: Bool = true) throws {
         logger.info("Configuring input device: \(inputDevice.name)")
         
         // Verify device is an input device
@@ -177,8 +173,22 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
             stopCapture()
         }
         
+        // Reset preprocessor
+        preprocessor.reset()
+        
         // Reset the engine
         audioEngine = AVAudioEngine()
+        
+        // Configure Voice Processing I/O if requested (macOS 10.14+)
+        if #available(macOS 10.14, *) {
+            do {
+                // Voice Processing I/O is enabled on the input node
+                try audioEngine.inputNode.setVoiceProcessingEnabled(noiseSuppressionEnabled)
+                logger.info("Voice Processing I/O set to: \(noiseSuppressionEnabled)")
+            } catch {
+                logger.warning("Failed to set Voice Processing I/O: \(error.localizedDescription)")
+            }
+        }
         
         // Try to set the input device via AudioUnit
         do {
@@ -191,11 +201,24 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
             )
         }
         
-        // Setup converter for the new input format
-        setupConverter()
-        
         currentInputDevice = inputDevice
         logger.info("Input device configured successfully: \(inputDevice.name)")
+    }
+    
+    // MARK: - Feature Control
+    
+    /// Enables or disables voice processing (noise suppression).
+    ///
+    /// - Parameter enabled: Whether to enable noise suppression.
+    public func setNoiseSuppression(_ enabled: Bool) {
+        if #available(macOS 10.14, *) {
+            do {
+                try audioEngine.inputNode.setVoiceProcessingEnabled(enabled)
+                logger.info("Voice Processing I/O set to: \(enabled)")
+            } catch {
+                logger.warning("Failed to set Voice Processing I/O: \(error.localizedDescription)")
+            }
+        }
     }
     
     // MARK: - Capture Control
@@ -400,25 +423,7 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
         #endif
     }
     
-    /// Sets up the audio converter for sample rate conversion.
-    private func setupConverter() {
-        let inputNode = audioEngine.inputNode
-        let inputFormat = inputNode.inputFormat(forBus: 0)
-        
-        guard let outputFormat = targetFormat else {
-            logger.error("Target format not available")
-            return
-        }
-        
-        // Create converter if sample rates differ
-        if inputFormat.sampleRate != outputFormat.sampleRate {
-            converter = AVAudioConverter(from: inputFormat, to: outputFormat)
-            logger.info("Created converter: \(inputFormat.sampleRate)Hz -> \(outputFormat.sampleRate)Hz")
-        } else {
-            converter = nil
-            logger.info("No sample rate conversion needed")
-        }
-    }
+
     
     /// Installs the audio tap on the input node.
     private func installInputTap() {
@@ -447,15 +452,8 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
             self?.audioLevel = level
         }
         
-        // Convert to target format if needed
-        let outputBuffer: AVAudioPCMBuffer
-        if let converter = converter,
-           let targetFormat = targetFormat,
-           let convertedBuffer = convertBuffer(buffer, using: converter, to: targetFormat) {
-            outputBuffer = convertedBuffer
-        } else {
-            outputBuffer = buffer
-        }
+        // Preprocess buffer (SRC)
+        let outputBuffer = preprocessor.process(buffer)
         
         // Write to ring buffer
         ringBuffer.write(outputBuffer)
@@ -469,37 +467,7 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
         audioCallback?(outputBuffer)
     }
     
-    /// Converts audio buffer to target format.
-    private func convertBuffer(
-        _ inputBuffer: AVAudioPCMBuffer,
-        using converter: AVAudioConverter,
-        to outputFormat: AVAudioFormat
-    ) -> AVAudioPCMBuffer? {
-        // Calculate output frame capacity
-        let ratio = outputFormat.sampleRate / inputBuffer.format.sampleRate
-        let outputFrameCapacity = AVAudioFrameCount(Double(inputBuffer.frameLength) * ratio)
-        
-        guard let outputBuffer = AVAudioPCMBuffer(
-            pcmFormat: outputFormat,
-            frameCapacity: outputFrameCapacity
-        ) else {
-            logger.error("Failed to create output buffer")
-            return nil
-        }
-        
-        var error: NSError?
-        let status = converter.convert(to: outputBuffer, error: &error) { inNumPackets, outStatus in
-            outStatus.pointee = .haveData
-            return inputBuffer
-        }
-        
-        guard status != .error else {
-            logger.error("Conversion failed: \(error?.localizedDescription ?? "Unknown")")
-            return nil
-        }
-        
-        return outputBuffer
-    }
+
     
     /// Calculates the RMS (Root Mean Square) level of the audio buffer.
     ///

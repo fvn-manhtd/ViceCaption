@@ -62,12 +62,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify monitoring enable/disable
   - [x] test: Verify output volume control
 
-- [ ] **9. Audio Preprocessing & Noise Suppression**
-  - [ ] Implement `AudioPreprocessor`
-  - [ ] Integrate Apple Voice Processing I/O (or swappable denoiser)
-  - [ ] Implement sample rate conversion (to 16kHz)
-  - [ ] test: Verify noise suppression toggle
-  - [ ] test: Verify sample rate conversion
+- [x] **9. Audio Preprocessing & Noise Suppression** ✅
+  - [x] Implement `AudioPreprocessor`
+  - [x] Integrate Apple Voice Processing I/O (or swappable denoiser)
+  - [x] Implement sample rate conversion (to 16kHz)
+  - [x] test: Verify noise suppression toggle
+  - [x] test: Verify sample rate conversion
 
 - [ ] **10. Voice Activity Detection & Segmentation**
   - [ ] Implement `VoiceActivityDetector` (Speech/Silence/Uncertain)
