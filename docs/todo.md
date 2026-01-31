@@ -111,12 +111,15 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify transcribing sample Japanese audio with timestamps
   - [x] test: Verify error handling and memory usage
 
-- [ ] **15. Real NLLB-200 CoreML Translation Integration**
-  - [ ] Implement `NLLBTranslationService`
-  - [ ] Integrate CoreML model loading (ANE/GPU)
-  - [ ] Implement tokenization
-  - [ ] test: Verify Japanese to English translation
-  - [ ] test: Verify performance/latency
+- [x] **15. Real NLLB-200 CoreML Translation Integration** ✅
+  - [x] Implement `NLLBTranslationService`
+  - [x] Integrate CoreML model loading (ANE/GPU)
+  - [x] Implement tokenization
+  - [x] test: Verify Japanese to English translation
+  - [x] test: Verify performance/latency
+  - [x] **Manual Step**: Add `NLLBTranslationService.swift`, `NLLBTokenizer.swift`, and `NLLBTranslationServiceTests.swift` to targets
+  - [x] **Manual Step**: Download NLLB-200 CoreML model and update model-catalog.json
+
 
 ## Phase 4: UI Components
 

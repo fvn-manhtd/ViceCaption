@@ -7,26 +7,35 @@ public class TranslationServiceFactory {
     // Making it public to allow creating instances if needed, but shared covers most cases.
     public init() {}
     
-    public func getService(useMock: Bool) -> TranslationServiceProtocol {
+    /// Get a translation service instance
+    ///
+    /// - Parameters:
+    ///   - useMock: If true, returns a MockTranslationService
+    ///   - modelManager: Optional ModelManager for real service. Required when useMock is false.
+    /// - Returns: A TranslationServiceProtocol implementation
+    public func getService(useMock: Bool, modelManager: ModelManager? = nil) -> TranslationServiceProtocol {
         if useMock {
             return MockTranslationService()
         }
         
-        #if DEBUG
-        // In DEBUG builds without explicit mock request, we might still want default behavior.
-        // But the requirement says "Returns mock in debug/test, real in production".
-        // Assuming this means if useMock is NOT specified, we check environment.
-        // However, the signature is `getService(useMock: Bool)`.
-        // If the caller explicitly passes `false` (real), and we are in DEBUG, ideally we return Real if possible.
-        // Since Real isn't implemented, we will return Mock with a log warning or fatalError depending on preference.
-        // For now, I will fallback to Mock with a TODO note.
-        print("Warning: Real TranslationService not implemented yet. Returning Mock.")
-        return MockTranslationService()
-        #else
-        // Production
-        // TODO: Implement RealTranslationService
-        print("Warning: Real TranslationService not implemented yet. Returning Mock.")
-        return MockTranslationService()
-        #endif
+        // Real service requires ModelManager
+        guard let manager = modelManager else {
+            #if DEBUG
+            print("Warning: ModelManager not provided for real TranslationService. Returning Mock.")
+            #endif
+            return MockTranslationService()
+        }
+        
+        return NLLBTranslationService(modelManager: manager)
+    }
+    
+    /// Convenience method for getting mock service (for testing)
+    public func getMockService(config: MockTranslationService.Configuration = .default) -> MockTranslationService {
+        return MockTranslationService(config: config)
+    }
+    
+    /// Convenience method for getting real NLLB service
+    public func getNLLBService(modelManager: ModelManager) -> NLLBTranslationService {
+        return NLLBTranslationService(modelManager: modelManager)
     }
 }
