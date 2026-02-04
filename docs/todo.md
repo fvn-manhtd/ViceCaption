@@ -155,11 +155,11 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] Wire actions to `TranscriptManager`
   - [x] test: Verify correct clear method calls
 
-- [ ] **21. Settings Panel**
-  - [ ] Implement `SettingsWindow` with tabs
-  - [ ] Build tabs: Audio, Overlay, Models, Diagnostics, Updates
-  - [ ] Connect UI controls to `SettingsManager`
-  - [ ] test: Verify settings changes persist
+- [x] **21. Settings Panel** ✅
+  - [x] Implement `SettingsWindow` with tabs
+  - [x] Build tabs: Audio, Overlay, Models, Diagnostics, Updates
+  - [x] Connect UI controls to `SettingsManager`
+  - [x] test: Verify settings changes persist
 
 - [ ] **22. Setup Wizard**
   - [ ] Implement `SetupWizardWindow` (step-by-step flow)
