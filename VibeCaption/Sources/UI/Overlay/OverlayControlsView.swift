@@ -10,8 +10,10 @@ import SwiftUI
 struct OverlayControlsView: View {
     @ObservedObject var appStateManager: AppStateManager
     let showKeypressFeedback: Bool
+    let hasContent: Bool
     let onPause: () -> Void
     let onResume: () -> Void
+    let onClear: () -> Void
     
     var body: some View {
         let state = appStateManager.currentState
@@ -36,6 +38,15 @@ struct OverlayControlsView: View {
                     }
                     .buttonStyle(.plain)
                     .help("Resume")
+                }
+                
+                if Self.shouldShowClearButton(hasContent: hasContent) {
+                    Button(action: onClear) {
+                        Image(systemName: "trash")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .help("Clear captions")
                 }
             }
             
@@ -80,4 +91,9 @@ extension OverlayControlsView {
     static func shouldShowIdleHint(for state: AppState) -> Bool {
         state == .idle
     }
+    
+    static func shouldShowClearButton(hasContent: Bool) -> Bool {
+        hasContent
+    }
 }
+

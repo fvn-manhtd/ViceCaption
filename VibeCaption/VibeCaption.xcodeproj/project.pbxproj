@@ -19,6 +19,7 @@
 		0C72BCB02F2E2ABC005682CF /* OverlayControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCB32F2E2ABC005682CF /* OverlayControlsView.swift */; };
 		0C72BCB12F2E2ABC005682CF /* StatusDotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCB42F2E2ABC005682CF /* StatusDotView.swift */; };
 		0C72BCB22F2E2AC5005682CF /* OverlayControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCB52F2E2AC5005682CF /* OverlayControlsTests.swift */; };
+		48703DD46A68ECBF52A8190F /* ClearCaptionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A674BC62CE4EBFD5C16E32D7 /* ClearCaptionsTests.swift */; };
 		A1000001A1000001A1000001 /* VibeCaptionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002A1000002A1000002 /* VibeCaptionApp.swift */; };
 		A1000003A1000003A1000003 /* VibeCaptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004A1000004A1000004 /* VibeCaptionTests.swift */; };
 		B1000001B1000001B1000001 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000002B1000002B1000002 /* AppState.swift */; };
@@ -35,6 +36,7 @@
 		D100000BD100000BD100000B /* TranscriptModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D100000CD100000CD100000C /* TranscriptModelsTests.swift */; };
 		D100000DD100000DD100000D /* TranscriptFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D100000ED100000ED100000E /* TranscriptFormatterTests.swift */; };
 		D100000FD100000FD100000F /* TranscriptManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000010D1000010D1000010 /* TranscriptManagerTests.swift */; };
+		E030DFBE722B018BC9FBDF84 /* ClearCaptionsPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE57404B3A4DB24087AC301 /* ClearCaptionsPopup.swift */; };
 		E1000001E1000001E1000001 /* VibeCaptionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002E1000002E1000002 /* VibeCaptionError.swift */; };
 		E1000003E1000003E1000003 /* RecoveryAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000004E1000004E1000004 /* RecoveryAction.swift */; };
 		E1000005E1000005E1000005 /* ErrorHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000006E1000006E1000006 /* ErrorHandler.swift */; };
@@ -74,12 +76,14 @@
 		A1000009A1000009A1000009 /* VibeCaptionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VibeCaptionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A100000AA100000AA100000A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A100000BA100000BA100000B /* VibeCaption.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VibeCaption.entitlements; sourceTree = "<group>"; };
+		A674BC62CE4EBFD5C16E32D7 /* ClearCaptionsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClearCaptionsTests.swift; sourceTree = "<group>"; };
 		B1000002B1000002B1000002 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		B1000004B1000004B1000004 /* AppStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManager.swift; sourceTree = "<group>"; };
 		B1000006B1000006B1000006 /* AppStateManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateManagerTests.swift; sourceTree = "<group>"; };
 		C1000002C1000002C1000002 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		C1000004C1000004C1000004 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		C1000006C1000006C1000006 /* SettingsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManagerTests.swift; sourceTree = "<group>"; };
+		CFE57404B3A4DB24087AC301 /* ClearCaptionsPopup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ClearCaptionsPopup.swift; path = Overlay/ClearCaptionsPopup.swift; sourceTree = "<group>"; };
 		D1000002D1000002D1000002 /* TranscriptBlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptBlock.swift; sourceTree = "<group>"; };
 		D1000004D1000004D1000004 /* PauseMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PauseMarker.swift; sourceTree = "<group>"; };
 		D1000006D1000006D1000006 /* TranscriptSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptSession.swift; sourceTree = "<group>"; };
@@ -202,6 +206,7 @@
 				0C72BC992F2E1C52005682CF /* OverlayWindow.swift */,
 				0C698A692F2E188B001059DC /* MenuBarController.swift */,
 				E1000008E1000008E1000008 /* ErrorModalView.swift */,
+				CFE57404B3A4DB24087AC301 /* ClearCaptionsPopup.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -246,6 +251,7 @@
 				F1000006F1000006F1000006 /* AudioDeviceManagerTests.swift */,
 				0C72BCAC2F2E2AC5005682CF /* OverlayContentViewTests.swift */,
 				0C72BCB52F2E2AC5005682CF /* OverlayControlsTests.swift */,
+				A674BC62CE4EBFD5C16E32D7 /* ClearCaptionsTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -387,6 +393,7 @@
 				0C72BCAB2F2E2ABC005682CF /* CaptionBlockView.swift in Sources */,
 				0C72BCB02F2E2ABC005682CF /* OverlayControlsView.swift in Sources */,
 				0C72BCB12F2E2ABC005682CF /* StatusDotView.swift in Sources */,
+				E030DFBE722B018BC9FBDF84 /* ClearCaptionsPopup.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -407,6 +414,7 @@
 				F1000005F1000005F1000005 /* AudioDeviceManagerTests.swift in Sources */,
 				0C72BCAD2F2E2AC5005682CF /* OverlayContentViewTests.swift in Sources */,
 				0C72BCB22F2E2AC5005682CF /* OverlayControlsTests.swift in Sources */,
+				48703DD46A68ECBF52A8190F /* ClearCaptionsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

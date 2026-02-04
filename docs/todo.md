@@ -136,24 +136,24 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify persistence of window position/size
   - [x] test: Verify visibility toggling
 
-- [ ] **18. Overlay Caption Display**
+- [x] **18. Overlay Caption Display**
   - [x] Implement `OverlayContentView` (Scrollable list)
   - [x] Implement `CaptionBlockView` (Speaker, Timestamp, JA/EN text)
   - [x] Apply styling preferences (Font size, width)
   - [x] test: Verify rendering of block components
 
-- [ ] **19. Overlay Controls & Status**
+- [x] **19. Overlay Controls & Status**
   - [x] Implement `OverlayControlsView` (Status dot, Pause button)
   - [x] Implement Space key toggle handler
   - [x] Implement Auto-hide logic (timer)
   - [x] test: Verify status dot states and animations
   - [x] test: Verify auto-hide triggers
 
-- [ ] **20. Clear Captions Action**
-  - [ ] Implement `ClearCaptionsPopup` (Display only vs Clear+Discard)
-  - [ ] Add Clear button to overlay
-  - [ ] Wire actions to `TranscriptManager`
-  - [ ] test: Verify correct clear method calls
+- [x] **20. Clear Captions Action**
+  - [x] Implement `ClearCaptionsPopup` (Display only vs Clear+Discard)
+  - [x] Add Clear button to overlay
+  - [x] Wire actions to `TranscriptManager`
+  - [x] test: Verify correct clear method calls
 
 - [ ] **21. Settings Panel**
   - [ ] Implement `SettingsWindow` with tabs

@@ -26,6 +26,7 @@ struct OverlayContentView: View {
     @State private var keyEventMonitor: Any?
     @State private var showKeypressFeedback: Bool = false
     @State private var keypressResetTask: DispatchWorkItem?
+    @State private var showClearPopup: Bool = false
     
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.yourcompany.vibecaption",
@@ -63,6 +64,10 @@ struct OverlayContentView: View {
         return CGFloat(visibleLines) * lineHeight + verticalPadding
     }
     
+    private var hasDisplayableContent: Bool {
+        !transcriptManager.displayableBlocks.isEmpty
+    }
+    
     var body: some View {
         ZStack(alignment: .topLeading) {
             ScrollViewReader { proxy in
@@ -95,11 +100,20 @@ struct OverlayContentView: View {
             OverlayControlsView(
                 appStateManager: appStateManager,
                 showKeypressFeedback: showKeypressFeedback,
+                hasContent: hasDisplayableContent,
                 onPause: handlePause,
-                onResume: handleResume
+                onResume: handleResume,
+                onClear: handleClearTapped
             )
             .padding(.leading, 8)
             .padding(.top, 8)
+            
+            ClearCaptionsPopupOverlay(
+                isPresented: $showClearPopup,
+                anchorAlignment: .topLeading,
+                onClearDisplayOnly: handleClearDisplayOnly,
+                onClearAndDiscard: handleClearAndDiscard
+            )
         }
         .onAppear {
             configureAutoHide()
@@ -195,6 +209,21 @@ struct OverlayContentView: View {
         }
         keypressResetTask = task
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: task)
+    }
+    
+    private func handleClearTapped() {
+        autoHideController.recordActivity()
+        showClearPopup = true
+    }
+    
+    private func handleClearDisplayOnly() {
+        transcriptManager.clearDisplay()
+        logger.info("Cleared display only (data preserved)")
+    }
+    
+    private func handleClearAndDiscard() {
+        transcriptManager.clearAndDiscard()
+        logger.info("Cleared and discarded data")
     }
 }
 
