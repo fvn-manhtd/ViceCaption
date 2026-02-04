@@ -143,11 +143,11 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify rendering of block components
 
 - [ ] **19. Overlay Controls & Status**
-  - [ ] Implement `OverlayControlsView` (Status dot, Pause button)
-  - [ ] Implement Space key toggle handler
-  - [ ] Implement Auto-hide logic (timer)
-  - [ ] test: Verify status dot states and animations
-  - [ ] test: Verify auto-hide triggers
+  - [x] Implement `OverlayControlsView` (Status dot, Pause button)
+  - [x] Implement Space key toggle handler
+  - [x] Implement Auto-hide logic (timer)
+  - [x] test: Verify status dot states and animations
+  - [x] test: Verify auto-hide triggers
 
 - [ ] **20. Clear Captions Action**
   - [ ] Implement `ClearCaptionsPopup` (Display only vs Clear+Discard)

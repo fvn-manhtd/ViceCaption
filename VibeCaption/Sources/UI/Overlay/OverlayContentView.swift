@@ -7,11 +7,14 @@
 //
 
 import SwiftUI
-import Combine
+import AppKit
+import os.log
 
 struct OverlayContentView: View {
     @ObservedObject var transcriptManager: TranscriptManager
     @ObservedObject var settingsManager: SettingsManager
+    @ObservedObject var appStateManager: AppStateManager
+    @ObservedObject var overlayViewModel: OverlayViewModel
     
     // Default visible lines count; used to shape suggested height
     let visibleLines: Int
@@ -19,16 +22,35 @@ struct OverlayContentView: View {
     // Optional test callback for verifying auto-scroll behavior
     var onAutoScroll: ((UUID) -> Void)? = nil
     
+    @StateObject private var autoHideController: OverlayAutoHideController
+    @State private var keyEventMonitor: Any?
+    @State private var showKeypressFeedback: Bool = false
+    @State private var keypressResetTask: DispatchWorkItem?
+    
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "com.yourcompany.vibecaption",
+        category: "OverlayContentView"
+    )
+    
     init(
         transcriptManager: TranscriptManager,
         settingsManager: SettingsManager,
+        appStateManager: AppStateManager,
+        overlayViewModel: OverlayViewModel,
         visibleLines: Int = 10,
         onAutoScroll: ((UUID) -> Void)? = nil
     ) {
         self.transcriptManager = transcriptManager
         self.settingsManager = settingsManager
+        self.appStateManager = appStateManager
+        self.overlayViewModel = overlayViewModel
         self.visibleLines = visibleLines
         self.onAutoScroll = onAutoScroll
+        _autoHideController = StateObject(
+            wrappedValue: OverlayAutoHideController(
+                inactivityInterval: TimeInterval(settingsManager.overlayAutoHideSeconds)
+            )
+        )
     }
     
     private var containerMaxWidth: CGFloat { settingsManager.overlayMaxWidth }
@@ -42,31 +64,137 @@ struct OverlayContentView: View {
     }
     
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 8) {
-                    ForEach(transcriptManager.displayableBlocks) { block in
-                        CaptionBlockView(
-                            block: block,
-                            fontSize: settingsManager.overlayFontSize
-                        )
-                        .id(block.id)
-                        .animation(.easeInOut(duration: 0.25), value: transcriptManager.displayableBlocks.count)
+        ZStack(alignment: .topLeading) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 8) {
+                        ForEach(transcriptManager.displayableBlocks) { block in
+                            CaptionBlockView(
+                                block: block,
+                                fontSize: settingsManager.overlayFontSize
+                            )
+                            .id(block.id)
+                            .animation(.easeInOut(duration: 0.25), value: transcriptManager.displayableBlocks.count)
+                        }
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: containerMaxWidth, alignment: .leading)
+                    .onChange(of: transcriptManager.displayableBlocks.last?.id) { newID in
+                        guard let newID else { return }
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            proxy.scrollTo(newID, anchor: .bottom)
+                        }
+                        autoHideController.recordActivity()
+                        onAutoScroll?(newID)
                     }
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 8)
-                .frame(maxWidth: containerMaxWidth, alignment: .leading)
-                .onChange(of: transcriptManager.displayableBlocks.last?.id) { newID in
-                    guard let newID else { return }
-                    withAnimation(.easeOut(duration: 0.25)) {
-                        proxy.scrollTo(newID, anchor: .bottom)
-                    }
-                    onAutoScroll?(newID)
-                }
+                .frame(maxWidth: containerMaxWidth, minHeight: suggestedHeight)
             }
-            .frame(maxWidth: containerMaxWidth, minHeight: suggestedHeight)
+            
+            OverlayControlsView(
+                appStateManager: appStateManager,
+                showKeypressFeedback: showKeypressFeedback,
+                onPause: handlePause,
+                onResume: handleResume
+            )
+            .padding(.leading, 8)
+            .padding(.top, 8)
         }
+        .onAppear {
+            configureAutoHide()
+            handleOverlayVisibilityChange(appStateManager.isOverlayVisible)
+            startKeyMonitoring()
+        }
+        .onDisappear {
+            stopKeyMonitoring()
+            autoHideController.stop()
+        }
+        .onChange(of: appStateManager.isOverlayVisible) { isVisible in
+            handleOverlayVisibilityChange(isVisible)
+        }
+        .onChange(of: settingsManager.overlayAutoHideSeconds) { newValue in
+            autoHideController.updateInterval(TimeInterval(newValue))
+        }
+    }
+    
+    private func configureAutoHide() {
+        autoHideController.onHide = { [appStateManager] in
+            DispatchQueue.main.async {
+                appStateManager.overlayWillHide()
+            }
+        }
+    }
+    
+    private func handleOverlayVisibilityChange(_ isVisible: Bool) {
+        if isVisible {
+            autoHideController.recordActivity()
+            autoHideController.start()
+        } else {
+            autoHideController.stop()
+        }
+    }
+    
+    private func handlePause() {
+        do {
+            autoHideController.recordActivity()
+            try appStateManager.pause()
+        } catch {
+            logger.error("Pause failed: \(error.localizedDescription)")
+        }
+    }
+    
+    private func handleResume() {
+        do {
+            autoHideController.recordActivity()
+            try appStateManager.resume()
+        } catch {
+            logger.error("Resume failed: \(error.localizedDescription)")
+        }
+    }
+    
+    private func startKeyMonitoring() {
+        guard keyEventMonitor == nil else { return }
+        keyEventMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown]) { event in
+            let handled = OverlayKeyCommandHandler.handleKeyDown(
+                event,
+                isFocused: overlayViewModel.isFocused
+            ) {
+                handleSpaceKey()
+            }
+            return handled ? nil : event
+        }
+    }
+    
+    private func stopKeyMonitoring() {
+        if let monitor = keyEventMonitor {
+            NSEvent.removeMonitor(monitor)
+            keyEventMonitor = nil
+        }
+    }
+    
+    private func handleSpaceKey() {
+        triggerKeypressFeedback()
+        autoHideController.recordActivity()
+        do {
+            try appStateManager.toggleListening()
+        } catch {
+            logger.error("Space toggle failed: \(error.localizedDescription)")
+        }
+    }
+    
+    private func triggerKeypressFeedback() {
+        keypressResetTask?.cancel()
+        withAnimation(.easeInOut(duration: 0.1)) {
+            showKeypressFeedback = true
+        }
+        let task = DispatchWorkItem {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showKeypressFeedback = false
+            }
+        }
+        keypressResetTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: task)
     }
 }
 
@@ -81,5 +209,82 @@ enum OverlayLayoutConfig {
     
     static func latestID(in blocks: [TranscriptBlock]) -> UUID? {
         blocks.last?.id
+    }
+}
+
+// MARK: - Auto Hide Controller (Testable)
+
+final class OverlayAutoHideController: ObservableObject {
+    private(set) var lastActivity: Date
+    private var timer: Timer?
+    var inactivityInterval: TimeInterval
+    var onHide: (() -> Void)?
+    
+    init(inactivityInterval: TimeInterval, lastActivity: Date = Date()) {
+        self.inactivityInterval = inactivityInterval
+        self.lastActivity = lastActivity
+    }
+    
+    func start() {
+        resetTimer()
+    }
+    
+    func stop() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
+    func updateInterval(_ interval: TimeInterval) {
+        inactivityInterval = interval
+        resetTimer()
+    }
+    
+    func recordActivity(date: Date = Date()) {
+        lastActivity = date
+        resetTimer()
+    }
+    
+    func shouldHide(now: Date = Date()) -> Bool {
+        guard inactivityInterval > 0 else { return false }
+        return now.timeIntervalSince(lastActivity) >= inactivityInterval
+    }
+    
+    private func resetTimer() {
+        timer?.invalidate()
+        guard inactivityInterval > 0 else { return }
+        timer = Timer.scheduledTimer(withTimeInterval: inactivityInterval, repeats: false) { [weak self] _ in
+            self?.handleTimerFired()
+        }
+    }
+    
+    private func handleTimerFired(now: Date = Date()) {
+        guard shouldHide(now: now) else {
+            resetTimer()
+            return
+        }
+        onHide?()
+        stop()
+    }
+}
+
+// MARK: - Key Handling (Testable)
+
+enum OverlayKeyCommandHandler {
+    static func isSpaceKey(_ event: NSEvent) -> Bool {
+        if event.keyCode == 49 {
+            return true
+        }
+        return event.charactersIgnoringModifiers == " "
+    }
+    
+    @discardableResult
+    static func handleKeyDown(
+        _ event: NSEvent,
+        isFocused: Bool,
+        onSpace: () -> Void
+    ) -> Bool {
+        guard isFocused, isSpaceKey(event) else { return false }
+        onSpace()
+        return true
     }
 }

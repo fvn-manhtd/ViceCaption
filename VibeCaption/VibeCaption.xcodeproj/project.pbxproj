@@ -16,6 +16,9 @@
 		0C72BCAA2F2E2ABC005682CF /* OverlayContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCA82F2E2ABC005682CF /* OverlayContentView.swift */; };
 		0C72BCAB2F2E2ABC005682CF /* CaptionBlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCA92F2E2ABC005682CF /* CaptionBlockView.swift */; };
 		0C72BCAD2F2E2AC5005682CF /* OverlayContentViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCAC2F2E2AC5005682CF /* OverlayContentViewTests.swift */; };
+		0C72BCB02F2E2ABC005682CF /* OverlayControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCB32F2E2ABC005682CF /* OverlayControlsView.swift */; };
+		0C72BCB12F2E2ABC005682CF /* StatusDotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCB42F2E2ABC005682CF /* StatusDotView.swift */; };
+		0C72BCB22F2E2AC5005682CF /* OverlayControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCB52F2E2AC5005682CF /* OverlayControlsTests.swift */; };
 		A1000001A1000001A1000001 /* VibeCaptionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002A1000002A1000002 /* VibeCaptionApp.swift */; };
 		A1000003A1000003A1000003 /* VibeCaptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004A1000004A1000004 /* VibeCaptionTests.swift */; };
 		B1000001B1000001B1000001 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000002B1000002B1000002 /* AppState.swift */; };
@@ -62,6 +65,9 @@
 		0C72BCA82F2E2ABC005682CF /* OverlayContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay/OverlayContentView.swift; sourceTree = "<group>"; };
 		0C72BCA92F2E2ABC005682CF /* CaptionBlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay/CaptionBlockView.swift; sourceTree = "<group>"; };
 		0C72BCAC2F2E2AC5005682CF /* OverlayContentViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentViewTests.swift; sourceTree = "<group>"; };
+		0C72BCB32F2E2ABC005682CF /* OverlayControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay/OverlayControlsView.swift; sourceTree = "<group>"; };
+		0C72BCB42F2E2ABC005682CF /* StatusDotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay/StatusDotView.swift; sourceTree = "<group>"; };
+		0C72BCB52F2E2AC5005682CF /* OverlayControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayControlsTests.swift; sourceTree = "<group>"; };
 		A1000002A1000002A1000002 /* VibeCaptionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeCaptionApp.swift; sourceTree = "<group>"; };
 		A1000004A1000004A1000004 /* VibeCaptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeCaptionTests.swift; sourceTree = "<group>"; };
 		A1000008A1000008A1000008 /* VibeCaption.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VibeCaption.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -190,6 +196,8 @@
 			children = (
 				0C72BCA82F2E2ABC005682CF /* OverlayContentView.swift */,
 				0C72BCA92F2E2ABC005682CF /* CaptionBlockView.swift */,
+				0C72BCB32F2E2ABC005682CF /* OverlayControlsView.swift */,
+				0C72BCB42F2E2ABC005682CF /* StatusDotView.swift */,
 				0C72BC982F2E1C52005682CF /* OverlayViewModel.swift */,
 				0C72BC992F2E1C52005682CF /* OverlayWindow.swift */,
 				0C698A692F2E188B001059DC /* MenuBarController.swift */,
@@ -237,6 +245,7 @@
 				E100000AE100000AE100000A /* ErrorHandlingTests.swift */,
 				F1000006F1000006F1000006 /* AudioDeviceManagerTests.swift */,
 				0C72BCAC2F2E2AC5005682CF /* OverlayContentViewTests.swift */,
+				0C72BCB52F2E2AC5005682CF /* OverlayControlsTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -376,6 +385,8 @@
 				0C72BC9B2F2E1C52005682CF /* OverlayWindow.swift in Sources */,
 				0C72BCAA2F2E2ABC005682CF /* OverlayContentView.swift in Sources */,
 				0C72BCAB2F2E2ABC005682CF /* CaptionBlockView.swift in Sources */,
+				0C72BCB02F2E2ABC005682CF /* OverlayControlsView.swift in Sources */,
+				0C72BCB12F2E2ABC005682CF /* StatusDotView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -395,6 +406,7 @@
 				E1000009E1000009E1000009 /* ErrorHandlingTests.swift in Sources */,
 				F1000005F1000005F1000005 /* AudioDeviceManagerTests.swift in Sources */,
 				0C72BCAD2F2E2AC5005682CF /* OverlayContentViewTests.swift in Sources */,
+				0C72BCB22F2E2AC5005682CF /* OverlayControlsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

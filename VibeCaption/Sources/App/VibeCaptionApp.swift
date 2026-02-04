@@ -99,6 +99,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             overlayWindow.attachContent(
                 transcriptManager: transcriptManager,
                 settingsManager: settingsManager,
+                appStateManager: appStateManager,
+                overlayViewModel: viewModel,
                 visibleLines: 10
             )
         }

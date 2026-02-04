@@ -122,6 +122,14 @@ class OverlayWindow: NSWindow {
         super.resignKey()
         viewModel.isFocused = false
     }
+
+    override var canBecomeKey: Bool {
+        true
+    }
+
+    override var canBecomeMain: Bool {
+        true
+    }
     
     // MARK: - Test-Safe Overrides
     
@@ -156,10 +164,18 @@ class OverlayWindow: NSWindow {
     // MARK: - Content Attachment
     
     /// Attaches the SwiftUI overlay content to the window.
-    func attachContent(transcriptManager: TranscriptManager, settingsManager: SettingsManager, visibleLines: Int = 10) {
+    func attachContent(
+        transcriptManager: TranscriptManager,
+        settingsManager: SettingsManager,
+        appStateManager: AppStateManager,
+        overlayViewModel: OverlayViewModel,
+        visibleLines: Int = 10
+    ) {
         let view = OverlayContentView(
             transcriptManager: transcriptManager,
             settingsManager: settingsManager,
+            appStateManager: appStateManager,
+            overlayViewModel: overlayViewModel,
             visibleLines: visibleLines
         )
         let hv = NSHostingView(rootView: AnyView(view))
