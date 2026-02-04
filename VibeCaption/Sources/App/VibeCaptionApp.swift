@@ -38,6 +38,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     /// The transcript manager powering the overlay content
     private(set) var transcriptManager: TranscriptManager!
+
+    /// The model manager for ASR/translation models
+    private(set) var modelManager: ModelManager!
+
+    /// The caption pipeline orchestrating audio to captions
+    private(set) var pipeline: CaptionPipeline!
     
     /// The menu bar controller
     private var menuBarController: MenuBarController?
@@ -66,7 +72,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Setup Menu Bar Controller
         menuBarController = MenuBarController(
             appStateManager: appStateManager,
-            settingsManager: settingsManager
+            settingsManager: settingsManager,
+            pipeline: pipeline
         )
         
         // Check for first launch
@@ -91,6 +98,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Initialize Transcript Manager
         transcriptManager = TranscriptManager(settingsManager: settingsManager)
+
+        // Initialize Model Manager
+        modelManager = ModelManager(settingsManager: settingsManager)
+
+        let asrService = MockASRService()
+        let translationService = MockTranslationService()
+
+        pipeline = CaptionPipeline(
+            asrService: asrService,
+            translationService: translationService,
+            transcriptManager: transcriptManager,
+            appStateManager: appStateManager
+        )
         
         // Subscribe to state changes for debugging
         appStateManager.onStateChange = { [weak self] oldState, newState in
@@ -111,6 +131,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 transcriptManager: transcriptManager,
                 settingsManager: settingsManager,
                 appStateManager: appStateManager,
+                pipeline: pipeline,
                 overlayViewModel: viewModel,
                 visibleLines: 10
             )

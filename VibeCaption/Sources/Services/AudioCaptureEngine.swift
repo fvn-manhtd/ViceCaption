@@ -154,6 +154,14 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     /// Configures the engine to use the specified input device.
     ///
     /// - Parameter inputDevice: The audio device to use for capture.
+    /// - Throws: `VibeCaptionError.audioRoutingFailed` if the device is not accessible.
+    public func configure(inputDevice: AudioDevice) throws {
+        try configure(inputDevice: inputDevice, noiseSuppressionEnabled: true)
+    }
+
+    /// Configures the engine to use the specified input device.
+    ///
+    /// - Parameter inputDevice: The audio device to use for capture.
     /// - Parameter noiseSuppressionEnabled: Whether to enable system noise suppression (Voice Processing I/O).
     /// - Throws: `VibeCaptionError.audioRoutingFailed` if the device is not accessible.
     public func configure(inputDevice: AudioDevice, noiseSuppressionEnabled: Bool = true) throws {
@@ -557,16 +565,11 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
         
         engine.attach(playerNode)
         
-        // Get input format from capture engine (use 16kHz mono target format)
-        let outputFormat: AVAudioFormat
-        if let targetFmt = targetFormat {
-            outputFormat = targetFmt
-        } else {
-            outputFormat = AVAudioFormat(
-                standardFormatWithSampleRate: Self.targetSampleRate,
-                channels: 1
-            )!
-        }
+        // Use the preprocessor target sample rate for monitoring output.
+        let outputFormat = AVAudioFormat(
+            standardFormatWithSampleRate: preprocessor.outputSampleRate,
+            channels: 1
+        )!
         
         // Connect player to main mixer to output
         engine.connect(playerNode, to: engine.mainMixerNode, format: outputFormat)

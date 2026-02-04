@@ -118,9 +118,9 @@ private struct SeededRandomNumberGenerator: RandomNumberGenerator {
     mutating func next() -> UInt64 {
         // xorshift64*
         var x = state
-        x &^= x << 13
-        x &^= x >> 7
-        x &^= x << 17
+        x ^= x << 13
+        x ^= x >> 7
+        x ^= x << 17
         state = x
         return x &* 0x2545F4914F6CDD1D
     }
@@ -131,4 +131,3 @@ private func stableSeed(start: TimeInterval, end: TimeInterval) -> UInt64 {
     let b = UInt64((end * 1_000).rounded())
     return (a &<< 32) ^ b ^ 0x9E3779B97F4A7C15
 }
-

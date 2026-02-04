@@ -14,6 +14,7 @@ struct OverlayContentView: View {
     @ObservedObject var transcriptManager: TranscriptManager
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject var appStateManager: AppStateManager
+    @ObservedObject var pipeline: CaptionPipeline
     @ObservedObject var overlayViewModel: OverlayViewModel
     
     // Default visible lines count; used to shape suggested height
@@ -37,6 +38,7 @@ struct OverlayContentView: View {
         transcriptManager: TranscriptManager,
         settingsManager: SettingsManager,
         appStateManager: AppStateManager,
+        pipeline: CaptionPipeline,
         overlayViewModel: OverlayViewModel,
         visibleLines: Int = 10,
         onAutoScroll: ((UUID) -> Void)? = nil
@@ -44,6 +46,7 @@ struct OverlayContentView: View {
         self.transcriptManager = transcriptManager
         self.settingsManager = settingsManager
         self.appStateManager = appStateManager
+        self.pipeline = pipeline
         self.overlayViewModel = overlayViewModel
         self.visibleLines = visibleLines
         self.onAutoScroll = onAutoScroll
@@ -150,21 +153,13 @@ struct OverlayContentView: View {
     }
     
     private func handlePause() {
-        do {
-            autoHideController.recordActivity()
-            try appStateManager.pause()
-        } catch {
-            logger.error("Pause failed: \(error.localizedDescription)")
-        }
+        autoHideController.recordActivity()
+        pipeline.pause()
     }
     
     private func handleResume() {
-        do {
-            autoHideController.recordActivity()
-            try appStateManager.resume()
-        } catch {
-            logger.error("Resume failed: \(error.localizedDescription)")
-        }
+        autoHideController.recordActivity()
+        pipeline.resume()
     }
     
     private func startKeyMonitoring() {
@@ -190,10 +185,19 @@ struct OverlayContentView: View {
     private func handleSpaceKey() {
         triggerKeypressFeedback()
         autoHideController.recordActivity()
-        do {
-            try appStateManager.toggleListening()
-        } catch {
-            logger.error("Space toggle failed: \(error.localizedDescription)")
+        switch appStateManager.currentState {
+        case .idle:
+            Task {
+                do {
+                    try await pipeline.start()
+                } catch {
+                    logger.error("Space toggle failed: \(error.localizedDescription)")
+                }
+            }
+        case .listening, .translating:
+            pipeline.pause()
+        case .paused:
+            pipeline.resume()
         }
     }
     

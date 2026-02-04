@@ -169,12 +169,12 @@ This checklist tracks the implementation progress of VibeCaption, following the 
 
 ## Phase 5: Integration & Polish
 
-- [ ] **23. Full Pipeline Integration**
-  - [ ] Implement `CaptionPipeline` (orchestrator)
-  - [ ] Wire Audio -> VAD -> ASR -> Translation -> UI
-  - [ ] Handle concurrency and backpressure
-  - [ ] test: Verify full flow with mock services
-  - [ ] test: Verify pause/resume handling
+- [x] **23. Full Pipeline Integration**
+  - [x] Implement `CaptionPipeline` (orchestrator)
+  - [x] Wire Audio -> VAD -> ASR -> Translation -> UI
+  - [x] Handle concurrency and backpressure
+  - [x] test: Verify full flow with mock services
+  - [x] test: Verify pause/resume handling
 
 - [ ] **24. Transcript File Saving**
   - [ ] Implement automatic daily file saving in `TranscriptManager`

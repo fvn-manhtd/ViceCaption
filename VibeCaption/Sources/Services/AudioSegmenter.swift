@@ -118,8 +118,7 @@ class AudioSegmenter {
             let segment = AudioSegment(
                 startTime: start,
                 endTime: start + duration,
-                audioData: buffer,
-                estimatedWordCount: 0 // Will be calc'd by struct
+                audioData: buffer
             )
             segmentCallback?(segment)
         }

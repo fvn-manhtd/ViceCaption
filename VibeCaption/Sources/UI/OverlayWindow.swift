@@ -168,6 +168,7 @@ class OverlayWindow: NSWindow {
         transcriptManager: TranscriptManager,
         settingsManager: SettingsManager,
         appStateManager: AppStateManager,
+        pipeline: CaptionPipeline,
         overlayViewModel: OverlayViewModel,
         visibleLines: Int = 10
     ) {
@@ -175,6 +176,7 @@ class OverlayWindow: NSWindow {
             transcriptManager: transcriptManager,
             settingsManager: settingsManager,
             appStateManager: appStateManager,
+            pipeline: pipeline,
             overlayViewModel: overlayViewModel,
             visibleLines: visibleLines
         )

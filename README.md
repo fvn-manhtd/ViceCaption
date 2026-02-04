@@ -24,5 +24,5 @@ xcodebuild test -scheme VibeCaption -destination 'platform=macOS' CODE_SIGN_IDEN
 
 Export to json error
 ```
-xcrun xcresulttool get --format json --path /Users/tranmanh/Library/Developer/Xcode/DerivedData/VibeCaption-asamzmnudkqxovgylmlvmretfzuu/Logs/Test/Test-VibeCaption-2026.02.04_20-09-12-+0900.xcresult > test-result1.json
+xcrun xcresulttool get object --legacy --path /Users/tranmanh/Library/Developer/Xcode/DerivedData/VibeCaption-asamzmnudkqxovgylmlvmretfzuu/Logs/Test/Test-VibeCaption-2026.02.04_21-59-19-+0900.xcresult > test-result4.json
 ```

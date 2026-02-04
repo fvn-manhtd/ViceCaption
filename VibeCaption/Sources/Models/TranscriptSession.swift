@@ -110,6 +110,20 @@ public struct TranscriptSession: Identifiable, Equatable, Codable {
     public mutating func endSession(at time: Date) {
         endTime = time
     }
+
+    /// Updates an existing block with translated English text.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the block to update.
+    ///   - englishText: The translated English text.
+    /// - Returns: `true` if the block was found and updated.
+    public mutating func updateBlock(id: UUID, englishText: String) -> Bool {
+        guard let index = blocks.firstIndex(where: { $0.id == id }) else { return false }
+        var updated = blocks[index]
+        updated.englishText = englishText
+        blocks[index] = updated
+        return true
+    }
     
     /// Removes all blocks from the specified index onwards.
     ///

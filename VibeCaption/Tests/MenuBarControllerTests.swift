@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import AVFoundation
 import Combine
 @testable import VibeCaption
 
@@ -14,22 +15,43 @@ class MenuBarControllerTests: XCTestCase {
     var appStateManager: AppStateManager!
     var settingsManager: SettingsManager!
     var menuBarController: MenuBarController!
+    var pipeline: CaptionPipeline!
     
     override func setUp() {
         super.setUp()
         appStateManager = AppStateManager()
         settingsManager = SettingsManager()
+        let transcriptManager = TranscriptManager(settingsManager: settingsManager)
+        let captureEngine = TestAudioCaptureEngine()
+        let asrService = TestASRService()
+        let translationService = TestTranslationService()
+        pipeline = CaptionPipeline(
+            captureEngine: captureEngine,
+            preprocessor: PassThroughPreprocessor(),
+            vad: VoiceActivityDetector(),
+            segmenter: AudioSegmenter(),
+            asrService: asrService,
+            translationService: translationService,
+            transcriptManager: transcriptManager,
+            appStateManager: appStateManager
+        )
         // MenuBarController initialization creates NSStatusItem, which might not be fully testable 
         // in a headless XCTest environment without UI, but we can test the logic flow 
         // if we decouple it or if the environment allows basic AppKit objects.
         // Assuming partial AppKit availability.
-        menuBarController = MenuBarController(appStateManager: appStateManager, settingsManager: settingsManager)
+        menuBarController = MenuBarController(
+            appStateManager: appStateManager,
+            settingsManager: settingsManager,
+            pipeline: pipeline
+        )
     }
     
     override func tearDown() {
+        pipeline?.stop()
         menuBarController = nil
         appStateManager = nil
         settingsManager = nil
+        pipeline = nil
         super.tearDown()
     }
     
@@ -39,11 +61,8 @@ class MenuBarControllerTests: XCTestCase {
     // However, purely UI tests are hard. Ideally we'd test the *actions* logic separately.
     // Given the simplified controller, we verify if calling actions updates state.
     
-    func testToggleListeningAction() throws {
+    func testToggleListeningAction() async {
         // Given
-        // We need models loaded to start listening
-        appStateManager.areModelsLoaded = true
-        
         // When: User toggles listening (simulate action)
         // Since we can't easily click the menu item programmatically without reference,
         // we can test the AppStateManager directly or expose the action.
@@ -66,13 +85,11 @@ class MenuBarControllerTests: XCTestCase {
         // Perform action
         _ = menu.performActionForItem(at: menu.index(of: startListeningItem))
         
-        // Then
-        // Depending on async nature of state transition (Published), we might need expectation.
-        // AppStateManager transition is synchronous though.
+        await waitForState(.listening)
         XCTAssertEqual(appStateManager.currentState, .listening)
     }
     
-    func testMenuStateUpdates() {
+    func testMenuStateUpdates() async {
         let mirror = Mirror(reflecting: menuBarController!)
         guard let statusItem = mirror.children.first(where: { $0.label == "statusItem" })?.value as? NSStatusItem,
               let menu = statusItem.menu else {
@@ -88,31 +105,16 @@ class MenuBarControllerTests: XCTestCase {
         XCTAssertEqual(item.title, "Start Listening")
         
         // Change State -> Listening
-        // We must load models first to allow transition
-        appStateManager.areModelsLoaded = true
-        try? appStateManager.startListening()
-        
-        // Run loop briefly to allow Combine update
-        let expectation = XCTestExpectation(description: "Menu update")
-        DispatchQueue.main.async {
-            if item.title == "Pause Listening" {
-                expectation.fulfill()
-            }
-        }
-        wait(for: [expectation], timeout: 1.0)
+        Task { try? await pipeline.start() }
+        await waitForState(.listening)
+        try? await Task.sleep(nanoseconds: 50_000_000)
         
         XCTAssertEqual(item.title, "Pause Listening")
         
         // Change State -> Paused
-        try? appStateManager.pause()
-        
-        let expectation2 = XCTestExpectation(description: "Menu update 2")
-        DispatchQueue.main.async {
-            if item.title == "Resume Listening" {
-                expectation2.fulfill()
-            }
-        }
-        wait(for: [expectation2], timeout: 1.0)
+        pipeline.pause()
+        await waitForState(.paused)
+        try? await Task.sleep(nanoseconds: 50_000_000)
         
         XCTAssertEqual(item.title, "Resume Listening")
     }
@@ -147,4 +149,110 @@ class MenuBarControllerTests: XCTestCase {
         
         XCTAssertEqual(item.title, "Hide Overlay")
     }
+
+    private func waitForState(_ state: AppState, timeout: TimeInterval = 1.0) async {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if appStateManager.currentState == state {
+                return
+            }
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
+        XCTFail("Timed out waiting for state \(state)")
+    }
+}
+
+private final class TestAudioCaptureEngine: AudioCaptureEngineProtocol {
+    @Published private(set) var audioLevel: Float = 0
+    var audioLevelPublisher: Published<Float>.Publisher { $audioLevel }
+    private(set) var isCapturing: Bool = false
+    private(set) var currentInputDevice: AudioDevice?
+    private(set) var monitoringEnabled: Bool = false
+    private(set) var monitoringVolume: Float = 1
+    private(set) var currentMonitoringDevice: AudioDevice?
+    private var callback: ((AVAudioPCMBuffer) -> Void)?
+
+    func configure(inputDevice: AudioDevice) throws {
+        currentInputDevice = inputDevice
+    }
+
+    func startCapture() throws {
+        isCapturing = true
+    }
+
+    func stopCapture() {
+        isCapturing = false
+    }
+
+    func setAudioCallback(_ callback: @escaping (AVAudioPCMBuffer) -> Void) {
+        self.callback = callback
+    }
+
+    func setMonitoringOutput(device: AudioDevice?) throws {
+        currentMonitoringDevice = device
+    }
+
+    func enableMonitoring(_ enabled: Bool) throws {
+        monitoringEnabled = enabled
+    }
+
+    func setMonitoringVolume(_ volume: Float) {
+        monitoringVolume = volume
+    }
+
+    func setNoiseSuppression(_ enabled: Bool) {
+        return
+    }
+
+    func emit(_ buffer: AVAudioPCMBuffer) {
+        callback?(buffer)
+    }
+}
+
+private final class TestASRService: ASRServiceProtocol {
+    private(set) var isModelLoaded: Bool = false
+
+    func loadModel() async throws {
+        isModelLoaded = true
+    }
+
+    func unloadModel() {
+        isModelLoaded = false
+    }
+
+    func transcribe(_ audio: AudioSegment) async throws -> ASRResult {
+        return ASRResult(segments: [], processingTime: 0)
+    }
+}
+
+private final class TestTranslationService: TranslationServiceProtocol {
+    private(set) var isModelLoaded: Bool = false
+
+    func loadModel() async throws {
+        isModelLoaded = true
+    }
+
+    func unloadModel() {
+        isModelLoaded = false
+    }
+
+    func translate(_ text: String, from sourceLanguage: Language, to targetLanguage: Language) async throws -> TranslationResult {
+        return TranslationResult(
+            originalText: text,
+            translatedText: text,
+            confidence: 1,
+            processingTime: 0,
+            targetLanguage: targetLanguage
+        )
+    }
+}
+
+private struct PassThroughPreprocessor: AudioPreprocessorProtocol {
+    let outputSampleRate: Double = 16000
+
+    func process(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer {
+        buffer
+    }
+
+    func reset() {}
 }

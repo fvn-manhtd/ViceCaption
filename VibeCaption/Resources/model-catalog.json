@@ -9,24 +9,6 @@
     "isRequired": true
   },
   {
-    "id": "opus-mt-en-ja-coreml",
-    "displayName": "English to Japanese (CoreML)",
-    "version": "1.0.0",
-    "downloadURL": "https://example.com/models/opus-mt-en-ja-coreml.zip",
-    "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "sizeBytes": 80000000,
-    "isRequired": true
-  },
-  {
-    "id": "opus-mt-ja-en-coreml",
-    "displayName": "Japanese to English (CoreML)",
-    "version": "1.0.0",
-    "downloadURL": "https://example.com/models/opus-mt-ja-en-coreml.zip",
-    "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "sizeBytes": 80000000,
-    "isRequired": true
-  },
-  {
     "id": "nllb-200-600m-optional",
     "displayName": "NLLB 600M (High Quality)",
     "version": "1.0.0",

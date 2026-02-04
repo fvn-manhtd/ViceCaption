@@ -39,6 +39,23 @@
 		2E05054306946F6C491DAD37 /* CompletionStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B105142D31D32515431B8A /* CompletionStepView.swift */; };
 		48703DD46A68ECBF52A8190F /* ClearCaptionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A674BC62CE4EBFD5C16E32D7 /* ClearCaptionsTests.swift */; };
 		A1000001A1000001A1000001 /* VibeCaptionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002A1000002A1000002 /* VibeCaptionApp.swift */; };
+		B2100001B2100001B2100001 /* CaptionPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000001B2000001B2000001 /* CaptionPipeline.swift */; };
+		B2100002B2100002B2100002 /* PipelineStatistics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000002B2000002B2000002 /* PipelineStatistics.swift */; };
+		B2100003B2100003B2100003 /* AudioRingBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000003B2000003B2000003 /* AudioRingBuffer.swift */; };
+		B2100004B2100004B2100004 /* AudioCaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000004B2000004B2000004 /* AudioCaptureEngine.swift */; };
+		B2100005B2100005B2100005 /* AudioPreprocessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000005B2000005B2000005 /* AudioPreprocessor.swift */; };
+		B2100006B2100006B2100006 /* AudioSegmenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000006B2000006B2000006 /* AudioSegmenter.swift */; };
+		B2100007B2100007B2100007 /* VoiceActivityDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000007B2000007B2000007 /* VoiceActivityDetector.swift */; };
+		B2100008B2100008B2100008 /* ASRServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000008B2000008B2000008 /* ASRServiceProtocol.swift */; };
+		B2100009B2100009B2100009 /* ASRResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000009B2000009B2000009 /* ASRResult.swift */; };
+		B210000AB210000AB210000A /* ASRSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B200000AB200000AB200000A /* ASRSegment.swift */; };
+		B210000BB210000BB210000B /* MockASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B200000BB200000BB200000B /* MockASRService.swift */; };
+		B210000CB210000CB210000C /* TranslationServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B200000CB200000CB200000C /* TranslationServiceProtocol.swift */; };
+		B210000DB210000DB210000D /* TranslationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B200000DB200000DB200000D /* TranslationResult.swift */; };
+		B210000EB210000EB210000E /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = B200000EB200000EB200000E /* Language.swift */; };
+		B210000FB210000FB210000F /* MockTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B200000FB200000FB200000F /* MockTranslationService.swift */; };
+		B2100010B2100010B2100010 /* AudioSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000010B2000010B2000010 /* AudioSegment.swift */; };
+		B2100011B2100011B2100011 /* CaptionPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000011B2000011B2000011 /* CaptionPipelineTests.swift */; };
 		A1000003A1000003A1000003 /* VibeCaptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000004A1000004A1000004 /* VibeCaptionTests.swift */; };
 		B1000001B1000001B1000001 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000002B1000002B1000002 /* AppState.swift */; };
 		B1000003B1000003B1000003 /* AppStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000004B1000004B1000004 /* AppStateManager.swift */; };
@@ -136,6 +153,23 @@
 		F1000007F1000007F1000007 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
 		F1000008F1000008F1000008 /* ModelInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelInfo.swift; sourceTree = "<group>"; };
 		F1000009F1000009F1000009 /* ModelStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelStatus.swift; sourceTree = "<group>"; };
+		B2000001B2000001B2000001 /* CaptionPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionPipeline.swift; sourceTree = "<group>"; };
+		B2000002B2000002B2000002 /* PipelineStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineStatistics.swift; sourceTree = "<group>"; };
+		B2000003B2000003B2000003 /* AudioRingBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRingBuffer.swift; sourceTree = "<group>"; };
+		B2000004B2000004B2000004 /* AudioCaptureEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCaptureEngine.swift; sourceTree = "<group>"; };
+		B2000005B2000005B2000005 /* AudioPreprocessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPreprocessor.swift; sourceTree = "<group>"; };
+		B2000006B2000006B2000006 /* AudioSegmenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSegmenter.swift; sourceTree = "<group>"; };
+		B2000007B2000007B2000007 /* VoiceActivityDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceActivityDetector.swift; sourceTree = "<group>"; };
+		B2000008B2000008B2000008 /* ASRServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASR/ASRServiceProtocol.swift; sourceTree = "<group>"; };
+		B2000009B2000009B2000009 /* ASRResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASR/ASRResult.swift; sourceTree = "<group>"; };
+		B200000AB200000AB200000A /* ASRSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASR/ASRSegment.swift; sourceTree = "<group>"; };
+		B200000BB200000BB200000B /* MockASRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASR/MockASRService.swift; sourceTree = "<group>"; };
+		B200000CB200000CB200000C /* TranslationServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translation/TranslationServiceProtocol.swift; sourceTree = "<group>"; };
+		B200000DB200000DB200000D /* TranslationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translation/TranslationResult.swift; sourceTree = "<group>"; };
+		B200000EB200000EB200000E /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translation/Language.swift; sourceTree = "<group>"; };
+		B200000FB200000FB200000F /* MockTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translation/MockTranslationService.swift; sourceTree = "<group>"; };
+		B2000010B2000010B2000010 /* AudioSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSegment.swift; sourceTree = "<group>"; };
+		B2000011B2000011B2000011 /* CaptionPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionPipelineTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +256,9 @@
 			children = (
 				B1000002B1000002B1000002 /* AppState.swift */,
 				B1000004B1000004B1000004 /* AppStateManager.swift */,
+				B2000001B2000001B2000001 /* CaptionPipeline.swift */,
+				B2000002B2000002B2000002 /* PipelineStatistics.swift */,
+				B2000003B2000003B2000003 /* AudioRingBuffer.swift */,
 				C1000004C1000004C1000004 /* SettingsManager.swift */,
 				D1000008D1000008D1000008 /* TranscriptFormatter.swift */,
 				D100000AD100000AD100000A /* TranscriptManager.swift */,
@@ -266,6 +303,18 @@
 			isa = PBXGroup;
 			children = (
 				F1000004F1000004F1000004 /* AudioDeviceManager.swift */,
+				B2000004B2000004B2000004 /* AudioCaptureEngine.swift */,
+				B2000005B2000005B2000005 /* AudioPreprocessor.swift */,
+				B2000006B2000006B2000006 /* AudioSegmenter.swift */,
+				B2000007B2000007B2000007 /* VoiceActivityDetector.swift */,
+				B2000008B2000008B2000008 /* ASRServiceProtocol.swift */,
+				B2000009B2000009B2000009 /* ASRResult.swift */,
+				B200000AB200000AB200000A /* ASRSegment.swift */,
+				B200000BB200000BB200000B /* MockASRService.swift */,
+				B200000CB200000CB200000C /* TranslationServiceProtocol.swift */,
+				B200000DB200000DB200000D /* TranslationResult.swift */,
+				B200000EB200000EB200000E /* Language.swift */,
+				B200000FB200000FB200000F /* MockTranslationService.swift */,
 				F1000007F1000007F1000007 /* ModelManager.swift */,
 			);
 			path = Services;
@@ -280,6 +329,7 @@
 				D1000002D1000002D1000002 /* TranscriptBlock.swift */,
 				D1000004D1000004D1000004 /* PauseMarker.swift */,
 				D1000006D1000006D1000006 /* TranscriptSession.swift */,
+				B2000010B2000010B2000010 /* AudioSegment.swift */,
 				F1000002F1000002F1000002 /* AudioDevice.swift */,
 			);
 			path = Models;
@@ -305,6 +355,7 @@
 				F1000006F1000006F1000006 /* AudioDeviceManagerTests.swift */,
 				0C72BCAC2F2E2AC5005682CF /* OverlayContentViewTests.swift */,
 				0C72BCB52F2E2AC5005682CF /* OverlayControlsTests.swift */,
+				B2000011B2000011B2000011 /* CaptionPipelineTests.swift */,
 				A674BC62CE4EBFD5C16E32D7 /* ClearCaptionsTests.swift */,
 			);
 			path = UnitTests;
@@ -428,6 +479,9 @@
 				A1000001A1000001A1000001 /* VibeCaptionApp.swift in Sources */,
 				B1000001B1000001B1000001 /* AppState.swift in Sources */,
 				B1000003B1000003B1000003 /* AppStateManager.swift in Sources */,
+				B2100001B2100001B2100001 /* CaptionPipeline.swift in Sources */,
+				B2100002B2100002B2100002 /* PipelineStatistics.swift in Sources */,
+				B2100003B2100003B2100003 /* AudioRingBuffer.swift in Sources */,
 				C1000001C1000001C1000001 /* AppSettings.swift in Sources */,
 				C1000003C1000003C1000003 /* SettingsManager.swift in Sources */,
 				D1000001D1000001D1000001 /* TranscriptBlock.swift in Sources */,
@@ -441,6 +495,19 @@
 				E1000007E1000007E1000007 /* ErrorModalView.swift in Sources */,
 				F1000001F1000001F1000001 /* AudioDevice.swift in Sources */,
 				F1000003F1000003F1000003 /* AudioDeviceManager.swift in Sources */,
+				B2100004B2100004B2100004 /* AudioCaptureEngine.swift in Sources */,
+				B2100005B2100005B2100005 /* AudioPreprocessor.swift in Sources */,
+				B2100006B2100006B2100006 /* AudioSegmenter.swift in Sources */,
+				B2100007B2100007B2100007 /* VoiceActivityDetector.swift in Sources */,
+				B2100008B2100008B2100008 /* ASRServiceProtocol.swift in Sources */,
+				B2100009B2100009B2100009 /* ASRResult.swift in Sources */,
+				B210000AB210000AB210000A /* ASRSegment.swift in Sources */,
+				B210000BB210000BB210000B /* MockASRService.swift in Sources */,
+				B210000CB210000CB210000C /* TranslationServiceProtocol.swift in Sources */,
+				B210000DB210000DB210000D /* TranslationResult.swift in Sources */,
+				B210000EB210000EB210000E /* Language.swift in Sources */,
+				B210000FB210000FB210000F /* MockTranslationService.swift in Sources */,
+				B2100010B2100010B2100010 /* AudioSegment.swift in Sources */,
 				F1000010F1000010F1000010 /* ModelManager.swift in Sources */,
 				F1000011F1000011F1000011 /* ModelInfo.swift in Sources */,
 				F1000012F1000012F1000012 /* ModelStatus.swift in Sources */,
@@ -486,6 +553,7 @@
 				F1000005F1000005F1000005 /* AudioDeviceManagerTests.swift in Sources */,
 				0C72BCAD2F2E2AC5005682CF /* OverlayContentViewTests.swift in Sources */,
 				0C72BCB22F2E2AC5005682CF /* OverlayControlsTests.swift in Sources */,
+				B2100011B2100011B2100011 /* CaptionPipelineTests.swift in Sources */,
 				48703DD46A68ECBF52A8190F /* ClearCaptionsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

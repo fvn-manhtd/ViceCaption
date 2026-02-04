@@ -23,6 +23,7 @@ class MenuBarController: NSObject {
     private var statusItem: NSStatusItem!
     private let appStateManager: AppStateManager
     private let settingsManager: SettingsManager
+    private let pipeline: CaptionPipeline
     private var cancellables = Set<AnyCancellable>()
     
     // Window Controllers
@@ -34,9 +35,10 @@ class MenuBarController: NSObject {
     
     // MARK: - Initialization
     
-    init(appStateManager: AppStateManager, settingsManager: SettingsManager) {
+    init(appStateManager: AppStateManager, settingsManager: SettingsManager, pipeline: CaptionPipeline) {
         self.appStateManager = appStateManager
         self.settingsManager = settingsManager
+        self.pipeline = pipeline
         super.init()
         
         setupStatusItem()
@@ -210,12 +212,19 @@ class MenuBarController: NSObject {
     }
     
     @objc private func toggleListening() {
-        do {
-            try appStateManager.toggleListening()
-        } catch {
-            // Handle error, maybe show alert or log
-            print("Error toggling listening: \(error)")
-            // If it's models not loaded, we could show an alert here if we had UI context
+        switch appStateManager.currentState {
+        case .idle:
+            Task {
+                do {
+                    try await pipeline.start()
+                } catch {
+                    print("Error starting pipeline: \(error)")
+                }
+            }
+        case .listening, .translating:
+            pipeline.pause()
+        case .paused:
+            pipeline.resume()
         }
     }
     

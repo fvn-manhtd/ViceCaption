@@ -131,6 +131,28 @@ public final class TranscriptManager: ObservableObject {
         currentSession?.addBlock(block)
         logger.debug("Added transcript block: \(block.japaneseText.prefix(20))...")
     }
+
+    /// Updates a transcript block with translated English text.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the block to update.
+    ///   - englishText: The translated English text.
+    /// - Returns: `true` if the block was found and updated.
+    @discardableResult
+    public func updateBlock(id: UUID, englishText: String) -> Bool {
+        guard var session = currentSession else {
+            logger.warning("Cannot update block: no active session")
+            return false
+        }
+
+        let updated = session.updateBlock(id: id, englishText: englishText)
+        if updated {
+            currentSession = session
+            logger.debug("Updated transcript block with translation: \(id.uuidString)")
+        }
+
+        return updated
+    }
     
     /// Adds a pause marker to the current session with the current timestamp.
     ///
