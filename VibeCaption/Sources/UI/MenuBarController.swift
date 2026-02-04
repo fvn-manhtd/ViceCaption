@@ -25,6 +25,9 @@ class MenuBarController: NSObject {
     private let settingsManager: SettingsManager
     private var cancellables = Set<AnyCancellable>()
     
+    // Window Controllers
+    private var setupWizardWindow: SetupWizardWindow?
+    
     // Menu Items References for dynamic updates
     private weak var toggleOverlayItem: NSMenuItem?
     private weak var toggleListeningItem: NSMenuItem?
@@ -225,10 +228,20 @@ class MenuBarController: NSObject {
         }
     }
     
-    @objc private func runWizard() {
-        // Placeholder for Wizard - strictly asking for UI implementation
-        // For now, log it
-        print("Run Setup Wizard requested")
+    @objc func runWizard() {
+        // Create if needed or show existing
+        if setupWizardWindow == nil {
+            setupWizardWindow = SetupWizardWindow.create(
+                settingsManager: settingsManager,
+                audioDeviceManager: AudioDeviceManager.shared,
+                completionHandler: { [weak self] in
+                    self?.settingsManager.setupWizardCompleted = true
+                    self?.setupWizardWindow = nil
+                }
+            )
+        }
+        
+        setupWizardWindow?.showWizard()
     }
     
     @objc private func openTranscriptFolder() {

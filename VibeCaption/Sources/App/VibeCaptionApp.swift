@@ -68,6 +68,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             appStateManager: appStateManager,
             settingsManager: settingsManager
         )
+        
+        // Check for first launch
+        checkFirstLaunch()
+    }
+    
+    private func checkFirstLaunch() {
+        if !settingsManager.setupWizardCompleted {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.menuBarController?.runWizard()
+            }
+        }
     }
     
     /// Sets up the AppStateManager and SettingsManager

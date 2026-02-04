@@ -141,6 +141,7 @@ public struct ErrorModalView: View {
 // MARK: - ErrorModalView with ErrorHandler
 
 /// Convenience view that uses ErrorHandler directly.
+@MainActor
 public struct ErrorModalContainer: View {
     
     @ObservedObject private var errorHandler: ErrorHandler

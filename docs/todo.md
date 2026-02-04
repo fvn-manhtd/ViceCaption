@@ -161,11 +161,11 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] Connect UI controls to `SettingsManager`
   - [x] test: Verify settings changes persist
 
-- [ ] **22. Setup Wizard**
-  - [ ] Implement `SetupWizardWindow` (step-by-step flow)
-  - [ ] Build steps: Welcome, BlackHole Check, Routing, Audio Test, Finish
-  - [ ] Implement first-launch logic
-  - [ ] test: Verify flow navigation and completion flag
+- [x] **22. Setup Wizard**
+  - [x] Implement `SetupWizardWindow` (step-by-step flow)
+  - [x] Build steps: Welcome, BlackHole Check, Routing, Audio Test, Finish
+  - [x] Implement first-launch logic
+  - [x] test: Verify flow navigation and completion flag
 
 ## Phase 5: Integration & Polish
 

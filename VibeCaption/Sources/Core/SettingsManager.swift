@@ -36,6 +36,7 @@ public final class SettingsManager: ObservableObject {
         static let performanceModeEnabled = "performanceModeEnabled"
         static let modelStoragePath = "modelStoragePath"
         static let transcriptStoragePath = "transcriptStoragePath"
+        static let setupWizardCompleted = "setupWizardCompleted"
     }
     
     // MARK: - Properties
@@ -195,6 +196,20 @@ public final class SettingsManager: ObservableObject {
         }
     }
     
+    // MARK: - App State Settings
+    
+    /// Whether the setup wizard has been completed.
+    public var setupWizardCompleted: Bool {
+        get {
+            userDefaults.bool(forKey: Keys.setupWizardCompleted)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.setupWizardCompleted)
+            notifyChange()
+            logger.debug("Setup wizard completed: \(newValue)")
+        }
+    }
+    
     // MARK: - Convenience Accessors
     
     /// Returns all current settings as an AppSettings instance.
@@ -227,6 +242,7 @@ public final class SettingsManager: ObservableObject {
         userDefaults.removeObject(forKey: Keys.performanceModeEnabled)
         userDefaults.removeObject(forKey: Keys.modelStoragePath)
         userDefaults.removeObject(forKey: Keys.transcriptStoragePath)
+        userDefaults.removeObject(forKey: Keys.setupWizardCompleted)
         
         notifyChange()
         validatePaths()
