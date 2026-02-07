@@ -201,16 +201,15 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
         // Try to set the input device via AudioUnit
         do {
             try setInputDevice(inputDevice)
+            currentInputDevice = inputDevice
+            logger.info("Input device configured successfully: \(inputDevice.name)")
         } catch {
-            logger.error("Failed to set input device: \(error.localizedDescription)")
-            throw VibeCaptionError.audioRoutingFailed(
-                device: inputDevice.name,
-                reason: error.localizedDescription
-            )
+            // Some macOS audio units reject explicit device binding (e.g. -10875).
+            // In that case, continue with system default input instead of failing startup.
+            logger.warning("Failed to bind input device \(inputDevice.name): \(error.localizedDescription). Falling back to system default input.")
+            currentInputDevice = AudioDeviceManager.shared.getDefaultInputDevice() ?? inputDevice
+            logger.info("Using fallback input device: \(self.currentInputDevice?.name ?? inputDevice.name)")
         }
-        
-        currentInputDevice = inputDevice
-        logger.info("Input device configured successfully: \(inputDevice.name)")
     }
     
     // MARK: - Feature Control
