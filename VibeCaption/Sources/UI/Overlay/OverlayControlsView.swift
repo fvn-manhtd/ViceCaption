@@ -29,6 +29,7 @@ struct OverlayControlsView: View {
                     }
                     .buttonStyle(.plain)
                     .help("Pause")
+                    .accessibilityLabel("Pause captioning")
                 }
                 
                 if Self.shouldShowResumeButton(for: state) {
@@ -38,6 +39,7 @@ struct OverlayControlsView: View {
                     }
                     .buttonStyle(.plain)
                     .help("Resume")
+                    .accessibilityLabel("Resume captioning")
                 }
                 
                 if Self.shouldShowClearButton(hasContent: hasContent) {
@@ -47,6 +49,7 @@ struct OverlayControlsView: View {
                     }
                     .buttonStyle(.plain)
                     .help("Clear captions")
+                    .accessibilityLabel("Clear captions")
                 }
             }
             
@@ -65,13 +68,17 @@ struct OverlayControlsView: View {
         .padding(8)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color.black.opacity(0.25))
+                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.85))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(showKeypressFeedback ? Color.accentColor.opacity(0.9) : .clear, lineWidth: 1.5)
+                .stroke(
+                    showKeypressFeedback ? Color.accentColor.opacity(0.9) : Color.primary.opacity(0.1),
+                    lineWidth: 1.5
+                )
         )
         .animation(.easeInOut(duration: 0.15), value: showKeypressFeedback)
+        .accessibilityElement(children: .contain)
     }
 }
 
@@ -96,4 +103,3 @@ extension OverlayControlsView {
         hasContent
     }
 }
-

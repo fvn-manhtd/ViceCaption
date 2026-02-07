@@ -76,6 +76,7 @@ public struct OverlayTabView: View {
                     }
                 }
                 .pickerStyle(.segmented)
+                .accessibilityLabel("Overlay font size")
             }
             
             Section("Maximum Width") {
@@ -92,6 +93,7 @@ public struct OverlayTabView: View {
                         in: 320...800,
                         step: 20
                     )
+                    .accessibilityLabel("Overlay max width")
                 }
             }
             
@@ -102,6 +104,7 @@ public struct OverlayTabView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .accessibilityLabel("Overlay auto hide duration")
                 
                 Text("Overlay will hide after this duration of inactivity.")
                     .font(.caption)

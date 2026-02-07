@@ -53,6 +53,7 @@ public struct AudioTabView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .accessibilityLabel("Input device")
             }
             
             Section("Monitoring Output") {
@@ -63,11 +64,14 @@ public struct AudioTabView: View {
                     }
                 }
                 .pickerStyle(.menu)
+                .accessibilityLabel("Monitoring output device")
             }
             
             Section("Audio Level") {
                 AudioLevelMeterView(level: audioLevel)
                     .frame(height: 20)
+                    .accessibilityLabel("Audio level meter")
+                    .accessibilityValue("\(Int(min(max(audioLevel, 0), 1) * 100)) percent")
                 
                 Text("Audio level visualization will show when listening is active.")
                     .font(.caption)
@@ -87,6 +91,8 @@ public struct AudioTabView: View {
                                         ? .primary 
                                         : .red)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("BlackHole installation status")
                 
                 if !audioDeviceManager.isBlackHoleInstalled() {
                     Text("BlackHole is required to capture system audio. Install from existential.audio/blackhole")
@@ -108,6 +114,7 @@ public struct AudioTabView: View {
 /// Simple audio level meter visualization.
 struct AudioLevelMeterView: View {
     let level: Float // 0.0 to 1.0
+    private var levelClamped: Float { min(max(level, 0), 1) }
     
     var body: some View {
         GeometryReader { geometry in
@@ -119,7 +126,7 @@ struct AudioLevelMeterView: View {
                 // Level bar
                 RoundedRectangle(cornerRadius: 4)
                     .fill(levelColor)
-                    .frame(width: geometry.size.width * CGFloat(min(max(level, 0), 1)))
+                    .frame(width: geometry.size.width * CGFloat(levelClamped))
             }
         }
     }

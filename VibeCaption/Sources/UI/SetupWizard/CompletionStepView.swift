@@ -70,6 +70,7 @@ struct CompletionStepView: View {
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
             .font(.headline)
+            .accessibilityLabel("Open overlay and finish setup")
             
             Spacer()
         }

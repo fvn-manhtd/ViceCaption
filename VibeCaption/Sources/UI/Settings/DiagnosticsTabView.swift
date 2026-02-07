@@ -27,6 +27,8 @@ public struct DiagnosticsTabView: View {
     @State private var cpuUsage: Double = 0.0
     @State private var memoryUsage: UInt64 = 0
     @State private var isAudioReceiving: Bool = false
+    @State private var previousCPUTime: TimeInterval?
+    @State private var previousCPUSampleDate: Date?
     
     private let timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
     
@@ -76,8 +78,20 @@ public struct DiagnosticsTabView: View {
             
             Section("System Resources") {
                 DiagnosticRow(
+                    label: "CPU Usage",
+                    value: formatCPU(cpuUsage),
+                    valueColor: cpuUsage <= 30 ? .green : .orange
+                )
+
+                DiagnosticRow(
                     label: "Memory Usage",
                     value: formatMemory(memoryUsage)
+                )
+
+                DiagnosticRow(
+                    label: "Performance Mode",
+                    value: settingsManager.performanceModeEnabled ? "On" : "Off",
+                    valueColor: settingsManager.performanceModeEnabled ? .orange : .secondary
                 )
                 
                 DiagnosticRow(
@@ -162,6 +176,39 @@ public struct DiagnosticsTabView: View {
         if result == KERN_SUCCESS {
             memoryUsage = info.resident_size
         }
+
+        var threadTimesInfo = task_thread_times_info_data_t()
+        var threadTimesCount = mach_msg_type_number_t(MemoryLayout<task_thread_times_info_data_t>.size) / 4
+        let cpuResult = withUnsafeMutablePointer(to: &threadTimesInfo) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: Int(threadTimesCount)) {
+                task_info(
+                    mach_task_self_,
+                    task_flavor_t(TASK_THREAD_TIMES_INFO),
+                    $0,
+                    &threadTimesCount
+                )
+            }
+        }
+
+        if cpuResult == KERN_SUCCESS {
+            let totalCPUTime = TimeInterval(threadTimesInfo.user_time.seconds)
+                + (TimeInterval(threadTimesInfo.user_time.microseconds) / 1_000_000)
+                + TimeInterval(threadTimesInfo.system_time.seconds)
+                + (TimeInterval(threadTimesInfo.system_time.microseconds) / 1_000_000)
+            let now = Date()
+
+            if let previousCPUTime, let previousCPUSampleDate {
+                let elapsed = now.timeIntervalSince(previousCPUSampleDate)
+                if elapsed > 0 {
+                    let cpuDelta = max(0, totalCPUTime - previousCPUTime)
+                    let processorCount = max(1, ProcessInfo.processInfo.activeProcessorCount)
+                    cpuUsage = min(100.0, (cpuDelta / elapsed) * 100.0 / Double(processorCount))
+                }
+            }
+
+            previousCPUTime = totalCPUTime
+            previousCPUSampleDate = now
+        }
         
         // Audio receiving would be connected to actual audio pipeline in real implementation
         isAudioReceiving = appStateManager.currentState == .listening || 
@@ -172,6 +219,10 @@ public struct DiagnosticsTabView: View {
         let formatter = ByteCountFormatter()
         formatter.countStyle = .memory
         return formatter.string(fromByteCount: Int64(bytes))
+    }
+
+    private func formatCPU(_ value: Double) -> String {
+        String(format: "%.1f%%", max(0, value))
     }
 }
 

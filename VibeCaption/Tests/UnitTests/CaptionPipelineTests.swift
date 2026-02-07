@@ -2,7 +2,7 @@
 //  CaptionPipelineTests.swift
 //  VibeCaptionTests
 //
-//  Integration-style tests for the caption pipeline.
+//  Integration-style tests for the caption pipeline and edge-case behavior.
 //
 
 import XCTest
@@ -41,54 +41,119 @@ final class CaptionPipelineTests: XCTestCase {
         XCTAssertEqual(translated.englishText, "Hello")
     }
 
-    func testPauseStopsProcessing() async throws {
-        let harness = try TestHarness()
-        let pipeline = harness.pipeline
-        defer { pipeline.stop() }
+    func testEndToEndMeetingFlowSavesTranscriptWithExpectedOrderAndFields() async throws {
+        let segments = [
+            ASRSegment(text: "皆さん、今日の議題を確認します。", startTime: 0, endTime: 1, speakerID: 1, confidence: 0.95),
+            ASRSegment(text: "了解しました。進めてください。", startTime: 1, endTime: 2, speakerID: 2, confidence: 0.93)
+        ]
+        let translations = [
+            "皆さん、今日の議題を確認します。": "Let's review today's agenda.",
+            "了解しました。進めてください。": "Understood. Please continue."
+        ]
 
-        try await pipeline.start()
-        pipeline.pause()
+        let harness = try TestHarness(
+            translationDelay: 0.15,
+            asrSegments: segments,
+            translationMap: translations
+        )
+        defer { harness.pipeline.stop() }
+
+        try await harness.pipeline.start()
         harness.emitSpeechThenSilence()
 
-        let blocks = await harness.currentBlocks()
-        XCTAssertTrue(blocks.isEmpty)
+        let blocks = try await harness.waitForBlocks(minimum: 2)
+        XCTAssertEqual(blocks.first?.speakerLabel, "Speaker 1")
+        XCTAssertEqual(blocks.last?.speakerLabel, "Speaker 2")
+        XCTAssertNil(blocks.first?.englishText, "Japanese should be available before translation finishes")
+
+        let translatedBlocks = try await harness.waitForTranslatedBlocks(minimum: 2)
+        XCTAssertEqual(translatedBlocks.first?.englishText, "Let's review today's agenda.")
+        XCTAssertEqual(translatedBlocks.last?.englishText, "Understood. Please continue.")
+
+        let transcript = try await harness.stopAndLoadTranscriptFile()
+        XCTAssertTrue(transcript.contains("(Speaker 1)"))
+        XCTAssertTrue(transcript.contains("(Speaker 2)"))
+        XCTAssertTrue(transcript.contains("皆さん、今日の議題を確認します。"))
+        XCTAssertTrue(transcript.contains("Let's review today's agenda."))
+        XCTAssertTrue(transcript.contains("了解しました。進めてください。"))
+        XCTAssertTrue(transcript.contains("Understood. Please continue."))
+        XCTAssertTrue(transcript.range(of: #"\[\d{2}:\d{2}:\d{2}\]"#, options: .regularExpression) != nil)
+
+        let japaneseRange = try XCTUnwrap(transcript.range(of: "皆さん、今日の議題を確認します。"))
+        let englishRange = try XCTUnwrap(transcript.range(of: "Let's review today's agenda."))
+        XCTAssertLessThan(japaneseRange.lowerBound, englishRange.lowerBound)
     }
 
-    func testStopSavesTranscript() async throws {
+    func testNoisyAudioStillProducesCaptions() async throws {
         let harness = try TestHarness()
-        let pipeline = harness.pipeline
-        defer { pipeline.stop() }
+        defer { harness.pipeline.stop() }
 
-        try await pipeline.start()
-        harness.emitSpeechThenSilence()
-        _ = try await harness.waitForBlocks(minimum: 1)
+        try await harness.pipeline.start()
+        harness.emitNoisySpeechThenSilence()
 
-        await MainActor.run {
-            pipeline.stop()
-        }
-
-        let files = try FileManager.default.contentsOfDirectory(atPath: harness.transcriptDirectory.path)
-        XCTAssertFalse(files.isEmpty)
+        let blocks = try await harness.waitForBlocks(minimum: 1, timeout: 3.0)
+        XCTAssertFalse(blocks.isEmpty)
     }
 
-    func testErrorPropagation() async throws {
-        let errorHarness = try TestHarness(asrError: TestASRError.simulated)
-        let pipeline = errorHarness.pipeline
-        defer { pipeline.stop() }
+    func testTranslationModelUnloadMidTranscriptionKeepsJapaneseText() async throws {
+        let harness = try TestHarness(
+            translationRequiresLoadedModel: true,
+            unloadTranslationModelBeforeFirstTranslate: true
+        )
+        defer { harness.pipeline.stop() }
 
-        try await pipeline.start()
-        errorHarness.emitSpeechThenSilence()
+        try await harness.pipeline.start()
+        harness.emitSpeechThenSilence()
 
-        let deadline = Date().addingTimeInterval(2)
-        while Date() < deadline {
-            if pipeline.currentState == .error {
-                break
-            }
-            try await Task.sleep(nanoseconds: 50_000_000)
+        let blocks = try await harness.waitForBlocks(minimum: 1)
+        XCTAssertEqual(blocks.first?.japaneseText, "こんにちは")
+
+        try await Task.sleep(nanoseconds: 400_000_000)
+        let updatedBlocks = await harness.currentBlocks()
+        XCTAssertNil(updatedBlocks.first?.englishText)
+        XCTAssertNotEqual(harness.pipeline.currentState, .error)
+    }
+
+    func testPerformanceModeLimitsTranslationConcurrency() async throws {
+        let segments = [
+            ASRSegment(text: "一", startTime: 0, endTime: 1, speakerID: 1, confidence: 0.95),
+            ASRSegment(text: "二", startTime: 1, endTime: 2, speakerID: 2, confidence: 0.95),
+            ASRSegment(text: "三", startTime: 2, endTime: 3, speakerID: 3, confidence: 0.95),
+            ASRSegment(text: "四", startTime: 3, endTime: 4, speakerID: 4, confidence: 0.95)
+        ]
+
+        let harness = try TestHarness(
+            translationDelay: 0.4,
+            asrSegments: segments,
+            performanceModeEnabled: true
+        )
+        defer { harness.pipeline.stop() }
+
+        try await harness.pipeline.start()
+        harness.emitSpeechThenSilence()
+        _ = try await harness.waitForBlocks(minimum: 4, timeout: 3.0)
+        try await harness.waitForTranslationRequests(minimum: 1, timeout: 3.0)
+
+        XCTAssertTrue(harness.pipeline.isPerformanceModeActive)
+        XCTAssertLessThanOrEqual(harness.translationService.maxConcurrentRequests, 2)
+    }
+
+    func testCaptureStartFailureTransitionsPipelineToError() async throws {
+        let harness = try TestHarness(captureStartError: TestCaptureError.deviceDisconnected)
+
+        do {
+            try await harness.pipeline.start()
+            XCTFail("Expected capture start to fail")
+        } catch {
+            // expected
         }
 
-        XCTAssertEqual(pipeline.currentState, .error)
-        XCTAssertEqual(errorHarness.appStateManager.currentState, .idle)
+        let deadline = Date().addingTimeInterval(1.0)
+        while Date() < deadline, harness.pipeline.currentState != .error {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        XCTAssertEqual(harness.pipeline.currentState, .error)
+        XCTAssertEqual(harness.appStateManager.currentState, .idle)
     }
 }
 
@@ -97,15 +162,26 @@ private struct TestHarness {
     let captureEngine: TestAudioCaptureEngine
     let transcriptManager: TranscriptManager
     let appStateManager: AppStateManager
+    let translationService: TestTranslationService
     let transcriptDirectory: URL
 
     private let settingsManager: SettingsManager
 
-    init(translationDelay: TimeInterval = 0.05, asrError: Error? = nil) throws {
+    init(
+        translationDelay: TimeInterval = 0.05,
+        asrError: Error? = nil,
+        asrSegments: [ASRSegment]? = nil,
+        translationMap: [String: String] = [:],
+        translationRequiresLoadedModel: Bool = false,
+        unloadTranslationModelBeforeFirstTranslate: Bool = false,
+        performanceModeEnabled: Bool = false,
+        captureStartError: Error? = nil
+    ) throws {
         let suiteName = "CaptionPipelineTests_\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)
         defaults?.removePersistentDomain(forName: suiteName)
         settingsManager = SettingsManager(userDefaults: defaults ?? .standard)
+        settingsManager.performanceModeEnabled = performanceModeEnabled
 
         transcriptDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -114,15 +190,23 @@ private struct TestHarness {
         transcriptManager = TranscriptManager(settingsManager: settingsManager)
         appStateManager = AppStateManager()
 
-        captureEngine = TestAudioCaptureEngine()
+        captureEngine = TestAudioCaptureEngine(startError: captureStartError)
         let vad = VoiceActivityDetector(speechThreshold: 0.01, silenceThreshold: 0.005)
         let segmenter = AudioSegmenter()
         segmenter.minSegmentDuration = 0.1
         segmenter.maxSegmentDuration = 1.5
         segmenter.silencePadding = 0.05
 
-        let asrService = TestASRService(error: asrError)
-        let translationService = TestTranslationService(delay: translationDelay)
+        let resolvedSegments = asrSegments ?? [
+            ASRSegment(text: "こんにちは", startTime: 0, endTime: 1, speakerID: nil, confidence: 0.9)
+        ]
+        let asrService = TestASRService(error: asrError, segments: resolvedSegments)
+        translationService = TestTranslationService(
+            delay: translationDelay,
+            translations: translationMap,
+            requiresLoadedModel: translationRequiresLoadedModel,
+            unloadBeforeFirstTranslate: unloadTranslationModelBeforeFirstTranslate
+        )
 
         pipeline = CaptionPipeline(
             captureEngine: captureEngine,
@@ -132,7 +216,8 @@ private struct TestHarness {
             asrService: asrService,
             translationService: translationService,
             transcriptManager: transcriptManager,
-            appStateManager: appStateManager
+            appStateManager: appStateManager,
+            settingsManager: settingsManager
         )
     }
 
@@ -144,6 +229,20 @@ private struct TestHarness {
             captureEngine.emit(speechBuffer)
         }
         for _ in 0..<10 {
+            captureEngine.emit(silenceBuffer)
+        }
+    }
+
+    func emitNoisySpeechThenSilence() {
+        let silenceBuffer = makeBuffer(amplitude: 0.0, frames: 1600)
+
+        for index in 0..<8 {
+            let noise = Float.random(in: 0.02...0.06)
+            let burst = Float.random(in: 0.07...0.13)
+            let amplitude = index.isMultiple(of: 2) ? burst : noise
+            captureEngine.emit(makeBuffer(amplitude: amplitude, frames: 1600))
+        }
+        for _ in 0..<12 {
             captureEngine.emit(silenceBuffer)
         }
     }
@@ -178,6 +277,47 @@ private struct TestHarness {
         throw TestHarnessError.timeout("Timed out waiting for translation")
     }
 
+    func waitForTranslatedBlocks(minimum: Int, timeout: TimeInterval = 3.0) async throws -> [TranscriptBlock] {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            let blocks = await currentBlocks()
+            let translatedCount = blocks.filter { $0.englishText?.isEmpty == false }.count
+            if translatedCount >= minimum {
+                return blocks
+            }
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        throw TestHarnessError.timeout("Timed out waiting for translated blocks")
+    }
+
+    func waitForTranslationRequests(minimum: Int, timeout: TimeInterval = 2.0) async throws {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if translationService.maxConcurrentRequests >= minimum {
+                return
+            }
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        throw TestHarnessError.timeout("Timed out waiting for translation requests")
+    }
+
+    func stopAndLoadTranscriptFile() async throws -> String {
+        await MainActor.run {
+            pipeline.stop(trigger: .manualStop)
+        }
+
+        let files = try FileManager.default.contentsOfDirectory(
+            at: transcriptDirectory,
+            includingPropertiesForKeys: [.contentModificationDateKey]
+        ).filter { $0.pathExtension == "txt" }
+
+        guard let fileURL = files.sorted(by: { $0.lastPathComponent < $1.lastPathComponent }).last else {
+            throw TestHarnessError.timeout("Expected saved transcript file")
+        }
+
+        return try String(contentsOf: fileURL, encoding: .utf8)
+    }
+
     private func makeBuffer(amplitude: Float, frames: AVAudioFrameCount) -> AVAudioPCMBuffer {
         let format = AVAudioFormat(standardFormatWithSampleRate: 16_000, channels: 1)!
         let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: frames)!
@@ -200,12 +340,20 @@ private final class TestAudioCaptureEngine: AudioCaptureEngineProtocol {
     private(set) var monitoringVolume: Float = 1
     private(set) var currentMonitoringDevice: AudioDevice?
     private var callback: ((AVAudioPCMBuffer) -> Void)?
+    private let startError: Error?
+
+    init(startError: Error? = nil) {
+        self.startError = startError
+    }
 
     func configure(inputDevice: AudioDevice) throws {
         currentInputDevice = inputDevice
     }
 
     func startCapture() throws {
+        if let startError {
+            throw startError
+        }
         isCapturing = true
     }
 
@@ -238,16 +386,18 @@ private final class TestAudioCaptureEngine: AudioCaptureEngineProtocol {
     }
 }
 
-private enum TestASRError: Error {
-    case simulated
+private enum TestCaptureError: Error {
+    case deviceDisconnected
 }
 
 private final class TestASRService: ASRServiceProtocol {
     private(set) var isModelLoaded: Bool = false
     private let error: Error?
+    private let segments: [ASRSegment]
 
-    init(error: Error? = nil) {
+    init(error: Error? = nil, segments: [ASRSegment]) {
         self.error = error
+        self.segments = segments
     }
 
     func loadModel() async throws {
@@ -263,38 +413,91 @@ private final class TestASRService: ASRServiceProtocol {
             throw error
         }
 
-        let segment = ASRSegment(
-            text: "こんにちは",
-            startTime: audio.startTime,
-            endTime: audio.endTime,
-            speakerID: nil,
-            confidence: 0.9
-        )
-        return ASRResult(segments: [segment], processingTime: 0.01)
+        let safeCount = max(1, segments.count)
+        let segmentDuration = max(0.01, audio.duration / Double(safeCount))
+        let mappedSegments = segments.enumerated().map { index, template in
+            let start = audio.startTime + (Double(index) * segmentDuration)
+            let end = start + segmentDuration
+            return ASRSegment(
+                text: template.text,
+                startTime: start,
+                endTime: end,
+                speakerID: template.speakerID,
+                confidence: template.confidence
+            )
+        }
+        return ASRResult(segments: mappedSegments, processingTime: 0.01)
     }
+}
+
+private enum TestTranslationError: Error {
+    case modelNotLoaded
 }
 
 private final class TestTranslationService: TranslationServiceProtocol {
     private(set) var isModelLoaded: Bool = false
+    private(set) var maxConcurrentRequests: Int = 0
     private let delay: TimeInterval
+    private let translations: [String: String]
+    private let requiresLoadedModel: Bool
+    private let lock = NSLock()
+    private var activeRequests: Int = 0
+    private var unloadBeforeFirstTranslate: Bool
 
-    init(delay: TimeInterval) {
+    init(
+        delay: TimeInterval,
+        translations: [String: String] = [:],
+        requiresLoadedModel: Bool = false,
+        unloadBeforeFirstTranslate: Bool = false
+    ) {
         self.delay = delay
+        self.translations = translations
+        self.requiresLoadedModel = requiresLoadedModel
+        self.unloadBeforeFirstTranslate = unloadBeforeFirstTranslate
     }
 
     func loadModel() async throws {
+        lock.lock()
         isModelLoaded = true
+        lock.unlock()
     }
 
     func unloadModel() {
+        lock.lock()
         isModelLoaded = false
+        lock.unlock()
     }
 
     func translate(_ text: String, from sourceLanguage: Language, to targetLanguage: Language) async throws -> TranslationResult {
+        lock.lock()
+        if unloadBeforeFirstTranslate {
+            unloadBeforeFirstTranslate = false
+            isModelLoaded = false
+        }
+        let loaded = isModelLoaded
+        lock.unlock()
+
+        if requiresLoadedModel && !loaded {
+            throw TestTranslationError.modelNotLoaded
+        }
+
+        lock.lock()
+        activeRequests += 1
+        maxConcurrentRequests = max(maxConcurrentRequests, activeRequests)
+        lock.unlock()
+
+        defer {
+            lock.lock()
+            activeRequests -= 1
+            lock.unlock()
+        }
+
         try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+
+        let translatedText = translations[text] ?? (text == "こんにちは" ? "Hello" : "EN: \(text)")
         return TranslationResult(
             originalText: text,
-            translatedText: "Hello",
+            translatedText: translatedText,
             confidence: 0.95,
             processingTime: delay,
             targetLanguage: targetLanguage

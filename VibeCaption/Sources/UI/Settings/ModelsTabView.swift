@@ -69,6 +69,7 @@ public struct ModelsTabView: View {
                 Button("Refresh") {
                     modelManager.loadModelCatalog()
                 }
+                .accessibilityLabel("Refresh model catalog")
             }
         }
         .padding()
@@ -143,6 +144,7 @@ struct ModelRowView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.small)
+            .accessibilityLabel("Download \(model.displayName)")
             
         case .downloading(let downloadProgress):
             HStack(spacing: 8) {
@@ -169,6 +171,7 @@ struct ModelRowView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
+                .accessibilityLabel("Re-download \(model.displayName)")
             }
             
         case .updateAvailable:
@@ -177,6 +180,7 @@ struct ModelRowView: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
+            .accessibilityLabel("Update \(model.displayName)")
         }
     }
     

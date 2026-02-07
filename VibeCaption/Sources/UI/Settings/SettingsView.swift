@@ -93,6 +93,8 @@ public struct SettingsView: View {
         }
         .padding()
         .frame(minWidth: 460, minHeight: 340)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .animation(.easeInOut(duration: 0.2), value: settingsManager.currentSettings)
     }
 }
 

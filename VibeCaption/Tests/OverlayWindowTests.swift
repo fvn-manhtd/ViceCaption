@@ -57,55 +57,40 @@ class OverlayWindowTests: XCTestCase {
         XCTAssertEqual(window.backgroundColor, .clear, "Window background should be clear")
     }
     
-    func testVisibilityBinding_Show() {
-        let expectation = self.expectation(description: "Window Shows")
-        
-        // When VM shows
+    func testVisibilityBinding_Show() async throws {
         viewModel.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            XCTAssertTrue(self.window.isPresentedForTest, "Window should mark presented when VM is visible")
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 2.0)
+        try await Task.sleep(nanoseconds: 300_000_000)
+        XCTAssertTrue(window.isPresentedForTest, "Window should mark presented when VM is visible")
     }
     
-    func testVisibilityBinding_Hide() {
-        let expectation = self.expectation(description: "Window Hides")
-        
-        // Given visible
+    func testVisibilityBinding_Hide() async throws {
         viewModel.show()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            // When VM hides
-            self.viewModel.hide()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                XCTAssertFalse(self.window.isPresentedForTest, "Window should mark hidden when VM is hidden")
-                expectation.fulfill()
-            }
-        }
-        
-        wait(for: [expectation], timeout: 2.0)
+        try await Task.sleep(nanoseconds: 250_000_000)
+
+        viewModel.hide()
+        try await Task.sleep(nanoseconds: 250_000_000)
+        XCTAssertFalse(window.isPresentedForTest, "Window should mark hidden when VM is hidden")
     }
     
-    func testFrameBinding() {
-        let expectation = self.expectation(description: "Window Frame Updates")
+    func testFrameBinding() async throws {
         let newPos = CGPoint(x: 100, y: 100)
         let newSize = CGSize(width: 400, height: 100)
         
-        DispatchQueue.main.async {
-            self.viewModel.updatePosition(newPos)
-            self.viewModel.updateSize(newSize)
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            XCTAssertEqual(self.window.frame.origin, newPos)
-            XCTAssertEqual(self.window.frame.size, newSize)
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 1.0)
+        viewModel.updatePosition(newPos)
+        viewModel.updateSize(newSize)
+        try await Task.sleep(nanoseconds: 120_000_000)
+
+        XCTAssertEqual(window.frame.origin, newPos)
+        XCTAssertEqual(window.frame.size, newSize)
+    }
+
+    func testFocusTrackingUpdatesViewModel() {
+        XCTAssertFalse(viewModel.isFocused)
+
+        window.becomeKey()
+        XCTAssertTrue(viewModel.isFocused)
+
+        window.resignKey()
+        XCTAssertFalse(viewModel.isFocused)
     }
 }

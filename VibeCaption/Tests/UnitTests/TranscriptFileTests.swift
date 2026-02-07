@@ -169,6 +169,39 @@ final class TranscriptFileTests: XCTestCase {
         XCTAssertNotNil(savedURL)
     }
 
+    func testExtendedSessionOverTwoHoursPersistsAllEntries() throws {
+        sut.startNewSession()
+
+        let firstBlock = TranscriptBlock(
+            timestamp: makeDate(hour: 9, minute: 0, second: 0),
+            speakerLabel: "Speaker 1",
+            japaneseText: "開始します。",
+            englishText: "Let's begin.",
+            confidence: 0.94
+        )
+        let lastBlock = TranscriptBlock(
+            timestamp: makeDate(hour: 11, minute: 5, second: 0),
+            speakerLabel: "Speaker 2",
+            japaneseText: "終了します。",
+            englishText: "We'll wrap up now.",
+            confidence: 0.92
+        )
+
+        sut.addBlock(firstBlock)
+        sut.addBlock(lastBlock)
+
+        guard let savedURL = sut.endCurrentSession(trigger: .manualStop) else {
+            XCTFail("Expected transcript file to be saved")
+            return
+        }
+
+        let content = try String(contentsOf: savedURL, encoding: .utf8)
+        XCTAssertTrue(content.contains("[09:00:00] (Speaker 1)"))
+        XCTAssertTrue(content.contains("[11:05:00] (Speaker 2)"))
+        XCTAssertTrue(content.contains("開始します。"))
+        XCTAssertTrue(content.contains("終了します。"))
+    }
+
     private func makeDate(hour: Int, minute: Int, second: Int) -> Date {
         var components = DateComponents()
         components.calendar = Calendar(identifier: .gregorian)

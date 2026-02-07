@@ -40,6 +40,8 @@ public struct GeneralTabView: View {
         Form {
             Section {
                 Toggle("Performance Mode", isOn: performanceModeBinding)
+                    .accessibilityLabel("Performance Mode")
+                    .accessibilityHint("Reduces CPU use by limiting translation concurrency and disabling noise suppression.")
                 Text("Reduces transcription quality to lower CPU usage.")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -47,6 +49,8 @@ public struct GeneralTabView: View {
             
             Section {
                 Toggle("Noise Suppression", isOn: noiseSuppressionBinding)
+                    .accessibilityLabel("Noise Suppression")
+                    .accessibilityHint("Filters background noise from audio input.")
                 Text("Filters background noise from audio input.")
                     .font(.caption)
                     .foregroundColor(.secondary)

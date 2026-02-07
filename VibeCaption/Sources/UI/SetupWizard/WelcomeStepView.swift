@@ -17,11 +17,12 @@ struct WelcomeStepView: View {
                 .frame(width: 80, height: 80)
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.blue, .purple],
+                        colors: [.blue, .teal],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
+                .accessibilityHidden(true)
             
             // Title
             Text("Welcome to VibeCaption")

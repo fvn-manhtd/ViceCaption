@@ -2,115 +2,213 @@
 //  ModelManagerTests.swift
 //  VibeCaptionTests
 //
-//  Tests for ModelManager behavior.
+//  Tests for model download/update behavior and network edge cases.
 //
 
 import XCTest
-import Combine
+import Foundation
 @testable import VibeCaption
 
 final class ModelManagerTests: XCTestCase {
-    
-    var modelManager: ModelManager!
-    var settingsManager: SettingsManager!
-    var mockUserDefaults: UserDefaults!
-    var cancellables: Set<AnyCancellable>!
-    
+    private var modelManager: ModelManager!
+    private var settingsManager: SettingsManager!
+    private var mockUserDefaults: UserDefaults!
+    private var tempModelDirectory: URL!
+    private var suiteName: String!
+
     override func setUp() {
         super.setUp()
-        
-        mockUserDefaults = UserDefaults(suiteName: "ModelManagerTests")
-        mockUserDefaults.removePersistentDomain(forName: "ModelManagerTests")
-        
+
+        suiteName = "ModelManagerTests_\(UUID().uuidString)"
+        mockUserDefaults = UserDefaults(suiteName: suiteName)
+        mockUserDefaults.removePersistentDomain(forName: suiteName)
+
         settingsManager = SettingsManager(userDefaults: mockUserDefaults)
-        // Set a temporary path for models
-        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        settingsManager.modelStoragePath = tempDir.path
-        
-        // Mock URLSession configuration to intercept requests if needed, 
-        // or we can use a mock subclass if we prefer strict mocking.
-        // For simple tests, we might rely on the fact that we can't easily query real network in unit tests
-        // so we might mock the data loading part or integration tests.
-        // Here we'll focus on state logic tests that don't need network.
-        
-        modelManager = ModelManager(settingsManager: settingsManager, urlSession: .shared)
-        cancellables = []
+        tempModelDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("model-tests-\(UUID().uuidString)", isDirectory: true)
+        settingsManager.modelStoragePath = tempModelDirectory.path
+
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [MockURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        modelManager = ModelManager(settingsManager: settingsManager, urlSession: session)
+
+        MockURLProtocol.reset()
     }
-    
+
     override func tearDown() {
-        cancellables = nil
-        // Cleanup temp directory
-        try? FileManager.default.removeItem(atPath: settingsManager.modelStoragePath)
+        MockURLProtocol.reset()
+        try? FileManager.default.removeItem(at: tempModelDirectory)
+        mockUserDefaults.removePersistentDomain(forName: suiteName)
+
         modelManager = nil
         settingsManager = nil
         mockUserDefaults = nil
+        tempModelDirectory = nil
+        suiteName = nil
+
         super.tearDown()
     }
-    
-    func testCatalogLoading() {
-        // Since we rely on Bundle.main which might not contain the resource in test target bundle,
-        // we might need to mock loadModelCatalog or manually inject models for testing.
-        // For this test, we can manually populate models to simulate successful load.
-        
-        let dummyModel = ModelInfo(
-            id: "test-model",
-            displayName: "Test Model",
-            version: "1.0",
-            downloadURL: URL(string: "https://example.com")!,
-            checksum: "123",
+
+    func testDownloadModelHandlesNetworkLoss() async {
+        let model = makeModel(
+            id: "network-loss-model",
+            checksum: "357e5d6fafa34d27360fec24b4326d3534905e33c6acdee60198fb078b7b79e5"
+        )
+
+        MockURLProtocol.responseProvider = { _ in
+            throw URLError(.notConnectedToInternet)
+        }
+
+        do {
+            try await modelManager.downloadModel(model)
+            XCTFail("Expected download to fail due to network loss")
+        } catch let error as ModelError {
+            guard case .downloadFailed = error else {
+                XCTFail("Expected downloadFailed, got \(error)")
+                return
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        await waitForMainQueue()
+        XCTAssertEqual(modelManager.modelStatuses[model.id], .notDownloaded)
+    }
+
+    func testDownloadModelMarksCorruptedWhenChecksumMismatch() async {
+        let model = makeModel(
+            id: "checksum-mismatch-model",
+            checksum: "357e5d6fafa34d27360fec24b4326d3534905e33c6acdee60198fb078b7b79e5"
+        )
+
+        MockURLProtocol.responseProvider = { _ in
+            Data("bad-data".utf8)
+        }
+
+        do {
+            try await modelManager.downloadModel(model)
+            XCTFail("Expected verification failure")
+        } catch let error as ModelError {
+            guard case .verificationFailed = error else {
+                XCTFail("Expected verificationFailed, got \(error)")
+                return
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        await waitForMainQueue()
+        XCTAssertEqual(modelManager.modelStatuses[model.id], .corrupted)
+    }
+
+    func testDownloadModelSuccessMarksDownloadedAndWritesFile() async throws {
+        let model = makeModel(
+            id: "download-success-model",
+            checksum: "357e5d6fafa34d27360fec24b4326d3534905e33c6acdee60198fb078b7b79e5"
+        )
+
+        let payload = Data("model-bytes".utf8)
+        MockURLProtocol.responseProvider = { _ in payload }
+
+        try await modelManager.downloadModel(model)
+        await waitForMainQueue()
+
+        XCTAssertEqual(modelManager.modelStatuses[model.id], .downloaded)
+
+        let modelPath = try XCTUnwrap(modelManager.getModelPath(for: model))
+        let fileURL = modelPath.appendingPathComponent(model.downloadURL.lastPathComponent)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fileURL.path))
+    }
+
+    func testModelUpdateDetectionFindsInstalledOutdatedModel() {
+        let currentModel = ModelInfo(
+            id: "whisper",
+            displayName: "Whisper",
+            version: "1.0.0",
+            downloadURL: URL(string: "https://example.com/whisper-1.0.0.bin")!,
+            checksum: "abc123",
+            sizeBytes: 1_000,
+            isRequired: true
+        )
+        let latestModel = ModelInfo(
+            id: "whisper",
+            displayName: "Whisper",
+            version: "1.2.0",
+            downloadURL: URL(string: "https://example.com/whisper-1.2.0.bin")!,
+            checksum: "def456",
+            sizeBytes: 1_200,
+            isRequired: true
+        )
+
+        let updates = ModelManager.detectModelUpdates(
+            currentCatalog: [currentModel],
+            latestCatalog: [latestModel],
+            installedStatuses: ["whisper": .downloaded]
+        )
+
+        XCTAssertEqual(updates.count, 1)
+        XCTAssertEqual(updates.first?.currentVersion, "1.0.0")
+        XCTAssertEqual(updates.first?.latestVersion, "1.2.0")
+    }
+
+    func testVersionComparisonLogic() {
+        XCTAssertEqual(ModelManager.compareVersions("1.10.0", "1.2.0"), .orderedDescending)
+        XCTAssertEqual(ModelManager.compareVersions("2.0", "2.0.0"), .orderedSame)
+        XCTAssertEqual(ModelManager.compareVersions("3.0-beta", "3.0"), .orderedAscending)
+        XCTAssertEqual(ModelManager.compareVersions("1.0.1", "1.0.9"), .orderedAscending)
+    }
+
+    private func makeModel(id: String, checksum: String) -> ModelInfo {
+        ModelInfo(
+            id: id,
+            displayName: id,
+            version: "1.0.0",
+            downloadURL: URL(string: "https://example.com/\(id).bin")!,
+            checksum: checksum,
             sizeBytes: 1024,
             isRequired: true
         )
-        
-        // We can't set models directly if it's read-only publicly, checking access level.
-        // models is `public private(set)`.
-        // So we test loadModelCatalog behavior if the file exists in bundle.
-        // If the bundle doesn't have it (likely in test runner), we might skip or assume empty.
-        
-        modelManager.loadModelCatalog()
-        // Determine expectation based on environment.
-        // If we can't mock Bundle easily, we might just assert it doesn't crash.
-        XCTAssertNotNil(modelManager.models)
     }
-    
-    func testPathGeneration() {
-        let dummyModel = ModelInfo(
-            id: "whisper-test",
-            displayName: "Whisper Test",
-            version: "1.0.0",
-            downloadURL: URL(string: "https://example.com/model.zip")!,
-            checksum: "abc",
-            sizeBytes: 100,
-            isRequired: true
-        )
-        
-        let path = modelManager.getModelPath(for: dummyModel)
-        XCTAssertNotNil(path)
-        XCTAssertTrue(path!.path.contains(settingsManager.modelStoragePath))
-        XCTAssertTrue(path!.path.contains("whisper-test"))
-        XCTAssertTrue(path!.path.contains("1.0.0"))
+
+    private func waitForMainQueue() async {
+        await MainActor.run {
+            RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+        }
     }
-    
-    func testDiskUsageCalculation() {
-        // We can't easily inject models without mocking, but if we could:
-        // Assume models variable was settable or we could subclass to mock it.
-        // Since we can't change private(set) vars from outside, we need to rely on what we can control.
-        // If loadModelCatalog fails, models is empty, usage is 0.
-        XCTAssertEqual(modelManager.getTotalDiskUsage(), 0)
+}
+
+private final class MockURLProtocol: URLProtocol {
+    static var responseProvider: ((URLRequest) throws -> Data)?
+
+    static func reset() {
+        responseProvider = nil
     }
-    
-    func testTranslationModelSelection() {
-        // We need to have models loaded to test this. 
-        // A robust test would construct ModelManager with a mock catalog loader.
-        // Since we didn't abstract CatalogLoader, let's look at logic we can test.
-        
-        // We can't really test this without models populated.
-        // LIMITATION: The current design couples ModelManager strictly to Bundle.main resource.
-        // Refactoring to allow injecting catalog would be better for testing.
-        // However, assuming standard implementation:
-        
-        let result = modelManager.getTranslationModelID(for: "en", target: "ja")
-        // Should be nil if no models loaded
-        XCTAssertNil(result)
+
+    override class func canInit(with request: URLRequest) -> Bool {
+        true
     }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
+
+    override func startLoading() {
+        do {
+            let payload = try Self.responseProvider?(request) ?? Data()
+            let response = HTTPURLResponse(
+                url: request.url!,
+                statusCode: 200,
+                httpVersion: nil,
+                headerFields: ["Content-Length": "\(payload.count)"]
+            )!
+            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: payload)
+            client?.urlProtocolDidFinishLoading(self)
+        } catch {
+            client?.urlProtocol(self, didFailWithError: error)
+        }
+    }
+
+    override func stopLoading() {}
 }

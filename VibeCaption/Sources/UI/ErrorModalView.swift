@@ -146,7 +146,11 @@ public struct ErrorModalContainer: View {
     
     @ObservedObject private var errorHandler: ErrorHandler
     
-    public init(errorHandler: ErrorHandler = ErrorHandler.shared) {
+    public init() {
+        self.errorHandler = ErrorHandler.shared
+    }
+    
+    public init(errorHandler: ErrorHandler) {
         self.errorHandler = errorHandler
     }
     

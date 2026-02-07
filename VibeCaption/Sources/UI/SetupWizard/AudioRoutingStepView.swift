@@ -52,7 +52,7 @@ struct AudioRoutingStepView: View {
                 RoutingInstructionView(
                     appName: "Microsoft Teams",
                     iconName: "person.2.fill",
-                    color: .purple,
+                    color: .indigo,
                     steps: [
                         "Click '...' (More options) in meeting controls",
                         "Select 'Device settings'",

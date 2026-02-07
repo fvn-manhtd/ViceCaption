@@ -143,6 +143,30 @@ class MenuBarControllerTests: XCTestCase {
         XCTAssertEqual(item.title, "Hide Overlay")
     }
 
+    func testMenuContainsAllExpectedItems() {
+        let mirror = Mirror(reflecting: menuBarController!)
+        guard let statusItem = mirror.children.first(where: { $0.label == "statusItem" })?.value as? NSStatusItem,
+              let menu = statusItem.menu else {
+            XCTFail("Could not access status item menu")
+            return
+        }
+
+        let nonSeparatorItems = menu.items.filter { !$0.isSeparatorItem }
+        let titles = nonSeparatorItems.map(\.title)
+        XCTAssertEqual(
+            titles,
+            [
+                "Show Overlay",
+                "Start Listening",
+                "Open Settings…",
+                "Run Setup Wizard…",
+                "Open Transcript Folder",
+                "Quit VibeCaption"
+            ]
+        )
+        XCTAssertTrue(nonSeparatorItems.allSatisfy { $0.action != nil }, "All menu items should be wired to an action")
+    }
+
     func testOpenTranscriptFolderCreatesDirectory() {
         let temporaryRoot = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)

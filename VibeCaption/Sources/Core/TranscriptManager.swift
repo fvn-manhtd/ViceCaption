@@ -426,6 +426,16 @@ public final class TranscriptManager: ObservableObject {
     }
 
     private func asTranscriptError(_ error: Error, path: String? = nil) -> TranscriptManagerError {
+        Self.mapWriteError(error, path: path)
+    }
+
+    private func handleAutomaticSaveFailure(_ error: Error, trigger: TranscriptSessionEndTrigger) {
+        let transcriptError = asTranscriptError(error)
+        logger.error("Automatic save failed (\(trigger.rawValue)): \(transcriptError.localizedDescription)")
+        onSaveFailure?(transcriptError)
+    }
+
+    static func mapWriteError(_ error: Error, path: String? = nil) -> TranscriptManagerError {
         if let transcriptError = error as? TranscriptManagerError {
             return transcriptError
         }
@@ -440,12 +450,6 @@ public final class TranscriptManager: ObservableObject {
         }
 
         return .saveFailed(underlyingError: error)
-    }
-
-    private func handleAutomaticSaveFailure(_ error: Error, trigger: TranscriptSessionEndTrigger) {
-        let transcriptError = asTranscriptError(error)
-        logger.error("Automatic save failed (\(trigger.rawValue)): \(transcriptError.localizedDescription)")
-        onSaveFailure?(transcriptError)
     }
 }
 

@@ -267,4 +267,20 @@ final class TranscriptManagerTests: XCTestCase {
         
         XCTAssertTrue(savedURL.path.hasPrefix(customPath.path))
     }
+
+    /// Test disk full errors are mapped to TranscriptManagerError.diskFull.
+    func testMapWriteErrorDetectsDiskFull() {
+        let nsError = NSError(
+            domain: NSCocoaErrorDomain,
+            code: NSFileWriteOutOfSpaceError,
+            userInfo: nil
+        )
+        let mapped = TranscriptManager.mapWriteError(nsError, path: "/tmp/transcript.txt")
+
+        guard case .diskFull(let path) = mapped else {
+            XCTFail("Expected diskFull error mapping")
+            return
+        }
+        XCTAssertEqual(path, "/tmp/transcript.txt")
+    }
 }

@@ -43,9 +43,11 @@ struct ClearCaptionsPopup: View {
             }
             .buttonStyle(ClearPopupButtonStyle())
             .help("Clear captions from display, but keep for saved file")
+            .accessibilityLabel("Clear display only")
+            .accessibilityHint("Clears captions from overlay while keeping transcript data for saving.")
             
             Divider()
-                .background(Color.white.opacity(0.15))
+                .background(Color.primary.opacity(0.12))
             
             // Clear + discard button
             Button(action: {
@@ -64,17 +66,19 @@ struct ClearCaptionsPopup: View {
             }
             .buttonStyle(ClearPopupButtonStyle(isDestructive: true))
             .help("Clear captions and remove permanently")
+            .accessibilityLabel("Clear and discard")
+            .accessibilityHint("Removes captions from overlay and deletes unsaved transcript content.")
         }
         .frame(width: 180)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color.black.opacity(0.85))
+                .fill(Color(nsColor: .windowBackgroundColor).opacity(0.96))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                .stroke(Color.primary.opacity(0.12), lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(0.4), radius: 8, x: 0, y: 4)
+        .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 4)
         .onExitCommand {
             onDismiss()
         }
@@ -89,10 +93,10 @@ private struct ClearPopupButtonStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundColor(isDestructive ? Color.red.opacity(0.9) : Color.white.opacity(0.9))
+            .foregroundColor(isDestructive ? .red : .primary)
             .background(
                 configuration.isPressed
-                    ? Color.white.opacity(0.1)
+                    ? Color.accentColor.opacity(0.15)
                     : Color.clear
             )
     }

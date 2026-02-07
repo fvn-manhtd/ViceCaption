@@ -135,7 +135,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             asrService: asrService,
             translationService: translationService,
             transcriptManager: transcriptManager,
-            appStateManager: appStateManager
+            appStateManager: appStateManager,
+            settingsManager: settingsManager
         )
         
         // Subscribe to state changes for debugging

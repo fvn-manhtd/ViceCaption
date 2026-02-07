@@ -59,35 +59,39 @@ public struct SetupWizardView: View {
             // Content
             ScrollView {
                 VStack {
-                    switch currentStep {
-                    case .welcome:
-                        WelcomeStepView()
+                    Group {
+                        switch currentStep {
+                        case .welcome:
+                            WelcomeStepView()
+                                .onAppear { canProceed = true }
+
+                        case .blackHoleCheck:
+                            BlackHoleCheckStepView(
+                                audioDeviceManager: audioDeviceManager,
+                                canProceed: $canProceed
+                            )
+
+                        case .audioRouting:
+                            AudioRoutingStepView()
+                                .onAppear { canProceed = true }
+
+                        case .audioTest:
+                            AudioTestStepView(
+                                settingsManager: settingsManager,
+                                audioDeviceManager: audioDeviceManager,
+                                canProceed: $canProceed
+                            )
+
+                        case .completion:
+                            CompletionStepView(
+                                settingsManager: settingsManager,
+                                onComplete: onComplete
+                            )
                             .onAppear { canProceed = true }
-                        
-                    case .blackHoleCheck:
-                        BlackHoleCheckStepView(
-                            audioDeviceManager: audioDeviceManager,
-                            canProceed: $canProceed
-                        )
-                        
-                    case .audioRouting:
-                        AudioRoutingStepView()
-                            .onAppear { canProceed = true }
-                        
-                    case .audioTest:
-                        AudioTestStepView(
-                            settingsManager: settingsManager,
-                            audioDeviceManager: audioDeviceManager,
-                            canProceed: $canProceed
-                        )
-                        
-                    case .completion:
-                        CompletionStepView(
-                            settingsManager: settingsManager,
-                            onComplete: onComplete
-                        )
-                        .onAppear { canProceed = true }
+                        }
                     }
+                    .id(currentStep)
+                    .transition(.opacity.combined(with: .move(edge: .trailing)))
                 }
                 .padding(32)
                 .frame(maxWidth: .infinity, minHeight: 300, alignment: .top)
@@ -107,11 +111,13 @@ public struct SetupWizardView: View {
                             }
                         }
                         .keyboardShortcut(.leftArrow, modifiers: [])
+                        .accessibilityLabel("Go back")
                     } else if currentStep == .welcome {
                         Button("Quit Setup") {
                             onClose()
                         }
                         .foregroundColor(.secondary)
+                        .accessibilityLabel("Quit setup")
                     }
                     
                     Spacer()
@@ -127,6 +133,7 @@ public struct SetupWizardView: View {
                         }
                         .keyboardShortcut(.defaultAction)
                         .buttonStyle(.borderedProminent)
+                        .accessibilityLabel("Finish setup")
                         
                     } else {
                         Button(currentStep == .welcome ? "Get Started" : "Next") {
@@ -137,6 +144,7 @@ public struct SetupWizardView: View {
                         .keyboardShortcut(.defaultAction)
                         .buttonStyle(.borderedProminent)
                         .disabled(!canProceed)
+                        .accessibilityLabel(currentStep == .welcome ? "Get started" : "Go to next step")
                     }
                 }
                 .padding(20)
@@ -144,6 +152,10 @@ public struct SetupWizardView: View {
             }
         }
         .frame(width: 600, height: 500)
+        .animation(.easeInOut(duration: 0.2), value: currentStep)
+        .onExitCommand {
+            onClose()
+        }
     }
     
     // MARK: - Navigation

@@ -65,6 +65,7 @@ public struct UpdatesTabView: View {
                         set: { updateManager.setAutomaticAppUpdatesEnabled($0) }
                     )
                 )
+                .accessibilityLabel("Enable automatic app updates")
 
                 HStack {
                     Text("Check Frequency")
@@ -92,6 +93,7 @@ public struct UpdatesTabView: View {
                         set: { settingsManager.enforceCriticalAppUpdates = $0 }
                     )
                 )
+                .accessibilityLabel("Force critical security updates")
 
                 Text("Critical update enforcement is controlled by appcast metadata and this local policy.")
                     .font(.caption)
@@ -111,6 +113,7 @@ public struct UpdatesTabView: View {
                         }
                     }
                     .disabled(updateManager.isCheckingForUpdates)
+                    .accessibilityLabel("Check for app updates")
                     
                     Spacer()
                 }
@@ -147,6 +150,7 @@ public struct UpdatesTabView: View {
                         }
                     }
                     .disabled(isCheckingModels)
+                    .accessibilityLabel("Check for model updates")
 
                     Spacer()
                 }
@@ -183,6 +187,7 @@ public struct UpdatesTabView: View {
                                 downloadModelUpdate(update)
                             }
                             .buttonStyle(.bordered)
+                            .accessibilityLabel("Download model update for \(update.latestModel.displayName)")
                         }
                     }
                 }

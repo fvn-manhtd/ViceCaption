@@ -193,8 +193,8 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] Wire recovery flows (e.g., Error -> Fix Now -> Wizard)
   - [x] test: Verify error recovery navigation
 
-- [ ] **27. Final Polish & End-to-End Testing**
-  - [ ] UI Polish (Animations, Dark mode, Accessibility)
-  - [ ] Performance profiling (Memory/CPU)
-  - [ ] Record and verify with "golden file" audio samples
-  - [ ] Final bug fixes and documentation
+- [x] **27. Final Polish & End-to-End Testing**
+  - [x] UI Polish (Animations, Dark mode, Accessibility)
+  - [x] Performance profiling (Memory/CPU)
+  - [x] Record and verify with "golden file" audio samples
+  - [x] Final bug fixes and documentation

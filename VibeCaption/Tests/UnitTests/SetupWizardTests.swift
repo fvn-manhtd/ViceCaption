@@ -74,4 +74,15 @@ final class SetupWizardTests: XCTestCase {
         XCTAssertEqual(settingsManager.audioInputDeviceID, inputID)
         XCTAssertEqual(settingsManager.monitoringOutputDeviceID, outputID)
     }
+
+    func testWizardCompletionMarksSetupCompleted() {
+        XCTAssertFalse(settingsManager.setupWizardCompleted)
+
+        let completionHandler = {
+            self.settingsManager.setupWizardCompleted = true
+        }
+        completionHandler()
+
+        XCTAssertTrue(settingsManager.setupWizardCompleted)
+    }
 }

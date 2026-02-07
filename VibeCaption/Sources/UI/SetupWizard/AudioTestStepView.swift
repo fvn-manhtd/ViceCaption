@@ -97,6 +97,7 @@ struct AudioTestStepView: View {
                           systemImage: isPlayingSound ? "stop.fill" : "play.fill")
                 }
                 .disabled(settingsManager.monitoringOutputDeviceID == nil && settingsManager.audioInputDeviceID == nil)
+                .accessibilityLabel(isPlayingSound ? "Stop test sound" : "Play test sound")
                 
                 Text("2. Verify the meter moves")
                     .foregroundColor(.secondary)
@@ -129,19 +130,7 @@ struct AudioTestStepView: View {
         .onAppear {
             setupInitialDevices()
             startMonitoring()
-            // Allow proceeding if they already have setup working, or force test?
-            // Let's force test for wizard to be useful
             canProceed = false 
-            
-            // NOTE: In a real app, we would hook up the AudioCaptureEngine's metering callback here.
-            // Since we don't have direct access to the engine instance from here easily without DI,
-            // we will simulate the meter behavior for this UI implementation task
-            // OR we'd need to inject AudioCaptureEngine into the wizard.
-            // For now, let's simulate activity when "Play Test Sound" is active to demonstrate UI,
-            // as full integration is Step 23. 
-            // BUT: Requirements say "Real-time level meter". 
-            // Plan: We should probably hook into notification center or similar if engine publishes levels.
-            // Given current constraints, I'll simulate it for the UI task but add TODO for wiring.
         }
         .onDisappear {
             stopTestSound()
@@ -174,12 +163,6 @@ struct AudioTestStepView: View {
     }
     
     private func playTestSound() {
-        // Use system sound "Ping" or similar
-        // /System/Library/Sounds/Ping.aiff
-        if let soundURL = FileManager.default.urls(for: .libraryDirectory, in: .systemDomainMask).first?.appendingPathComponent("Sounds/Ping.aiff") {
-            // Fallback manually if needed, or use NSSound named
-        }
-        
         if let sound = NSSound(named: "Ping") {
             sound.loops = true
             sound.play()

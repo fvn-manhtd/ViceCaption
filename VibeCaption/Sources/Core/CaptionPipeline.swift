@@ -22,6 +22,7 @@ public final class CaptionPipeline: ObservableObject {
     @Published public private(set) var currentState: PipelineState = .idle
     @Published public private(set) var statistics: PipelineStatistics = PipelineStatistics()
     @Published public private(set) var lastError: Error?
+    @Published public private(set) var isPerformanceModeActive: Bool = false
 
     private let captureEngine: AudioCaptureEngineProtocol
     private let preprocessor: AudioPreprocessorProtocol
@@ -31,13 +32,18 @@ public final class CaptionPipeline: ObservableObject {
     private let translationService: TranslationServiceProtocol
     private let transcriptManager: TranscriptManager
     private let appStateManager: AppStateManager
-    private let segmentQueueLimit: Int
+    private let settingsManager: SettingsManager?
+    private let normalSegmentQueueLimit: Int
+    private let performanceSegmentQueueLimit: Int
+    private let normalTranslationConcurrencyLimit: Int
+    private let performanceTranslationConcurrencyLimit: Int
 
     private let logger = Logger(subsystem: "com.vibecaption", category: "CaptionPipeline")
 
     private var segmentContinuation: AsyncStream<AudioSegment>.Continuation?
     private var segmentTask: Task<Void, Never>?
     @MainActor private var translationTasks: [UUID: Task<Void, Never>] = [:]
+    @MainActor private var translationTaskOrder: [UUID] = []
     @MainActor private var translationInFlightCount: Int = 0
 
     private let stateLock = NSLock()
@@ -52,7 +58,11 @@ public final class CaptionPipeline: ObservableObject {
         translationService: TranslationServiceProtocol,
         transcriptManager: TranscriptManager,
         appStateManager: AppStateManager,
-        segmentQueueLimit: Int = 8
+        settingsManager: SettingsManager? = nil,
+        segmentQueueLimit: Int = 8,
+        performanceSegmentQueueLimit: Int = 4,
+        normalTranslationConcurrencyLimit: Int = 8,
+        performanceTranslationConcurrencyLimit: Int = 2
     ) {
         self.captureEngine = captureEngine
         self.preprocessor = preprocessor
@@ -62,7 +72,11 @@ public final class CaptionPipeline: ObservableObject {
         self.translationService = translationService
         self.transcriptManager = transcriptManager
         self.appStateManager = appStateManager
-        self.segmentQueueLimit = segmentQueueLimit
+        self.settingsManager = settingsManager
+        self.normalSegmentQueueLimit = max(1, segmentQueueLimit)
+        self.performanceSegmentQueueLimit = max(1, performanceSegmentQueueLimit)
+        self.normalTranslationConcurrencyLimit = max(1, normalTranslationConcurrencyLimit)
+        self.performanceTranslationConcurrencyLimit = max(1, performanceTranslationConcurrencyLimit)
 
         configurePipeline()
     }
@@ -87,6 +101,9 @@ public final class CaptionPipeline: ObservableObject {
             handlePipelineError(error)
             throw error
         }
+
+        applyRuntimeSettingsToCaptureEngine()
+        await syncPerformanceModeFromSettings()
 
         await MainActor.run { [weak self] in
             self?.transcriptManager.startNewSession()
@@ -126,6 +143,10 @@ public final class CaptionPipeline: ObservableObject {
         let snapshot = snapshotState()
         guard snapshot == .paused else { return }
 
+        applyRuntimeSettingsToCaptureEngine()
+        Task { @MainActor [weak self] in
+            self?.syncPerformanceModeFromSettings()
+        }
         startSegmentProcessing()
         do {
             try captureEngine.startCapture()
@@ -172,8 +193,9 @@ public final class CaptionPipeline: ObservableObject {
 
     private func startSegmentProcessing() {
         guard segmentTask == nil else { return }
+        let queueLimit = currentSegmentQueueLimit()
 
-        let stream = AsyncStream<AudioSegment>(bufferingPolicy: .bufferingOldest(segmentQueueLimit)) { continuation in
+        let stream = AsyncStream<AudioSegment>(bufferingPolicy: .bufferingOldest(queueLimit)) { continuation in
             continuation.onTermination = { [weak self] _ in
                 self?.segmentContinuation = nil
             }
@@ -222,39 +244,50 @@ public final class CaptionPipeline: ObservableObject {
 
     private func startTranslation(for blocks: [TranscriptBlock]) {
         guard !blocks.isEmpty else { return }
+        let blocksToTranslate = cappedTranslationBlocks(from: blocks)
 
-        for block in blocks {
-            let blockID = block.id
-            let task = Task { [weak self] in
-                guard let self = self else { return }
-                await self.updateTranslationCount(by: 1)
-                defer {
-                    Task { @MainActor [weak self] in
-                        guard let self = self else { return }
-                        self.translationTasks[blockID] = nil
-                        self.updateTranslationCount(by: -1)
-                    }
-                }
+        Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            self.syncPerformanceModeFromSettings()
+            for block in blocksToTranslate {
+                let blockID = block.id
+                self.enforceTranslationTaskLimit()
+                let task = self.makeTranslationTask(for: block)
+                self.translationTasks[blockID] = task
+                self.translationTaskOrder.append(blockID)
+            }
+        }
+    }
 
-                do {
-                    let translation = try await translationService.translate(
-                        block.japaneseText,
-                        from: .japanese,
-                        to: .english
-                    )
-                    if Task.isCancelled { return }
-
-                    await MainActor.run { [weak self] in
-                        _ = self?.transcriptManager.updateBlock(id: blockID, englishText: translation.translatedText)
-                    }
-                } catch {
-                    if Task.isCancelled { return }
-                    logger.error("Translation failed for block \(blockID.uuidString): \(error.localizedDescription)")
+    private func makeTranslationTask(for block: TranscriptBlock) -> Task<Void, Never> {
+        let blockID = block.id
+        return Task { [weak self] in
+            guard let self = self else { return }
+            if Task.isCancelled { return }
+            await self.updateTranslationCount(by: 1)
+            defer {
+                Task { @MainActor [weak self] in
+                    guard let self = self else { return }
+                    self.translationTasks[blockID] = nil
+                    self.translationTaskOrder.removeAll { $0 == blockID }
+                    self.updateTranslationCount(by: -1)
                 }
             }
 
-            Task { @MainActor [weak self] in
-                self?.translationTasks[blockID] = task
+            do {
+                let translation = try await translationService.translate(
+                    block.japaneseText,
+                    from: .japanese,
+                    to: .english
+                )
+                if Task.isCancelled { return }
+
+                await MainActor.run { [weak self] in
+                    _ = self?.transcriptManager.updateBlock(id: blockID, englishText: translation.translatedText)
+                }
+            } catch {
+                if Task.isCancelled { return }
+                logger.error("Translation failed for block \(blockID.uuidString): \(error.localizedDescription)")
             }
         }
     }
@@ -309,6 +342,25 @@ public final class CaptionPipeline: ObservableObject {
         await MainActor.run { [weak self] in
             self?.appStateManager.areModelsLoaded = true
         }
+    }
+
+    private func applyRuntimeSettingsToCaptureEngine() {
+        let performanceEnabled = settingsManager?.performanceModeEnabled ?? false
+        let noiseSuppressionEnabled = settingsManager?.noiseSuppressionEnabled ?? true
+        captureEngine.setNoiseSuppression(noiseSuppressionEnabled && !performanceEnabled)
+    }
+
+    private func cappedTranslationBlocks(from blocks: [TranscriptBlock]) -> [TranscriptBlock] {
+        let isPerformanceMode = settingsManager?.performanceModeEnabled ?? false
+        guard isPerformanceMode else { return blocks }
+        let limit = max(1, performanceTranslationConcurrencyLimit)
+        guard blocks.count > limit else { return blocks }
+        return Array(blocks.suffix(limit))
+    }
+
+    private func currentSegmentQueueLimit() -> Int {
+        let performanceEnabled = settingsManager?.performanceModeEnabled ?? false
+        return performanceEnabled ? performanceSegmentQueueLimit : normalSegmentQueueLimit
     }
 
     // MARK: - State + Stats
@@ -403,6 +455,30 @@ public final class CaptionPipeline: ObservableObject {
     private func resetTranslationTracking() {
         translationTasks.values.forEach { $0.cancel() }
         translationTasks.removeAll()
+        translationTaskOrder.removeAll()
         translationInFlightCount = 0
+    }
+
+    @MainActor
+    private func syncPerformanceModeFromSettings() {
+        isPerformanceModeActive = settingsManager?.performanceModeEnabled ?? false
+    }
+
+    @MainActor
+    private func currentTranslationTaskLimit() -> Int {
+        let performanceEnabled = settingsManager?.performanceModeEnabled ?? false
+        return performanceEnabled ? performanceTranslationConcurrencyLimit : normalTranslationConcurrencyLimit
+    }
+
+    @MainActor
+    private func enforceTranslationTaskLimit() {
+        let limit = currentTranslationTaskLimit()
+        guard translationTasks.count >= limit else { return }
+
+        while translationTasks.count >= limit, let oldestBlockID = translationTaskOrder.first {
+            translationTasks[oldestBlockID]?.cancel()
+            translationTasks.removeValue(forKey: oldestBlockID)
+            translationTaskOrder.removeFirst()
+        }
     }
 }
