@@ -76,6 +76,16 @@ final class SettingsManagerTests: XCTestCase {
     func testTranscriptStoragePathHasDefault() {
         XCTAssertTrue(sut.transcriptStoragePath.contains("VibeCaption/Transcripts"))
     }
+
+    /// Test auto app updates default
+    func testAutoAppUpdatesDefaultIsTrue() {
+        XCTAssertTrue(sut.autoAppUpdatesEnabled)
+    }
+
+    /// Test app update interval default
+    func testAppUpdateCheckIntervalDefault() {
+        XCTAssertEqual(sut.appUpdateCheckIntervalHours, 24)
+    }
     
     // MARK: - Persistence Tests (Read/Write Roundtrip)
     
@@ -153,6 +163,22 @@ final class SettingsManagerTests: XCTestCase {
         let newManager = SettingsManager(userDefaults: testUserDefaults)
         XCTAssertEqual(newManager.transcriptStoragePath, customPath)
     }
+
+    /// Test auto app updates persistence
+    func testAutoAppUpdatesPersistence() {
+        sut.autoAppUpdatesEnabled = false
+
+        let newManager = SettingsManager(userDefaults: testUserDefaults)
+        XCTAssertFalse(newManager.autoAppUpdatesEnabled)
+    }
+
+    /// Test app update interval persistence
+    func testAppUpdateIntervalPersistence() {
+        sut.appUpdateCheckIntervalHours = 72
+
+        let newManager = SettingsManager(userDefaults: testUserDefaults)
+        XCTAssertEqual(newManager.appUpdateCheckIntervalHours, 72)
+    }
     
     // MARK: - Path Validation Tests
     
@@ -211,6 +237,9 @@ final class SettingsManagerTests: XCTestCase {
         sut.performanceModeEnabled = true
         sut.modelStoragePath = "/custom/models"
         sut.transcriptStoragePath = "/custom/transcripts"
+        sut.autoAppUpdatesEnabled = false
+        sut.appUpdateCheckIntervalHours = 72
+        sut.enforceCriticalAppUpdates = true
         
         // Reset
         sut.resetToDefaults()
@@ -225,6 +254,9 @@ final class SettingsManagerTests: XCTestCase {
         XCTAssertFalse(sut.performanceModeEnabled)
         XCTAssertTrue(sut.modelStoragePath.contains("VibeCaption/Models"))
         XCTAssertTrue(sut.transcriptStoragePath.contains("VibeCaption/Transcripts"))
+        XCTAssertTrue(sut.autoAppUpdatesEnabled)
+        XCTAssertEqual(sut.appUpdateCheckIntervalHours, 24)
+        XCTAssertFalse(sut.enforceCriticalAppUpdates)
     }
     
     /// Test that reset persists the defaults

@@ -208,6 +208,7 @@ final class MockAudioDeviceManager: AudioDeviceManagerProtocol {
 
 // MARK: - AudioDeviceManager Tests
 
+@MainActor
 final class AudioDeviceManagerTests: XCTestCase {
     
     var sut: AudioDeviceManager!
@@ -223,6 +224,21 @@ final class AudioDeviceManagerTests: XCTestCase {
         sut = nil
         cancellables = nil
         super.tearDown()
+    }
+
+    private func refreshDevicesAndWait(timeout: TimeInterval = 3.0) {
+        let expectation = expectation(description: "Devices refreshed")
+
+        sut.$inputDevices
+            .dropFirst()
+            .first()
+            .sink { _ in
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        sut.refreshDevices()
+        waitForExpectations(timeout: timeout)
     }
     
     // MARK: - Singleton Tests
@@ -244,45 +260,27 @@ final class AudioDeviceManagerTests: XCTestCase {
     /// Test that refreshDevices populates device lists.
     /// Note: This test may find different devices on different machines.
     func testRefreshDevicesPopulatesLists() {
-        // Devices are refreshed on init
-        sut.refreshDevices()
-        
-        // Give async update time to complete
-        let expectation = expectation(description: "Devices populated")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            // Should have at least some devices on any Mac
-            // (Built-in Microphone and Built-in Output at minimum)
-            // Note: CI environments may not have audio devices
-            expectation.fulfill()
-        }
-        
-        waitForExpectations(timeout: 2.0)
+        // Should complete even on environments with no audio hardware.
+        refreshDevicesAndWait()
     }
     
     /// Test that devices have valid properties.
     func testDevicesHaveValidProperties() {
-        sut.refreshDevices()
-        
-        let expectation = expectation(description: "Devices checked")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            for device in self.sut.inputDevices {
-                XCTAssertFalse(device.uid.isEmpty, "Device UID should not be empty")
-                XCTAssertFalse(device.name.isEmpty, "Device name should not be empty")
-                XCTAssertTrue(device.isInput, "Input device should be marked as input")
-                XCTAssertGreaterThan(device.sampleRate, 0, "Sample rate should be positive")
-                XCTAssertGreaterThan(device.channelCount, 0, "Channel count should be positive")
-            }
-            
-            for device in self.sut.outputDevices {
-                XCTAssertFalse(device.uid.isEmpty, "Device UID should not be empty")
-                XCTAssertFalse(device.name.isEmpty, "Device name should not be empty")
-                XCTAssertTrue(device.isOutput, "Output device should be marked as output")
-            }
-            
-            expectation.fulfill()
+        refreshDevicesAndWait()
+
+        for device in sut.inputDevices {
+            XCTAssertFalse(device.uid.isEmpty, "Device UID should not be empty")
+            XCTAssertFalse(device.name.isEmpty, "Device name should not be empty")
+            XCTAssertTrue(device.isInput, "Input device should be marked as input")
+            XCTAssertGreaterThan(device.sampleRate, 0, "Sample rate should be positive")
+            XCTAssertGreaterThan(device.channelCount, 0, "Channel count should be positive")
         }
-        
-        waitForExpectations(timeout: 2.0)
+
+        for device in sut.outputDevices {
+            XCTAssertFalse(device.uid.isEmpty, "Device UID should not be empty")
+            XCTAssertFalse(device.name.isEmpty, "Device name should not be empty")
+            XCTAssertTrue(device.isOutput, "Output device should be marked as output")
+        }
     }
     
     // MARK: - Get Device Tests
@@ -295,59 +293,40 @@ final class AudioDeviceManagerTests: XCTestCase {
     
     /// Test getDevice returns device when found.
     func testGetDeviceReturnsDeviceWhenFound() {
-        sut.refreshDevices()
-        
-        let expectation = expectation(description: "Device lookup")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if let firstInput = self.sut.inputDevices.first {
-                let found = self.sut.getDevice(byID: firstInput.deviceID)
-                XCTAssertNotNil(found)
-                XCTAssertEqual(found?.deviceID, firstInput.deviceID)
-            }
-            expectation.fulfill()
+        refreshDevicesAndWait()
+
+        if let firstInput = sut.inputDevices.first {
+            let found = sut.getDevice(byID: firstInput.deviceID)
+            XCTAssertNotNil(found)
+            XCTAssertEqual(found?.deviceID, firstInput.deviceID)
         }
-        
-        waitForExpectations(timeout: 2.0)
     }
     
     // MARK: - Default Device Tests
     
     /// Test default input device returns a device (if available).
     func testDefaultInputDeviceReturnsDevice() {
-        sut.refreshDevices()
-        
-        let expectation = expectation(description: "Default input check")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            // Note: May be nil in CI environments without audio hardware
-            if !self.sut.inputDevices.isEmpty {
-                let defaultInput = self.sut.getDefaultInputDevice()
-                // Default device should be in the input devices list
-                if let device = defaultInput {
-                    XCTAssertTrue(device.isInput)
-                }
+        refreshDevicesAndWait()
+
+        // Note: May be nil in CI environments without audio hardware
+        if !sut.inputDevices.isEmpty {
+            let defaultInput = sut.getDefaultInputDevice()
+            if let device = defaultInput {
+                XCTAssertTrue(device.isInput)
             }
-            expectation.fulfill()
         }
-        
-        waitForExpectations(timeout: 2.0)
     }
     
     /// Test default output device returns a device (if available).
     func testDefaultOutputDeviceReturnsDevice() {
-        sut.refreshDevices()
-        
-        let expectation = expectation(description: "Default output check")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if !self.sut.outputDevices.isEmpty {
-                let defaultOutput = self.sut.getDefaultOutputDevice()
-                if let device = defaultOutput {
-                    XCTAssertTrue(device.isOutput)
-                }
+        refreshDevicesAndWait()
+
+        if !sut.outputDevices.isEmpty {
+            let defaultOutput = sut.getDefaultOutputDevice()
+            if let device = defaultOutput {
+                XCTAssertTrue(device.isOutput)
             }
-            expectation.fulfill()
         }
-        
-        waitForExpectations(timeout: 2.0)
     }
     
     // MARK: - Observable Tests
@@ -357,42 +336,33 @@ final class AudioDeviceManagerTests: XCTestCase {
     /// Since devices are refreshed on init, we check that we can observe current state.
     func testInputDevicesIsObservable() {
         let expectation = expectation(description: "Input devices published")
-        expectation.isInverted = false
-        
-        // Allow time for init refresh to complete, then verify we can observe
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
-            
-            var receivedValue = false
-            self.sut.$inputDevices
-                .first() // Take first value (current state)
-                .sink { _ in
-                    receivedValue = true
-                    expectation.fulfill()
-                }
-                .store(in: &self.cancellables)
-        }
-        
-        waitForExpectations(timeout: 2.0)
+
+        sut.$inputDevices
+            .dropFirst()
+            .first()
+            .sink { _ in
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        sut.refreshDevices()
+        waitForExpectations(timeout: 3.0)
     }
     
     /// Test outputDevices is observable via Combine.
     func testOutputDevicesIsObservable() {
         let expectation = expectation(description: "Output devices published")
-        
-        // Allow time for init refresh to complete, then verify we can observe
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
-            
-            self.sut.$outputDevices
-                .first()
-                .sink { _ in
-                    expectation.fulfill()
-                }
-                .store(in: &self.cancellables)
-        }
-        
-        waitForExpectations(timeout: 2.0)
+
+        sut.$outputDevices
+            .dropFirst()
+            .first()
+            .sink { _ in
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        sut.refreshDevices()
+        waitForExpectations(timeout: 3.0)
     }
 }
 

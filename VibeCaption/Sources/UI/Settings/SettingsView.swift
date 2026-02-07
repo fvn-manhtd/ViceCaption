@@ -24,6 +24,7 @@ public struct SettingsView: View {
     @ObservedObject var audioDeviceManager: AudioDeviceManager
     @ObservedObject var modelManager: ModelManager
     @ObservedObject var appStateManager: AppStateManager
+    @ObservedObject var updateManager: UpdateManager
     
     // MARK: - Initialization
     
@@ -31,12 +32,14 @@ public struct SettingsView: View {
         settingsManager: SettingsManager,
         audioDeviceManager: AudioDeviceManager,
         modelManager: ModelManager,
-        appStateManager: AppStateManager
+        appStateManager: AppStateManager,
+        updateManager: UpdateManager
     ) {
         self.settingsManager = settingsManager
         self.audioDeviceManager = audioDeviceManager
         self.modelManager = modelManager
         self.appStateManager = appStateManager
+        self.updateManager = updateManager
     }
     
     // MARK: - Body
@@ -79,7 +82,11 @@ public struct SettingsView: View {
                     Label("Diagnostics", systemImage: "stethoscope")
                 }
             
-            UpdatesTabView()
+            UpdatesTabView(
+                settingsManager: settingsManager,
+                updateManager: updateManager,
+                modelManager: modelManager
+            )
                 .tabItem {
                     Label("Updates", systemImage: "arrow.down.circle")
                 }
@@ -94,11 +101,13 @@ public struct SettingsView: View {
 #if DEBUG
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
+        let settingsManager = SettingsManager()
         SettingsView(
-            settingsManager: SettingsManager(),
+            settingsManager: settingsManager,
             audioDeviceManager: AudioDeviceManager(),
-            modelManager: ModelManager(settingsManager: SettingsManager()),
-            appStateManager: AppStateManager()
+            modelManager: ModelManager(settingsManager: settingsManager),
+            appStateManager: AppStateManager(),
+            updateManager: UpdateManager(settingsManager: settingsManager)
         )
     }
 }

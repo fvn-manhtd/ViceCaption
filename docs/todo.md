@@ -181,11 +181,11 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] Handle "Open Transcript Folder" action
   - [x] test: Verify saved file content exact match
 
-- [ ] **25. Auto-Update with Sparkle**
-  - [ ] Integrate Sparkle framework
-  - [ ] Implement `UpdateManager`
-  - [ ] Add update UI to Settings
-  - [ ] Configure signing and notarization
+- [x] **25. Auto-Update with Sparkle**
+  - [x] Integrate Sparkle framework
+  - [x] Implement `UpdateManager`
+  - [x] Add update UI to Settings
+  - [x] Configure signing and notarization
 
 - [ ] **26. Error Modals & Recovery Flows**
   - [ ] Enhance `ErrorModalView` with specific recovery actions

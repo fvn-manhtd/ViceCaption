@@ -37,6 +37,12 @@ public final class SettingsManager: ObservableObject {
         static let modelStoragePath = "modelStoragePath"
         static let transcriptStoragePath = "transcriptStoragePath"
         static let setupWizardCompleted = "setupWizardCompleted"
+        static let autoAppUpdatesEnabled = "autoAppUpdatesEnabled"
+        static let appUpdateCheckIntervalHours = "appUpdateCheckIntervalHours"
+        static let appLastUpdateCheckDate = "appLastUpdateCheckDate"
+        static let enforceCriticalAppUpdates = "enforceCriticalAppUpdates"
+        static let modelCatalogURL = "modelCatalogURL"
+        static let modelLastUpdateCheckDate = "modelLastUpdateCheckDate"
     }
     
     // MARK: - Properties
@@ -209,6 +215,92 @@ public final class SettingsManager: ObservableObject {
             logger.debug("Setup wizard completed: \(newValue)")
         }
     }
+
+    // MARK: - Update Settings
+
+    /// Whether app update checks are enabled automatically.
+    public var autoAppUpdatesEnabled: Bool {
+        get {
+            if userDefaults.object(forKey: Keys.autoAppUpdatesEnabled) == nil {
+                return AppSettings.defaultAutoAppUpdatesEnabled
+            }
+            return userDefaults.bool(forKey: Keys.autoAppUpdatesEnabled)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.autoAppUpdatesEnabled)
+            notifyChange()
+            logger.debug("Auto app updates enabled: \(newValue)")
+        }
+    }
+
+    /// App update check interval in hours.
+    public var appUpdateCheckIntervalHours: Int {
+        get {
+            if userDefaults.object(forKey: Keys.appUpdateCheckIntervalHours) == nil {
+                return AppSettings.defaultAppUpdateCheckIntervalHours
+            }
+            return max(1, userDefaults.integer(forKey: Keys.appUpdateCheckIntervalHours))
+        }
+        set {
+            userDefaults.set(max(1, newValue), forKey: Keys.appUpdateCheckIntervalHours)
+            notifyChange()
+            logger.debug("App update check interval (hours): \(max(1, newValue))")
+        }
+    }
+
+    /// Date of the last app update check.
+    public var appLastUpdateCheckDate: Date? {
+        get {
+            userDefaults.object(forKey: Keys.appLastUpdateCheckDate) as? Date
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.appLastUpdateCheckDate)
+            notifyChange()
+            logger.debug("App last update check date changed")
+        }
+    }
+
+    /// Whether critical app updates should be enforced.
+    public var enforceCriticalAppUpdates: Bool {
+        get {
+            if userDefaults.object(forKey: Keys.enforceCriticalAppUpdates) == nil {
+                return AppSettings.defaultEnforceCriticalAppUpdates
+            }
+            return userDefaults.bool(forKey: Keys.enforceCriticalAppUpdates)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.enforceCriticalAppUpdates)
+            notifyChange()
+            logger.debug("Enforce critical app updates: \(newValue)")
+        }
+    }
+
+    /// Optional remote catalog URL for model update checks.
+    public var modelCatalogURL: URL? {
+        get {
+            guard let value = userDefaults.string(forKey: Keys.modelCatalogURL), !value.isEmpty else {
+                return AppSettings.defaultModelCatalogURL.flatMap { URL(string: $0) }
+            }
+            return URL(string: value)
+        }
+        set {
+            userDefaults.set(newValue?.absoluteString, forKey: Keys.modelCatalogURL)
+            notifyChange()
+            logger.debug("Model catalog URL changed")
+        }
+    }
+
+    /// Date of the last model update check.
+    public var modelLastUpdateCheckDate: Date? {
+        get {
+            userDefaults.object(forKey: Keys.modelLastUpdateCheckDate) as? Date
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.modelLastUpdateCheckDate)
+            notifyChange()
+            logger.debug("Model last update check date changed")
+        }
+    }
     
     // MARK: - Convenience Accessors
     
@@ -223,7 +315,11 @@ public final class SettingsManager: ObservableObject {
             overlayAutoHideSeconds: overlayAutoHideSeconds,
             performanceModeEnabled: performanceModeEnabled,
             modelStoragePath: modelStoragePath,
-            transcriptStoragePath: transcriptStoragePath
+            transcriptStoragePath: transcriptStoragePath,
+            autoAppUpdatesEnabled: autoAppUpdatesEnabled,
+            appUpdateCheckIntervalHours: appUpdateCheckIntervalHours,
+            enforceCriticalAppUpdates: enforceCriticalAppUpdates,
+            modelCatalogURL: modelCatalogURL?.absoluteString
         )
     }
     
@@ -243,6 +339,12 @@ public final class SettingsManager: ObservableObject {
         userDefaults.removeObject(forKey: Keys.modelStoragePath)
         userDefaults.removeObject(forKey: Keys.transcriptStoragePath)
         userDefaults.removeObject(forKey: Keys.setupWizardCompleted)
+        userDefaults.removeObject(forKey: Keys.autoAppUpdatesEnabled)
+        userDefaults.removeObject(forKey: Keys.appUpdateCheckIntervalHours)
+        userDefaults.removeObject(forKey: Keys.appLastUpdateCheckDate)
+        userDefaults.removeObject(forKey: Keys.enforceCriticalAppUpdates)
+        userDefaults.removeObject(forKey: Keys.modelCatalogURL)
+        userDefaults.removeObject(forKey: Keys.modelLastUpdateCheckDate)
         
         notifyChange()
         validatePaths()

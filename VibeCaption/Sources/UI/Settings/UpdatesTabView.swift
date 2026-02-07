@@ -18,9 +18,24 @@ public struct UpdatesTabView: View {
     
     // MARK: - Properties
     
-    @State private var autoUpdateEnabled: Bool = true
-    @State private var isCheckingForUpdates: Bool = false
-    @State private var lastCheckResult: String? = nil
+    @ObservedObject private var settingsManager: SettingsManager
+    @ObservedObject private var updateManager: UpdateManager
+    @ObservedObject private var modelManager: ModelManager
+
+    @State private var isCheckingModels: Bool = false
+    @State private var modelUpdateError: String?
+
+    // MARK: - Initialization
+
+    public init(
+        settingsManager: SettingsManager,
+        updateManager: UpdateManager,
+        modelManager: ModelManager
+    ) {
+        self.settingsManager = settingsManager
+        self.updateManager = updateManager
+        self.modelManager = modelManager
+    }
     
     // MARK: - Body
     
@@ -30,22 +45,55 @@ public struct UpdatesTabView: View {
                 HStack {
                     Text("Current Version")
                     Spacer()
-                    Text(appVersion)
+                    Text(updateManager.currentVersion)
                         .foregroundColor(.secondary)
                 }
                 
                 HStack {
                     Text("Build Number")
                     Spacer()
-                    Text(buildNumber)
+                    Text(updateManager.currentBuild)
                         .foregroundColor(.secondary)
                 }
             }
             
             Section("Automatic Updates") {
-                Toggle("Enable Auto-Updates", isOn: $autoUpdateEnabled)
-                
-                Text("When enabled, VibeCaption will automatically download and install updates.")
+                Toggle(
+                    "Enable Auto-Updates",
+                    isOn: Binding(
+                        get: { updateManager.automaticallyChecksForUpdates },
+                        set: { updateManager.setAutomaticAppUpdatesEnabled($0) }
+                    )
+                )
+
+                HStack {
+                    Text("Check Frequency")
+                    Spacer()
+                    Picker(
+                        "Check Frequency",
+                        selection: Binding(
+                            get: { updateManager.appUpdateCheckIntervalHours },
+                            set: { updateManager.setAppUpdateCheckInterval(hours: $0) }
+                        )
+                    ) {
+                        Text("Every 6 hours").tag(6)
+                        Text("Every 12 hours").tag(12)
+                        Text("Daily").tag(24)
+                        Text("Every 3 days").tag(72)
+                        Text("Weekly").tag(168)
+                    }
+                    .frame(maxWidth: 170)
+                }
+
+                Toggle(
+                    "Force Critical Security Updates",
+                    isOn: Binding(
+                        get: { settingsManager.enforceCriticalAppUpdates },
+                        set: { settingsManager.enforceCriticalAppUpdates = $0 }
+                    )
+                )
+
+                Text("Critical update enforcement is controlled by appcast metadata and this local policy.")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -54,67 +102,142 @@ public struct UpdatesTabView: View {
                 HStack {
                     Button(action: checkForUpdates) {
                         HStack {
-                            if isCheckingForUpdates {
+                            if updateManager.isCheckingForUpdates {
                                 ProgressView()
                                     .scaleEffect(0.7)
                                     .frame(width: 14, height: 14)
                             }
-                            Text(isCheckingForUpdates ? "Checking..." : "Check for Updates")
+                            Text(updateManager.isCheckingForUpdates ? "Checking..." : "Check for Updates")
                         }
                     }
-                    .disabled(isCheckingForUpdates)
+                    .disabled(updateManager.isCheckingForUpdates)
                     
                     Spacer()
-                    
-                    if let result = lastCheckResult {
-                        Text(result)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                }
+
+                HStack {
+                    Text("Last Checked")
+                    Spacer()
+                    Text(formattedDate(updateManager.lastCheckedAt))
+                        .foregroundColor(.secondary)
                 }
             }
             
             Section("Model Updates") {
-                Text("Model updates are managed in the Models tab. Check there for available AI model updates.")
+                TextField(
+                    "Model Catalog URL",
+                    text: Binding(
+                        get: { settingsManager.modelCatalogURL?.absoluteString ?? "" },
+                        set: { value in
+                            let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                            settingsManager.modelCatalogURL = trimmed.isEmpty ? nil : URL(string: trimmed)
+                        }
+                    )
+                )
+
+                HStack {
+                    Button(action: checkModelUpdates) {
+                        HStack {
+                            if isCheckingModels {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                                    .frame(width: 14, height: 14)
+                            }
+                            Text(isCheckingModels ? "Checking..." : "Check Model Updates")
+                        }
+                    }
+                    .disabled(isCheckingModels)
+
+                    Spacer()
+                }
+
+                HStack {
+                    Text("Last Checked")
+                    Spacer()
+                    Text(formattedDate(settingsManager.modelLastUpdateCheckDate))
+                        .foregroundColor(.secondary)
+                }
+
+                if let modelUpdateError {
+                    Text(modelUpdateError)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
+
+                if modelManager.availableModelUpdates.isEmpty {
+                    Text("No model updates found.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else {
+                    ForEach(modelManager.availableModelUpdates) { update in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(update.latestModel.displayName)
+                                    .font(.callout)
+                                Text("Installed \(update.currentVersion) → Latest \(update.latestVersion)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Button("Download") {
+                                downloadModelUpdate(update)
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    }
+                }
+
+                Text("Model update checks only run when you trigger them from Settings.")
                     .font(.callout)
                     .foregroundColor(.secondary)
-                
-                HStack {
-                    Spacer()
-                    NavigationLink("Go to Models Tab") {
-                        // This would navigate to Models tab
-                        // In practice, we'd use a different approach since TabView doesn't support this directly
-                        EmptyView()
-                    }
-                    .disabled(true) // Placeholder - cross-tab navigation not directly supported
-                }
             }
         }
         .formStyle(.grouped)
         .padding()
-    }
-    
-    // MARK: - Computed Properties
-    
-    private var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
-    }
-    
-    private var buildNumber: String {
-        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        .onAppear {
+            updateManager.refreshLastCheckedDate()
+        }
     }
     
     // MARK: - Actions
     
     private func checkForUpdates() {
-        isCheckingForUpdates = true
-        lastCheckResult = nil
-        
-        // Simulate update check - in real implementation this would use Sparkle
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isCheckingForUpdates = false
-            lastCheckResult = "You're up to date!"
+        updateManager.checkForAppUpdates()
+    }
+
+    private func checkModelUpdates() {
+        guard settingsManager.modelCatalogURL != nil else {
+            modelUpdateError = "Set a model catalog URL before checking for model updates."
+            return
         }
+
+        isCheckingModels = true
+        modelUpdateError = nil
+
+        Task {
+            do {
+                _ = try await modelManager.checkForModelUpdates(catalogURL: settingsManager.modelCatalogURL)
+                settingsManager.modelLastUpdateCheckDate = Date()
+            } catch {
+                modelUpdateError = "Model update check failed: \(error.localizedDescription)"
+            }
+            isCheckingModels = false
+        }
+    }
+
+    private func downloadModelUpdate(_ update: ModelUpdate) {
+        Task {
+            do {
+                try await modelManager.downloadModel(update.latestModel)
+            } catch {
+                modelUpdateError = "Download failed for \(update.latestModel.displayName): \(error.localizedDescription)"
+            }
+        }
+    }
+
+    private func formattedDate(_ date: Date?) -> String {
+        guard let date else { return "Never" }
+        return date.formatted(date: .abbreviated, time: .shortened)
     }
 }
 
@@ -123,7 +246,13 @@ public struct UpdatesTabView: View {
 #if DEBUG
 struct UpdatesTabView_Previews: PreviewProvider {
     static var previews: some View {
-        UpdatesTabView()
+        let settings = SettingsManager()
+        let modelManager = ModelManager(settingsManager: settings)
+        UpdatesTabView(
+            settingsManager: settings,
+            updateManager: UpdateManager(settingsManager: settings),
+            modelManager: modelManager
+        )
             .frame(width: 460, height: 350)
     }
 }

@@ -18,9 +18,14 @@ struct VibeCaptionApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
-        // Using Settings for a minimal scene - the app is primarily menu bar driven
         Settings {
-            EmptyView()
+            SettingsView(
+                settingsManager: appDelegate.settingsManager,
+                audioDeviceManager: AudioDeviceManager.shared,
+                modelManager: appDelegate.modelManager,
+                appStateManager: appDelegate.appStateManager,
+                updateManager: appDelegate.updateManager
+            )
         }
     }
 }
@@ -42,6 +47,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// The model manager for ASR/translation models
     private(set) var modelManager: ModelManager!
 
+    /// The update manager for Sparkle/app update integration
+    private(set) var updateManager: UpdateManager!
+
     /// The caption pipeline orchestrating audio to captions
     private(set) var pipeline: CaptionPipeline!
     
@@ -53,15 +61,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var overlayWindow: OverlayWindow?
     
     private var cancellables = Set<AnyCancellable>()
+
+    override init() {
+        super.init()
+        setupManagers()
+    }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         logger.info("VibeCaption launched")
         
         // Hide dock icon - this is a menu bar only app
         NSApp.setActivationPolicy(.accessory)
-        
-        // Initialize the state manager
-        setupManagers()
+
+        updateManager.configureUpdaterFromSettings()
         
         // Initialize audio device detection
         setupAudioDevices()
@@ -112,6 +124,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Initialize Model Manager
         modelManager = ModelManager(settingsManager: settingsManager)
+        modelManager.loadModelCatalog()
+
+        updateManager = UpdateManager(settingsManager: settingsManager)
 
         let asrService = MockASRService()
         let translationService = MockTranslationService()

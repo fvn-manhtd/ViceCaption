@@ -9,26 +9,30 @@ import XCTest
 import Combine
 @testable import VibeCaption
 
-class OverlayViewModelTests: XCTestCase {
+@MainActor
+final class OverlayViewModelTests: XCTestCase {
     
     var viewModel: OverlayViewModel!
     var mockDefaults: UserDefaults!
     var cancellables: Set<AnyCancellable>!
+    var suiteName: String!
     
     override func setUp() {
         super.setUp()
         // Use a temporary suite for testing to avoid touching real user defaults
-        mockDefaults = UserDefaults(suiteName: "OverlayViewModelTests")
-        mockDefaults.removePersistentDomain(forName: "OverlayViewModelTests")
+        suiteName = "OverlayViewModelTests.\(UUID().uuidString)"
+        mockDefaults = UserDefaults(suiteName: suiteName)
+        mockDefaults.removePersistentDomain(forName: suiteName)
         viewModel = OverlayViewModel(userDefaults: mockDefaults)
         cancellables = []
     }
     
     override func tearDown() {
-        mockDefaults.removePersistentDomain(forName: "OverlayViewModelTests")
+        mockDefaults.removePersistentDomain(forName: suiteName)
         viewModel = nil
         mockDefaults = nil
         cancellables = nil
+        suiteName = nil
         super.tearDown()
     }
     
@@ -51,33 +55,27 @@ class OverlayViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.isVisible)
     }
     
-    func testPersistence() {
+    func testPersistence() async throws {
         // Given
         let newPos = CGPoint(x: 123, y: 456)
         let newSize = CGSize(width: 500, height: 300)
-        
-        let expectation = XCTestExpectation(description: "Persistence Debounce")
-        
+
         // When
         viewModel.updatePosition(newPos)
         viewModel.updateSize(newSize)
-        
-        // Then - wait for debounce (0.5s) + buffer
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            // Verify Logic
-            XCTAssertEqual(self.viewModel.position, newPos)
-            XCTAssertEqual(self.viewModel.size, newSize)
-            
-            // Verify Persistence
-            XCTAssertEqual(self.mockDefaults.double(forKey: "OverlayWindowPositionX"), 123)
-            XCTAssertEqual(self.mockDefaults.double(forKey: "OverlayWindowPositionY"), 456)
-            XCTAssertEqual(self.mockDefaults.double(forKey: "OverlayWindowWidth"), 500)
-            XCTAssertEqual(self.mockDefaults.double(forKey: "OverlayWindowHeight"), 300)
-            
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 2.0)
+
+        // Allow main-runloop debounce persistence to flush without blocking the main thread.
+        try await Task.sleep(nanoseconds: 1_500_000_000)
+
+        // Verify Logic
+        XCTAssertEqual(viewModel.position, newPos)
+        XCTAssertEqual(viewModel.size, newSize)
+
+        // Verify Persistence
+        XCTAssertEqual(mockDefaults.double(forKey: "OverlayWindowPositionX"), 123)
+        XCTAssertEqual(mockDefaults.double(forKey: "OverlayWindowPositionY"), 456)
+        XCTAssertEqual(mockDefaults.double(forKey: "OverlayWindowWidth"), 500)
+        XCTAssertEqual(mockDefaults.double(forKey: "OverlayWindowHeight"), 300)
     }
     
     func testInitializationFromPersistence() {

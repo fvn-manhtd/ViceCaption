@@ -16,6 +16,7 @@ final class SettingsViewTests: XCTestCase {
     var audioDeviceManager: AudioDeviceManager!
     var modelManager: ModelManager!
     var appStateManager: AppStateManager!
+    var updateManager: UpdateManager!
     var testUserDefaults: UserDefaults!
     var testSuiteName: String!
     
@@ -32,6 +33,7 @@ final class SettingsViewTests: XCTestCase {
         audioDeviceManager = AudioDeviceManager()
         modelManager = ModelManager(settingsManager: settingsManager)
         appStateManager = AppStateManager()
+        updateManager = UpdateManager(settingsManager: settingsManager)
     }
     
     override func tearDown() {
@@ -41,6 +43,7 @@ final class SettingsViewTests: XCTestCase {
         audioDeviceManager = nil
         modelManager = nil
         appStateManager = nil
+        updateManager = nil
         super.tearDown()
     }
     
@@ -219,7 +222,8 @@ final class SettingsViewTests: XCTestCase {
             settingsManager: settingsManager,
             audioDeviceManager: audioDeviceManager,
             modelManager: modelManager,
-            appStateManager: appStateManager
+            appStateManager: appStateManager,
+            updateManager: updateManager
         )
         
         XCTAssertNotNil(window)
@@ -232,7 +236,8 @@ final class SettingsViewTests: XCTestCase {
             settingsManager: settingsManager,
             audioDeviceManager: audioDeviceManager,
             modelManager: modelManager,
-            appStateManager: appStateManager
+            appStateManager: appStateManager,
+            updateManager: updateManager
         )
         
         XCTAssertEqual(window.minSize.width, 480)

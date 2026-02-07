@@ -19,6 +19,10 @@
 		0C72BCB02F2E2ABC005682CF /* OverlayControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCB32F2E2ABC005682CF /* OverlayControlsView.swift */; };
 		0C72BCB12F2E2ABC005682CF /* StatusDotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCB42F2E2ABC005682CF /* StatusDotView.swift */; };
 		0C72BCB22F2E2AC5005682CF /* OverlayControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C72BCB52F2E2AC5005682CF /* OverlayControlsTests.swift */; };
+		AA900001AA900001AA900001 /* UpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA900002AA900002AA900002 /* UpdateManager.swift */; };
+		AA900003AA900003AA900003 /* UpdateManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA900004AA900004AA900004 /* UpdateManagerTests.swift */; };
+		AA900005AA900005AA900005 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = AA900006AA900006AA900006 /* Sparkle */; };
+		AA900021AA900021AA900021 /* model-catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = AA900020AA900020AA900020 /* model-catalog.json */; };
 		4A676D08557650860DE2ECDE /* SettingsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCB6BABFFFC0AEDD79E8B34 /* SettingsWindow.swift */; };
 		4E5F7A252780CDBA394E3638 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C1C146FF95B57D1AA01A78 /* SettingsView.swift */; };
 		F1000010F1000010F1000010 /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000007F1000007F1000007 /* ModelManager.swift */; };
@@ -106,6 +110,9 @@
 		0C72BCB32F2E2ABC005682CF /* OverlayControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay/OverlayControlsView.swift; sourceTree = "<group>"; };
 		0C72BCB42F2E2ABC005682CF /* StatusDotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Overlay/StatusDotView.swift; sourceTree = "<group>"; };
 		0C72BCB52F2E2AC5005682CF /* OverlayControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayControlsTests.swift; sourceTree = "<group>"; };
+		AA900002AA900002AA900002 /* UpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateManager.swift; sourceTree = "<group>"; };
+		AA900004AA900004AA900004 /* UpdateManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/UpdateManagerTests.swift; sourceTree = "<group>"; };
+		AA900020AA900020AA900020 /* model-catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "model-catalog.json"; sourceTree = "<group>"; };
 		ECCB6BABFFFC0AEDD79E8B34 /* SettingsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/SettingsWindow.swift; sourceTree = "<group>"; };
 		F7C1C146FF95B57D1AA01A78 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/SettingsView.swift; sourceTree = "<group>"; };
 		1FE066A99037F02C440A9300 /* GeneralTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/GeneralTabView.swift; sourceTree = "<group>"; };
@@ -179,6 +186,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA900005AA900005AA900005 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,6 +240,7 @@
 			children = (
 				A100000AA100000AA100000A /* Info.plist */,
 				A100000BA100000BA100000B /* VibeCaption.entitlements */,
+				AA900020AA900020AA900020 /* model-catalog.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -318,6 +327,7 @@
 				B200000EB200000EB200000E /* Language.swift */,
 				B200000FB200000FB200000F /* MockTranslationService.swift */,
 				F1000007F1000007F1000007 /* ModelManager.swift */,
+				AA900002AA900002AA900002 /* UpdateManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -360,6 +370,7 @@
 				0C72BCB52F2E2AC5005682CF /* OverlayControlsTests.swift */,
 				B2000011B2000011B2000011 /* CaptionPipelineTests.swift */,
 				A674BC62CE4EBFD5C16E32D7 /* ClearCaptionsTests.swift */,
+				AA900004AA900004AA900004 /* UpdateManagerTests.swift */,
 			);
 			path = UnitTests;
 			sourceTree = "<group>";
@@ -396,6 +407,9 @@
 			dependencies = (
 			);
 			name = VibeCaption;
+			packageProductDependencies = (
+				AA900006AA900006AA900006 /* Sparkle */,
+			);
 			productName = VibeCaption;
 			productReference = A1000008A1000008A1000008 /* VibeCaption.app */;
 			productType = "com.apple.product-type.application";
@@ -446,6 +460,9 @@
 				Base,
 			);
 			mainGroup = A100000EA100000EA100000E;
+			packageReferences = (
+				AA900007AA900007AA900007 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			productRefGroup = A1000012A1000012A1000012 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -461,6 +478,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA900021AA900021AA900021 /* model-catalog.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -536,6 +554,7 @@
 				AEA32704C0B8D948A594BB0C /* AudioTestStepView.swift in Sources */,
 				2E05054306946F6C491DAD37 /* CompletionStepView.swift in Sources */,
 				E030DFBE722B018BC9FBDF84 /* ClearCaptionsPopup.swift in Sources */,
+				AA900001AA900001AA900001 /* UpdateManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -559,6 +578,7 @@
 				0C72BCB22F2E2AC5005682CF /* OverlayControlsTests.swift in Sources */,
 				B2100011B2100011B2100011 /* CaptionPipelineTests.swift in Sources */,
 				48703DD46A68ECBF52A8190F /* ClearCaptionsTests.swift in Sources */,
+				AA900003AA900003AA900003 /* UpdateManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -571,6 +591,25 @@
 			targetProxy = A1000005A1000005A1000005 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AA900007AA900007AA900007 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AA900006AA900006AA900006 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA900007AA900007AA900007 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A1000024A1000024A1000024 /* Debug */ = {
@@ -719,6 +758,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_CODE_SIGN_FLAGS = "--timestamp --options runtime";
 				PRODUCT_BUNDLE_IDENTIFIER = com.project.vibecaption;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -750,6 +790,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_CODE_SIGN_FLAGS = "--timestamp --options runtime";
 				PRODUCT_BUNDLE_IDENTIFIER = com.project.vibecaption;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -76,6 +76,20 @@ public struct AppSettings: Equatable, Codable {
     
     /// Path where transcripts are saved.
     public var transcriptStoragePath: String
+
+    // MARK: - Update Settings
+
+    /// Whether app update checks are enabled automatically.
+    public var autoAppUpdatesEnabled: Bool
+
+    /// App update check interval in hours.
+    public var appUpdateCheckIntervalHours: Int
+
+    /// Whether critical app updates should be enforced.
+    public var enforceCriticalAppUpdates: Bool
+
+    /// Optional remote model catalog URL used to discover model updates.
+    public var modelCatalogURL: String?
     
     // MARK: - Default Values
     
@@ -119,6 +133,18 @@ public struct AppSettings: Equatable, Codable {
         ).first ?? "~/Documents"
         return (documentsPath as NSString).appendingPathComponent("VibeCaption/Transcripts")
     }
+
+    /// Default automatic app updates setting.
+    public static let defaultAutoAppUpdatesEnabled: Bool = true
+
+    /// Default Sparkle app update check interval (hours).
+    public static let defaultAppUpdateCheckIntervalHours: Int = 24
+
+    /// Default policy for enforcing critical app updates.
+    public static let defaultEnforceCriticalAppUpdates: Bool = false
+
+    /// Default URL for remote model update catalog.
+    public static let defaultModelCatalogURL: String? = nil
     
     // MARK: - Initialization
     
@@ -133,6 +159,10 @@ public struct AppSettings: Equatable, Codable {
         self.performanceModeEnabled = Self.defaultPerformanceModeEnabled
         self.modelStoragePath = Self.defaultModelStoragePath
         self.transcriptStoragePath = Self.defaultTranscriptStoragePath
+        self.autoAppUpdatesEnabled = Self.defaultAutoAppUpdatesEnabled
+        self.appUpdateCheckIntervalHours = Self.defaultAppUpdateCheckIntervalHours
+        self.enforceCriticalAppUpdates = Self.defaultEnforceCriticalAppUpdates
+        self.modelCatalogURL = Self.defaultModelCatalogURL
     }
     
     /// Creates settings with custom values.
@@ -145,7 +175,11 @@ public struct AppSettings: Equatable, Codable {
         overlayAutoHideSeconds: Int = defaultOverlayAutoHideSeconds,
         performanceModeEnabled: Bool = defaultPerformanceModeEnabled,
         modelStoragePath: String? = nil,
-        transcriptStoragePath: String? = nil
+        transcriptStoragePath: String? = nil,
+        autoAppUpdatesEnabled: Bool = defaultAutoAppUpdatesEnabled,
+        appUpdateCheckIntervalHours: Int = defaultAppUpdateCheckIntervalHours,
+        enforceCriticalAppUpdates: Bool = defaultEnforceCriticalAppUpdates,
+        modelCatalogURL: String? = defaultModelCatalogURL
     ) {
         self.audioInputDeviceID = audioInputDeviceID
         self.monitoringOutputDeviceID = monitoringOutputDeviceID
@@ -156,5 +190,9 @@ public struct AppSettings: Equatable, Codable {
         self.performanceModeEnabled = performanceModeEnabled
         self.modelStoragePath = modelStoragePath ?? Self.defaultModelStoragePath
         self.transcriptStoragePath = transcriptStoragePath ?? Self.defaultTranscriptStoragePath
+        self.autoAppUpdatesEnabled = autoAppUpdatesEnabled
+        self.appUpdateCheckIntervalHours = appUpdateCheckIntervalHours
+        self.enforceCriticalAppUpdates = enforceCriticalAppUpdates
+        self.modelCatalogURL = modelCatalogURL
     }
 }

@@ -19,6 +19,7 @@ public final class SettingsWindow: NSWindow {
     private var audioDeviceManager: AudioDeviceManager
     private var modelManager: ModelManager
     private var appStateManager: AppStateManager
+    private var updateManager: UpdateManager
     
     // MARK: - Initialization
     
@@ -33,12 +34,14 @@ public final class SettingsWindow: NSWindow {
         settingsManager: SettingsManager,
         audioDeviceManager: AudioDeviceManager,
         modelManager: ModelManager,
-        appStateManager: AppStateManager
+        appStateManager: AppStateManager,
+        updateManager: UpdateManager
     ) {
         self.settingsManager = settingsManager
         self.audioDeviceManager = audioDeviceManager
         self.modelManager = modelManager
         self.appStateManager = appStateManager
+        self.updateManager = updateManager
         
         let contentRect = NSRect(x: 0, y: 0, width: 520, height: 420)
         
@@ -71,7 +74,8 @@ public final class SettingsWindow: NSWindow {
             settingsManager: settingsManager,
             audioDeviceManager: audioDeviceManager,
             modelManager: modelManager,
-            appStateManager: appStateManager
+            appStateManager: appStateManager,
+            updateManager: updateManager
         )
         
         let hostingView = NSHostingView(rootView: settingsView)
@@ -93,13 +97,15 @@ public final class SettingsWindow: NSWindow {
         settingsManager: SettingsManager,
         audioDeviceManager: AudioDeviceManager,
         modelManager: ModelManager,
-        appStateManager: AppStateManager
+        appStateManager: AppStateManager,
+        updateManager: UpdateManager
     ) -> SettingsWindow {
         return SettingsWindow(
             settingsManager: settingsManager,
             audioDeviceManager: audioDeviceManager,
             modelManager: modelManager,
-            appStateManager: appStateManager
+            appStateManager: appStateManager,
+            updateManager: updateManager
         )
     }
     

@@ -41,6 +41,21 @@ public enum ModelError: Error, LocalizedError {
     }
 }
 
+public struct ModelUpdate: Identifiable, Equatable {
+    public let id: String
+    public let currentModel: ModelInfo
+    public let latestModel: ModelInfo
+
+    public var currentVersion: String { currentModel.version }
+    public var latestVersion: String { latestModel.version }
+
+    public init(currentModel: ModelInfo, latestModel: ModelInfo) {
+        self.id = currentModel.id
+        self.currentModel = currentModel
+        self.latestModel = latestModel
+    }
+}
+
 // MARK: - ModelManager
 
 public final class ModelManager: ObservableObject {
@@ -50,12 +65,14 @@ public final class ModelManager: ObservableObject {
     @Published public private(set) var models: [ModelInfo] = []
     @Published public private(set) var modelStatuses: [String: ModelStatus] = [:]
     @Published public private(set) var downloadProgress: [String: Double] = [:]
+    @Published public private(set) var availableModelUpdates: [ModelUpdate] = []
     
     private let settingsManager: SettingsManager
     private let fileManager = FileManager.default
     private let session: URLSession
     
     private var downloadTasks: [String: URLSessionDownloadTask] = [:]
+    private var latestCatalogByModelID: [String: ModelInfo] = [:]
     private var cancellables = Set<AnyCancellable>()
     
     private let logger = Logger(
@@ -84,6 +101,8 @@ public final class ModelManager: ObservableObject {
             let data = try Data(contentsOf: url)
             let catalog = try JSONDecoder().decode([ModelInfo].self, from: data)
             self.models = catalog
+            self.latestCatalogByModelID = [:]
+            self.availableModelUpdates = []
             
             // Initialize statuses based on file existence
             for model in catalog {
@@ -94,6 +113,50 @@ public final class ModelManager: ObservableObject {
         } catch {
             logger.error("Failed to load model catalog: \(error.localizedDescription)")
         }
+    }
+
+    /// Checks remote catalog for model updates. This is user-triggered from Settings and not automatic.
+    @discardableResult
+    public func checkForModelUpdates(catalogURL: URL?) async throws -> [ModelUpdate] {
+        guard let catalogURL else {
+            DispatchQueue.main.async {
+                self.availableModelUpdates = []
+            }
+            return []
+        }
+
+        if models.isEmpty {
+            loadModelCatalog()
+        }
+
+        let latestCatalog = try await loadCatalog(from: catalogURL)
+        let updates = Self.detectModelUpdates(
+            currentCatalog: models,
+            latestCatalog: latestCatalog,
+            installedStatuses: modelStatuses
+        )
+
+        DispatchQueue.main.async {
+            self.latestCatalogByModelID = Dictionary(uniqueKeysWithValues: latestCatalog.map { ($0.id, $0) })
+            self.availableModelUpdates = updates
+
+            for update in updates {
+                if let existingIndex = self.models.firstIndex(where: { $0.id == update.id }) {
+                    self.models[existingIndex] = update.latestModel
+                } else {
+                    self.models.append(update.latestModel)
+                }
+                self.modelStatuses[update.id] = .updateAvailable
+            }
+        }
+
+        logger.info("Model update check complete: \(updates.count) updates available")
+        return updates
+    }
+
+    /// Returns the latest known model metadata for an ID, preferring remote catalog info if available.
+    public func latestModelInfo(for modelID: String) -> ModelInfo? {
+        latestCatalogByModelID[modelID] ?? getModel(id: modelID)
     }
     
     public func getModel(id: String) -> ModelInfo? {
@@ -205,6 +268,8 @@ public final class ModelManager: ObservableObject {
                      if self.verifyModel(model) {
                          DispatchQueue.main.async {
                              self.modelStatuses[model.id] = .downloaded
+                             self.availableModelUpdates.removeAll { $0.id == model.id }
+                             self.latestCatalogByModelID[model.id] = model
                          }
                          self.logger.info("Download and verification successful for \(model.id)")
                          continuation.resume()
@@ -290,6 +355,81 @@ public final class ModelManager: ObservableObject {
             logger.error("Failed to delete model \(model.id): \(error.localizedDescription)")
             throw ModelError.deletionFailed(error)
         }
+    }
+
+    // MARK: - Update Helpers
+
+    static func detectModelUpdates(
+        currentCatalog: [ModelInfo],
+        latestCatalog: [ModelInfo],
+        installedStatuses: [String: ModelStatus]
+    ) -> [ModelUpdate] {
+        let latestByID = Dictionary(uniqueKeysWithValues: latestCatalog.map { ($0.id, $0) })
+        return currentCatalog.compactMap { currentModel in
+            guard installedStatuses[currentModel.id] == .downloaded else {
+                return nil
+            }
+            guard let latestModel = latestByID[currentModel.id] else {
+                return nil
+            }
+            guard compareVersions(latestModel.version, currentModel.version) == .orderedDescending else {
+                return nil
+            }
+            return ModelUpdate(currentModel: currentModel, latestModel: latestModel)
+        }
+    }
+
+    static func compareVersions(_ lhs: String, _ rhs: String) -> ComparisonResult {
+        let lhsComponents = normalizedVersionComponents(from: lhs)
+        let rhsComponents = normalizedVersionComponents(from: rhs)
+        let maxCount = max(lhsComponents.count, rhsComponents.count)
+
+        for index in 0..<maxCount {
+            let lhsComponent = index < lhsComponents.count ? lhsComponents[index] : .numeric(0)
+            let rhsComponent = index < rhsComponents.count ? rhsComponents[index] : .numeric(0)
+
+            switch (lhsComponent, rhsComponent) {
+            case let (.numeric(lhsValue), .numeric(rhsValue)):
+                if lhsValue < rhsValue { return .orderedAscending }
+                if lhsValue > rhsValue { return .orderedDescending }
+            case let (.text(lhsValue), .text(rhsValue)):
+                let comparison = lhsValue.localizedStandardCompare(rhsValue)
+                if comparison != .orderedSame { return comparison }
+            case (.numeric, .text):
+                return .orderedDescending
+            case (.text, .numeric):
+                return .orderedAscending
+            }
+        }
+
+        return .orderedSame
+    }
+
+    private static func normalizedVersionComponents(from version: String) -> [VersionComponent] {
+        version
+            .split(whereSeparator: { $0 == "." || $0 == "-" || $0 == "_" })
+            .map { component in
+                if let numericValue = Int(component) {
+                    return .numeric(numericValue)
+                }
+                return .text(component.lowercased())
+            }
+    }
+
+    private enum VersionComponent {
+        case numeric(Int)
+        case text(String)
+    }
+
+    private func loadCatalog(from url: URL) async throws -> [ModelInfo] {
+        let data: Data
+        if url.isFileURL {
+            data = try Data(contentsOf: url)
+        } else {
+            let (responseData, _) = try await session.data(from: url)
+            data = responseData
+        }
+        return try JSONDecoder().decode([ModelInfo].self, from: data)
     }
     
     // MARK: - Utility Methods
