@@ -211,6 +211,33 @@ class MenuBarControllerTests: XCTestCase {
         XCTAssertEqual(openedURL?.path, transcriptDirectory.path)
     }
 
+    func testOpenSettingsInvokesInjectedHandler() {
+        var didInvokeSettingsHandler = false
+        menuBarController = MenuBarController(
+            appStateManager: appStateManager,
+            settingsManager: settingsManager,
+            pipeline: pipeline,
+            openSettingsHandler: {
+                didInvokeSettingsHandler = true
+            }
+        )
+
+        let mirror = Mirror(reflecting: menuBarController!)
+        guard let statusItem = mirror.children.first(where: { $0.label == "statusItem" })?.value as? NSStatusItem,
+              let menu = statusItem.menu else {
+            XCTFail("Could not access status item menu")
+            return
+        }
+
+        guard let settingsItem = menu.items.first(where: { $0.title == "Open Settings…" }) else {
+            XCTFail("Open Settings item not found")
+            return
+        }
+
+        _ = menu.performActionForItem(at: menu.index(of: settingsItem))
+        XCTAssertTrue(didInvokeSettingsHandler)
+    }
+
     private func waitForState(_ state: AppState, timeout: TimeInterval = 1.0) async {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {

@@ -55,6 +55,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     /// The menu bar controller
     private var menuBarController: MenuBarController?
+
+    /// Dedicated settings window for the menu-bar flow
+    private var settingsWindow: SettingsWindow?
     
     /// The overlay window components
     private var overlayViewModel: OverlayViewModel?
@@ -85,7 +88,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menuBarController = MenuBarController(
             appStateManager: appStateManager,
             settingsManager: settingsManager,
-            pipeline: pipeline
+            pipeline: pipeline,
+            openSettingsHandler: { [weak self] in
+                self?.showSettingsWindow()
+            }
         )
         
         // Check for first launch
@@ -247,5 +253,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         alert.messageText = "Transcript Save Failed"
         alert.informativeText = error.localizedDescription
         alert.runModal()
+    }
+
+    private func showSettingsWindow() {
+        if settingsWindow == nil {
+            settingsWindow = SettingsWindow.create(
+                settingsManager: settingsManager,
+                audioDeviceManager: AudioDeviceManager.shared,
+                modelManager: modelManager,
+                appStateManager: appStateManager,
+                updateManager: updateManager
+            )
+        }
+        settingsWindow?.showSettings()
     }
 }

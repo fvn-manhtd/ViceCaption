@@ -26,6 +26,7 @@ class MenuBarController: NSObject {
     private let pipeline: CaptionPipeline
     private let openURLHandler: (URL) -> Bool
     private let presentAlert: (String, String) -> Void
+    private let openSettingsHandler: () -> Void
     private var cancellables = Set<AnyCancellable>()
     
     // Window Controllers
@@ -48,18 +49,31 @@ class MenuBarController: NSObject {
             alert.messageText = title
             alert.informativeText = message
             alert.runModal()
-        }
+        },
+        openSettingsHandler: @escaping () -> Void = MenuBarController.defaultOpenSettingsWindow
     ) {
         self.appStateManager = appStateManager
         self.settingsManager = settingsManager
         self.pipeline = pipeline
         self.openURLHandler = openURLHandler
         self.presentAlert = presentAlert
+        self.openSettingsHandler = openSettingsHandler
         super.init()
         
         setupStatusItem()
         setupMenu()
         setupBindings()
+    }
+
+    private static func defaultOpenSettingsWindow() {
+        NSApp.activate(ignoringOtherApps: true)
+        if #available(macOS 13.0, *) {
+            if !NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) {
+                _ = NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+            }
+        } else {
+            _ = NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
+        }
     }
     
     // MARK: - Setup
@@ -239,12 +253,7 @@ class MenuBarController: NSObject {
     }
     
     @objc private func openSettings() {
-        // macOS 13+ Settings Link or legacy window controller
-        if #available(macOS 13.0, *) {
-             NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        } else {
-             NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-        }
+        openSettingsHandler()
     }
     
     @objc func runWizard() {
