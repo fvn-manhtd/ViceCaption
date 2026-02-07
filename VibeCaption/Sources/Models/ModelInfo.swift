@@ -12,7 +12,7 @@ public struct ModelInfo: Codable, Identifiable, Equatable {
     public let displayName: String
     public let version: String
     public let downloadURL: URL
-    public let checksum: String // SHA256
+    public let checksum: String // Hex digest (SHA256/SHA1/MD5). Empty means checksum unavailable.
     public let sizeBytes: Int64
     public let isRequired: Bool
     

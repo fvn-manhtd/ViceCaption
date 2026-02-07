@@ -155,6 +155,22 @@ final class CaptionPipelineTests: XCTestCase {
         XCTAssertEqual(harness.pipeline.currentState, .error)
         XCTAssertEqual(harness.appStateManager.currentState, .idle)
     }
+
+    func testPipelinePublishesAudioLevelFromCaptureEngine() async throws {
+        let harness = try TestHarness()
+        defer { harness.pipeline.stop() }
+
+        XCTAssertEqual(harness.pipeline.audioLevel, 0, accuracy: 0.0001)
+
+        harness.emitAudioLevel(amplitude: 0.3)
+
+        let deadline = Date().addingTimeInterval(1.0)
+        while Date() < deadline, harness.pipeline.audioLevel <= 0 {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+
+        XCTAssertGreaterThan(harness.pipeline.audioLevel, 0)
+    }
 }
 
 private struct TestHarness {
@@ -245,6 +261,10 @@ private struct TestHarness {
         for _ in 0..<12 {
             captureEngine.emit(silenceBuffer)
         }
+    }
+
+    func emitAudioLevel(amplitude: Float) {
+        captureEngine.emit(makeBuffer(amplitude: amplitude, frames: 1600))
     }
 
     func currentBlocks() async -> [TranscriptBlock] {
@@ -382,7 +402,31 @@ private final class TestAudioCaptureEngine: AudioCaptureEngineProtocol {
     }
 
     func emit(_ buffer: AVAudioPCMBuffer) {
+        audioLevel = computeLevel(from: buffer)
         callback?(buffer)
+    }
+
+    private func computeLevel(from buffer: AVAudioPCMBuffer) -> Float {
+        guard let channelData = buffer.floatChannelData else {
+            return 0
+        }
+
+        let channelCount = Int(buffer.format.channelCount)
+        let frameLength = Int(buffer.frameLength)
+        guard frameLength > 0 else { return 0 }
+
+        var sumOfSquares: Float = 0
+        for channel in 0..<channelCount {
+            let samples = channelData[channel]
+            for index in 0..<frameLength {
+                let sample = samples[index]
+                sumOfSquares += sample * sample
+            }
+        }
+
+        let totalSamples = Float(frameLength * channelCount)
+        let rms = sqrt(sumOfSquares / totalSamples)
+        return min(rms * 2.0, 1.0)
     }
 }
 

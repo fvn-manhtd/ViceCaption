@@ -24,7 +24,8 @@ struct VibeCaptionApp: App {
                 audioDeviceManager: AudioDeviceManager.shared,
                 modelManager: appDelegate.modelManager,
                 appStateManager: appDelegate.appStateManager,
-                updateManager: appDelegate.updateManager
+                updateManager: appDelegate.updateManager,
+                pipeline: appDelegate.pipeline
             )
         }
     }
@@ -262,7 +263,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 audioDeviceManager: AudioDeviceManager.shared,
                 modelManager: modelManager,
                 appStateManager: appStateManager,
-                updateManager: updateManager
+                updateManager: updateManager,
+                pipeline: pipeline
             )
         }
         settingsWindow?.showSettings()

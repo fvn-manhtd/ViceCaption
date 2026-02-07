@@ -20,6 +20,7 @@ public final class SettingsWindow: NSWindow {
     private var modelManager: ModelManager
     private var appStateManager: AppStateManager
     private var updateManager: UpdateManager
+    private var pipeline: CaptionPipeline
     
     // MARK: - Initialization
     
@@ -35,15 +36,17 @@ public final class SettingsWindow: NSWindow {
         audioDeviceManager: AudioDeviceManager,
         modelManager: ModelManager,
         appStateManager: AppStateManager,
-        updateManager: UpdateManager
+        updateManager: UpdateManager,
+        pipeline: CaptionPipeline
     ) {
         self.settingsManager = settingsManager
         self.audioDeviceManager = audioDeviceManager
         self.modelManager = modelManager
         self.appStateManager = appStateManager
         self.updateManager = updateManager
+        self.pipeline = pipeline
         
-        let contentRect = NSRect(x: 0, y: 0, width: 520, height: 420)
+        let contentRect = NSRect(x: 0, y: 0, width: 900, height: 620)
         
         super.init(
             contentRect: contentRect,
@@ -62,8 +65,8 @@ public final class SettingsWindow: NSWindow {
         self.title = "VibeCaption Settings"
         self.center()
         self.isReleasedWhenClosed = false
-        self.minSize = NSSize(width: 480, height: 380)
-        self.maxSize = NSSize(width: 700, height: 600)
+        self.minSize = NSSize(width: 760, height: 520)
+        self.maxSize = NSSize(width: 1280, height: 900)
         
         // Standard window behavior
         self.collectionBehavior = [.managed]
@@ -75,7 +78,8 @@ public final class SettingsWindow: NSWindow {
             audioDeviceManager: audioDeviceManager,
             modelManager: modelManager,
             appStateManager: appStateManager,
-            updateManager: updateManager
+            updateManager: updateManager,
+            pipeline: pipeline
         )
         
         let hostingView = NSHostingView(rootView: settingsView)
@@ -98,14 +102,16 @@ public final class SettingsWindow: NSWindow {
         audioDeviceManager: AudioDeviceManager,
         modelManager: ModelManager,
         appStateManager: AppStateManager,
-        updateManager: UpdateManager
+        updateManager: UpdateManager,
+        pipeline: CaptionPipeline
     ) -> SettingsWindow {
         return SettingsWindow(
             settingsManager: settingsManager,
             audioDeviceManager: audioDeviceManager,
             modelManager: modelManager,
             appStateManager: appStateManager,
-            updateManager: updateManager
+            updateManager: updateManager,
+            pipeline: pipeline
         )
     }
     

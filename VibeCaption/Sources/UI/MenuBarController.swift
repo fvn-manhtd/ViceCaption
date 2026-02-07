@@ -240,11 +240,20 @@ class MenuBarController: NSObject {
     @objc private func toggleListening() {
         switch appStateManager.currentState {
         case .idle:
-            Task {
+            Task { [weak self] in
+                guard let self else { return }
                 do {
-                    try await pipeline.start()
+                    try await self.pipeline.start()
                 } catch {
-                    print("Error starting pipeline: \(error)")
+                    let message: String
+                    if let vibeError = error as? VibeCaptionError {
+                        message = "\(vibeError.localizedDescription)\n\n\(vibeError.recoverySuggestion)"
+                    } else {
+                        message = error.localizedDescription
+                    }
+                    DispatchQueue.main.async { [weak self] in
+                        self?.presentAlert("Unable to Start Listening", message)
+                    }
                 }
             }
         case .listening, .translating, .paused:

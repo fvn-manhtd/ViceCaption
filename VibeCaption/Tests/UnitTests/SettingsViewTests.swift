@@ -17,6 +17,8 @@ final class SettingsViewTests: XCTestCase {
     var modelManager: ModelManager!
     var appStateManager: AppStateManager!
     var updateManager: UpdateManager!
+    var transcriptManager: TranscriptManager!
+    var pipeline: CaptionPipeline!
     var testUserDefaults: UserDefaults!
     var testSuiteName: String!
     
@@ -34,6 +36,14 @@ final class SettingsViewTests: XCTestCase {
         modelManager = ModelManager(settingsManager: settingsManager)
         appStateManager = AppStateManager()
         updateManager = UpdateManager(settingsManager: settingsManager)
+        transcriptManager = TranscriptManager(settingsManager: settingsManager)
+        pipeline = CaptionPipeline(
+            asrService: MockASRService(),
+            translationService: MockTranslationService(),
+            transcriptManager: transcriptManager,
+            appStateManager: appStateManager,
+            settingsManager: settingsManager
+        )
     }
     
     override func tearDown() {
@@ -44,6 +54,8 @@ final class SettingsViewTests: XCTestCase {
         modelManager = nil
         appStateManager = nil
         updateManager = nil
+        transcriptManager = nil
+        pipeline = nil
         super.tearDown()
     }
     
@@ -223,7 +235,8 @@ final class SettingsViewTests: XCTestCase {
             audioDeviceManager: audioDeviceManager,
             modelManager: modelManager,
             appStateManager: appStateManager,
-            updateManager: updateManager
+            updateManager: updateManager,
+            pipeline: pipeline
         )
         
         XCTAssertNotNil(window)
@@ -237,11 +250,12 @@ final class SettingsViewTests: XCTestCase {
             audioDeviceManager: audioDeviceManager,
             modelManager: modelManager,
             appStateManager: appStateManager,
-            updateManager: updateManager
+            updateManager: updateManager,
+            pipeline: pipeline
         )
         
-        XCTAssertEqual(window.minSize.width, 480)
-        XCTAssertEqual(window.minSize.height, 380)
+        XCTAssertEqual(window.minSize.width, 760)
+        XCTAssertEqual(window.minSize.height, 520)
     }
     
     // MARK: - FontSize Tests

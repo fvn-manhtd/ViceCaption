@@ -72,6 +72,7 @@ public final class ModelManager: ObservableObject {
     private let session: URLSession
     
     private var downloadTasks: [String: URLSessionDownloadTask] = [:]
+    private var progressObservers: [String: NSKeyValueObservation] = [:]
     private var latestCatalogByModelID: [String: ModelInfo] = [:]
     private var cancellables = Set<AnyCancellable>()
     
@@ -240,6 +241,7 @@ public final class ModelManager: ObservableObject {
                  defer {
                      DispatchQueue.main.async {
                          self.downloadTasks.removeValue(forKey: model.id)
+                         self.progressObservers.removeValue(forKey: model.id)
                          self.downloadProgress.removeValue(forKey: model.id)
                      }
                  }
@@ -249,6 +251,20 @@ public final class ModelManager: ObservableObject {
                          self.modelStatuses[model.id] = .notDownloaded // or error state
                      }
                      continuation.resume(throwing: ModelError.downloadFailed(error))
+                     return
+                 }
+
+                 if let httpResponse = response as? HTTPURLResponse,
+                    !(200...299).contains(httpResponse.statusCode) {
+                     DispatchQueue.main.async {
+                         self.modelStatuses[model.id] = .notDownloaded
+                     }
+                     let statusError = NSError(
+                         domain: "ModelManager",
+                         code: httpResponse.statusCode,
+                         userInfo: [NSLocalizedDescriptionKey: "Model download failed with HTTP \(httpResponse.statusCode)"]
+                     )
+                     continuation.resume(throwing: ModelError.downloadFailed(statusError))
                      return
                  }
                  
@@ -298,16 +314,10 @@ public final class ModelManager: ObservableObject {
                  }
              }
              
-             // Keep reference to observer to prevent deallocation - or just rely on task completion
-             // The task holds a strong reference to progress, but we need to keep the observation alive?
-             // Actually, `task.progress` is KVO compliant.
-             
+             // Keep observation token alive for the full download lifecycle.
+             self.progressObservers[model.id] = progressObserver
              self.downloadTasks[model.id] = task
              task.resume()
-             
-             // NOTE: In a real app we'd need to handle Observation token lifecycle properly.
-             // For this implementation, we're relying on the fact that progress updates are frequent enough
-             // and the task will complete.
          }
     }
     
@@ -318,15 +328,27 @@ public final class ModelManager: ObservableObject {
               fileManager.fileExists(atPath: destination.path) else {
             return false
         }
+
+        guard validateDownloadedFile(at: destination, modelID: model.id) else {
+            return false
+        }
+
+        let normalizedChecksum = model.checksum
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+
+        guard let algorithm = checksumAlgorithm(for: normalizedChecksum) else {
+            logger.warning("Skipping checksum for \(model.id); checksum missing or unsupported in catalog")
+            return true
+        }
         
         do {
             let fileData = try Data(contentsOf: destination, options: .mappedIfSafe)
-            let digest = SHA256.hash(data: fileData)
-            let calculatedChecksum = digest.compactMap { String(format: "%02x", $0) }.joined()
+            let calculatedChecksum = hashDigest(for: fileData, algorithm: algorithm)
             
-            let matches = calculatedChecksum.caseInsensitiveCompare(model.checksum) == .orderedSame
+            let matches = calculatedChecksum.caseInsensitiveCompare(normalizedChecksum) == .orderedSame
             if !matches {
-                logger.error("Checksum mismatch for \(model.id). Expected: \(model.checksum), Got: \(calculatedChecksum)")
+                logger.error("Checksum mismatch for \(model.id). Expected: \(normalizedChecksum), Got: \(calculatedChecksum)")
             }
             return matches
         } catch {
@@ -334,6 +356,83 @@ public final class ModelManager: ObservableObject {
             return false
         }
     }
+
+    private func validateDownloadedFile(at url: URL, modelID: String) -> Bool {
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: url.path)
+            let fileSize = (attributes[.size] as? NSNumber)?.int64Value ?? 0
+            if fileSize <= 0 {
+                logger.error("Downloaded model file is empty for \(modelID)")
+                return false
+            }
+
+            let prefix = try readPrefix(from: url, byteCount: 512)
+            if looksLikeHTML(prefix) {
+                logger.error("Downloaded payload for \(modelID) looks like an HTML error page")
+                return false
+            }
+
+            return true
+        } catch {
+            logger.error("Failed to validate downloaded model file for \(modelID): \(error.localizedDescription)")
+            return false
+        }
+    }
+
+    private func readPrefix(from url: URL, byteCount: Int) throws -> Data {
+        let handle = try FileHandle(forReadingFrom: url)
+        defer { try? handle.close() }
+        return try handle.read(upToCount: byteCount) ?? Data()
+    }
+
+    private func looksLikeHTML(_ data: Data) -> Bool {
+        guard !data.isEmpty else { return false }
+        let snippet = String(decoding: data, as: UTF8.self).lowercased()
+        return snippet.contains("<html") || snippet.contains("<!doctype html")
+    }
+
+    private func hashDigest(for data: Data, algorithm: ChecksumAlgorithm) -> String {
+        switch algorithm {
+        case .sha256:
+            let digest = SHA256.hash(data: data)
+            return digest.compactMap { String(format: "%02x", $0) }.joined()
+        case .sha1:
+            let digest = Insecure.SHA1.hash(data: data)
+            return digest.compactMap { String(format: "%02x", $0) }.joined()
+        case .md5:
+            let digest = Insecure.MD5.hash(data: data)
+            return digest.compactMap { String(format: "%02x", $0) }.joined()
+        }
+    }
+
+    private func checksumAlgorithm(for checksum: String) -> ChecksumAlgorithm? {
+        guard !checksum.isEmpty else { return nil }
+        guard checksum != Self.emptySHA256Checksum &&
+                checksum != Self.emptySHA1Checksum &&
+                checksum != Self.emptyMD5Checksum else {
+            return nil
+        }
+        guard checksum.range(of: "^[0-9a-f]+$", options: .regularExpression) != nil else {
+            return nil
+        }
+
+        switch checksum.count {
+        case 64: return .sha256
+        case 40: return .sha1
+        case 32: return .md5
+        default: return nil
+        }
+    }
+
+    private enum ChecksumAlgorithm {
+        case sha256
+        case sha1
+        case md5
+    }
+
+    private static let emptySHA256Checksum = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    private static let emptySHA1Checksum = "da39a3ee5e6b4b0d3255bfef95601890afd80709"
+    private static let emptyMD5Checksum = "d41d8cd98f00b204e9800998ecf8427e"
     
     // MARK: - Deletion
     

@@ -7,6 +7,7 @@
 
 import XCTest
 import Foundation
+import CryptoKit
 @testable import VibeCaption
 
 final class ModelManagerTests: XCTestCase {
@@ -121,6 +122,78 @@ final class ModelManagerTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: fileURL.path))
     }
 
+    func testDownloadModelSupportsMD5Checksum() async throws {
+        let payload = Data("model-bytes".utf8)
+        let model = makeModel(
+            id: "md5-checksum-model",
+            checksum: md5Hex(payload)
+        )
+
+        MockURLProtocol.responseProvider = { _ in payload }
+
+        try await modelManager.downloadModel(model)
+        await waitForMainQueue()
+
+        XCTAssertEqual(modelManager.modelStatuses[model.id], .downloaded)
+    }
+
+    func testDownloadModelSupportsSHA1Checksum() async throws {
+        let payload = Data("model-bytes".utf8)
+        let model = makeModel(
+            id: "sha1-checksum-model",
+            checksum: sha1Hex(payload)
+        )
+
+        MockURLProtocol.responseProvider = { _ in payload }
+
+        try await modelManager.downloadModel(model)
+        await waitForMainQueue()
+
+        XCTAssertEqual(modelManager.modelStatuses[model.id], .downloaded)
+    }
+
+    func testDownloadModelAcceptsMissingChecksumWhenPayloadIsValid() async throws {
+        let model = makeModel(
+            id: "missing-checksum-model",
+            checksum: ""
+        )
+
+        MockURLProtocol.responseProvider = { _ in
+            Data("plain-binary-model-payload".utf8)
+        }
+
+        try await modelManager.downloadModel(model)
+        await waitForMainQueue()
+
+        XCTAssertEqual(modelManager.modelStatuses[model.id], .downloaded)
+    }
+
+    func testDownloadModelRejectsHTMLPayloadWhenChecksumMissing() async {
+        let model = makeModel(
+            id: "html-payload-model",
+            checksum: ""
+        )
+
+        MockURLProtocol.responseProvider = { _ in
+            Data("<html><body>Unauthorized</body></html>".utf8)
+        }
+
+        do {
+            try await modelManager.downloadModel(model)
+            XCTFail("Expected verification failure for HTML payload")
+        } catch let error as ModelError {
+            guard case .verificationFailed = error else {
+                XCTFail("Expected verificationFailed, got \(error)")
+                return
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        await waitForMainQueue()
+        XCTAssertEqual(modelManager.modelStatuses[model.id], .corrupted)
+    }
+
     func testModelUpdateDetectionFindsInstalledOutdatedModel() {
         let currentModel = ModelInfo(
             id: "whisper",
@@ -175,6 +248,16 @@ final class ModelManagerTests: XCTestCase {
         await MainActor.run {
             RunLoop.main.run(until: Date().addingTimeInterval(0.01))
         }
+    }
+
+    private func md5Hex(_ data: Data) -> String {
+        let digest = Insecure.MD5.hash(data: data)
+        return digest.compactMap { String(format: "%02x", $0) }.joined()
+    }
+
+    private func sha1Hex(_ data: Data) -> String {
+        let digest = Insecure.SHA1.hash(data: data)
+        return digest.compactMap { String(format: "%02x", $0) }.joined()
     }
 }
 

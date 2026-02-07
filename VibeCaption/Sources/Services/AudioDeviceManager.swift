@@ -104,12 +104,17 @@ public final class AudioDeviceManager: ObservableObject, AudioDeviceManagerProto
         logger.debug("Refreshing audio devices...")
         
         let allDevices = enumerateAllDevices()
-        
-        DispatchQueue.main.async { [weak self] in
+        let apply = { [weak self] in
             self?.inputDevices = allDevices.filter { $0.isInput }
             self?.outputDevices = allDevices.filter { $0.isOutput }
             
             self?.logger.info("Found \(self?.inputDevices.count ?? 0) input devices, \(self?.outputDevices.count ?? 0) output devices")
+        }
+        
+        if Thread.isMainThread {
+            apply()
+        } else {
+            DispatchQueue.main.async(execute: apply)
         }
     }
     

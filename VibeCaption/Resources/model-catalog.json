@@ -4,7 +4,7 @@
     "displayName": "Whisper ASR (Base)",
     "version": "1.0.0",
     "downloadURL": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
-    "checksum": "60ed5bc3dd18eea85089825e467b9624",
+    "checksum": "465707469ff3a37a2b9b8d8f89f2f99de7299dac",
     "sizeBytes": 147964211,
     "isRequired": true
   },
@@ -13,7 +13,7 @@
     "displayName": "NLLB 600M (High Quality)",
     "version": "1.0.0",
     "downloadURL": "https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/main/pytorch_model.bin",
-    "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checksum": "",
     "sizeBytes": 600000000,
     "isRequired": false
   }

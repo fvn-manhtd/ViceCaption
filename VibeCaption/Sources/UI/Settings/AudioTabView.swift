@@ -12,7 +12,7 @@ import SwiftUI
 /// Provides:
 /// - Input device picker
 /// - Monitoring output device picker
-/// - Audio level meter (placeholder for real-time visualization)
+/// - Audio level meter
 /// - BlackHole installation status
 public struct AudioTabView: View {
     
@@ -20,10 +20,7 @@ public struct AudioTabView: View {
     
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject var audioDeviceManager: AudioDeviceManager
-    
-    // MARK: - Local State
-    
-    @State private var audioLevel: Float = 0.0
+    @ObservedObject var pipeline: CaptionPipeline
     
     // MARK: - Bindings
     
@@ -68,13 +65,17 @@ public struct AudioTabView: View {
             }
             
             Section("Audio Level") {
-                AudioLevelMeterView(level: audioLevel)
+                AudioLevelMeterView(level: pipeline.audioLevel)
                     .frame(height: 20)
                     .accessibilityLabel("Audio level meter")
-                    .accessibilityValue("\(Int(min(max(audioLevel, 0), 1) * 100)) percent")
+                    .accessibilityValue("\(Int(min(max(pipeline.audioLevel, 0), 1) * 100)) percent")
                 
                 Text("Audio level visualization will show when listening is active.")
                     .font(.caption)
+                    .foregroundColor(.secondary)
+
+                Text(pipeline.isRunning ? "Listening is active." : "Start Listening to activate the meter.")
+                    .font(.caption2)
                     .foregroundColor(.secondary)
             }
             
@@ -147,9 +148,21 @@ struct AudioLevelMeterView: View {
 #if DEBUG
 struct AudioTabView_Previews: PreviewProvider {
     static var previews: some View {
+        let settingsManager = SettingsManager()
+        let transcriptManager = TranscriptManager(settingsManager: settingsManager)
+        let appStateManager = AppStateManager()
+        let pipeline = CaptionPipeline(
+            asrService: MockASRService(),
+            translationService: MockTranslationService(),
+            transcriptManager: transcriptManager,
+            appStateManager: appStateManager,
+            settingsManager: settingsManager
+        )
+
         AudioTabView(
-            settingsManager: SettingsManager(),
-            audioDeviceManager: AudioDeviceManager()
+            settingsManager: settingsManager,
+            audioDeviceManager: AudioDeviceManager(),
+            pipeline: pipeline
         )
         .frame(width: 460, height: 400)
     }

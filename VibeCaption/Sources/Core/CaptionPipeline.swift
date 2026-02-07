@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import Combine
 import Foundation
 import os.log
 
@@ -23,6 +24,7 @@ public final class CaptionPipeline: ObservableObject {
     @Published public private(set) var statistics: PipelineStatistics = PipelineStatistics()
     @Published public private(set) var lastError: Error?
     @Published public private(set) var isPerformanceModeActive: Bool = false
+    @Published public private(set) var audioLevel: Float = 0.0
 
     private let captureEngine: AudioCaptureEngineProtocol
     private let preprocessor: AudioPreprocessorProtocol
@@ -45,6 +47,7 @@ public final class CaptionPipeline: ObservableObject {
     @MainActor private var translationTasks: [UUID: Task<Void, Never>] = [:]
     @MainActor private var translationTaskOrder: [UUID] = []
     @MainActor private var translationInFlightCount: Int = 0
+    private var cancellables = Set<AnyCancellable>()
 
     private let stateLock = NSLock()
     private var stateSnapshot: PipelineState = .idle
@@ -79,6 +82,7 @@ public final class CaptionPipeline: ObservableObject {
         self.performanceTranslationConcurrencyLimit = max(1, performanceTranslationConcurrencyLimit)
 
         configurePipeline()
+        bindCaptureEngine()
     }
 
     public func start() async throws {
@@ -111,6 +115,7 @@ public final class CaptionPipeline: ObservableObject {
         startSegmentProcessing()
 
         do {
+            try configureCaptureInputIfNeeded()
             try captureEngine.startCapture()
         } catch {
             handlePipelineError(error)
@@ -149,6 +154,7 @@ public final class CaptionPipeline: ObservableObject {
         }
         startSegmentProcessing()
         do {
+            try configureCaptureInputIfNeeded()
             try captureEngine.startCapture()
         } catch {
             handlePipelineError(error)
@@ -180,6 +186,15 @@ public final class CaptionPipeline: ObservableObject {
         segmenter.setSegmentCallback { [weak self] segment in
             self?.enqueueSegment(segment)
         }
+    }
+
+    private func bindCaptureEngine() {
+        captureEngine.audioLevelPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] level in
+                self?.audioLevel = level
+            }
+            .store(in: &cancellables)
     }
 
     private func processAudio(_ buffer: AVAudioPCMBuffer) {
@@ -348,6 +363,35 @@ public final class CaptionPipeline: ObservableObject {
         let performanceEnabled = settingsManager?.performanceModeEnabled ?? false
         let noiseSuppressionEnabled = settingsManager?.noiseSuppressionEnabled ?? true
         captureEngine.setNoiseSuppression(noiseSuppressionEnabled && !performanceEnabled)
+    }
+
+    private func configureCaptureInputIfNeeded() throws {
+        let audioManager = AudioDeviceManager.shared
+        let selectedInputUID = settingsManager?.audioInputDeviceID
+
+        let resolveInputDevice = { () -> AudioDevice? in
+            audioManager.refreshDevices()
+            return selectedInputUID.flatMap { uid in
+                audioManager.inputDevices.first { $0.uid == uid }
+            } ??
+            audioManager.getDefaultInputDevice() ??
+            audioManager.inputDevices.first
+        }
+
+        let inputDevice: AudioDevice?
+        if Thread.isMainThread {
+            inputDevice = resolveInputDevice()
+        } else {
+            inputDevice = DispatchQueue.main.sync(execute: resolveInputDevice)
+        }
+
+        guard let inputDevice else {
+            logger.warning("No input device available for capture; continuing without explicit configuration")
+            return
+        }
+
+        try captureEngine.configure(inputDevice: inputDevice)
+        logger.info("Capture input configured: \(inputDevice.name)")
     }
 
     private func cappedTranslationBlocks(from blocks: [TranscriptBlock]) -> [TranscriptBlock] {
