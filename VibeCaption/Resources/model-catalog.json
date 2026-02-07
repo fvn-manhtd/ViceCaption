@@ -12,7 +12,7 @@
     "id": "nllb-200-600m-optional",
     "displayName": "NLLB 600M (High Quality)",
     "version": "1.0.0",
-    "downloadURL": "https://example.com/models/nllb-200-600m.zip",
+    "downloadURL": "https://huggingface.co/facebook/nllb-200-distilled-600M/resolve/main/pytorch_model.bin",
     "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "sizeBytes": 600000000,
     "isRequired": false
