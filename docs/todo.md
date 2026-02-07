@@ -176,10 +176,10 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] test: Verify full flow with mock services
   - [x] test: Verify pause/resume handling
 
-- [ ] **24. Transcript File Saving**
-  - [ ] Implement automatic daily file saving in `TranscriptManager`
-  - [ ] Handle "Open Transcript Folder" action
-  - [ ] test: Verify saved file content exact match
+- [x] **24. Transcript File Saving**
+  - [x] Implement automatic daily file saving in `TranscriptManager`
+  - [x] Handle "Open Transcript Folder" action
+  - [x] test: Verify saved file content exact match
 
 - [ ] **25. Auto-Update with Sparkle**
   - [ ] Integrate Sparkle framework

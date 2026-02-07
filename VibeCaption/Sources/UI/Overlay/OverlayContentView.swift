@@ -194,10 +194,8 @@ struct OverlayContentView: View {
                     logger.error("Space toggle failed: \(error.localizedDescription)")
                 }
             }
-        case .listening, .translating:
-            pipeline.pause()
-        case .paused:
-            pipeline.resume()
+        case .listening, .translating, .paused:
+            pipeline.stop(trigger: .manualStop)
         }
     }
     

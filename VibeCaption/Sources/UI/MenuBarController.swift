@@ -24,6 +24,8 @@ class MenuBarController: NSObject {
     private let appStateManager: AppStateManager
     private let settingsManager: SettingsManager
     private let pipeline: CaptionPipeline
+    private let openURLHandler: (URL) -> Bool
+    private let presentAlert: (String, String) -> Void
     private var cancellables = Set<AnyCancellable>()
     
     // Window Controllers
@@ -35,10 +37,24 @@ class MenuBarController: NSObject {
     
     // MARK: - Initialization
     
-    init(appStateManager: AppStateManager, settingsManager: SettingsManager, pipeline: CaptionPipeline) {
+    init(
+        appStateManager: AppStateManager,
+        settingsManager: SettingsManager,
+        pipeline: CaptionPipeline,
+        openURLHandler: @escaping (URL) -> Bool = { NSWorkspace.shared.open($0) },
+        presentAlert: @escaping (String, String) -> Void = { title, message in
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = title
+            alert.informativeText = message
+            alert.runModal()
+        }
+    ) {
         self.appStateManager = appStateManager
         self.settingsManager = settingsManager
         self.pipeline = pipeline
+        self.openURLHandler = openURLHandler
+        self.presentAlert = presentAlert
         super.init()
         
         setupStatusItem()
@@ -164,12 +180,8 @@ class MenuBarController: NSObject {
             // For now, let's keep it enabled as the user might want to try and see the error.
             item.isEnabled = true
             
-        case .listening, .translating:
-            item.title = "Pause Listening"
-            item.isEnabled = true
-            
-        case .paused:
-            item.title = "Resume Listening"
+        case .listening, .translating, .paused:
+            item.title = "Stop Listening"
             item.isEnabled = true
         }
     }
@@ -221,10 +233,8 @@ class MenuBarController: NSObject {
                     print("Error starting pipeline: \(error)")
                 }
             }
-        case .listening, .translating:
-            pipeline.pause()
-        case .paused:
-            pipeline.resume()
+        case .listening, .translating, .paused:
+            pipeline.stop(trigger: .manualStop)
         }
     }
     
@@ -254,12 +264,27 @@ class MenuBarController: NSObject {
     }
     
     @objc private func openTranscriptFolder() {
-        let path = settingsManager.transcriptStoragePath
-        let url = URL(fileURLWithPath: path)
-        NSWorkspace.shared.open(url)
+        let expandedPath = (settingsManager.transcriptStoragePath as NSString).expandingTildeInPath
+        guard settingsManager.validatePath(expandedPath) else {
+            presentAlert(
+                "Unable to Open Transcript Folder",
+                "Could not create transcript directory at \(expandedPath)."
+            )
+            return
+        }
+
+        let url = URL(fileURLWithPath: expandedPath, isDirectory: true)
+        guard openURLHandler(url) else {
+            presentAlert(
+                "Unable to Open Transcript Folder",
+                "Finder could not open the transcript directory."
+            )
+            return
+        }
     }
     
     @objc private func quitApp() {
+        pipeline.stop(trigger: .appQuit)
         NSApplication.shared.terminate(nil)
     }
 }

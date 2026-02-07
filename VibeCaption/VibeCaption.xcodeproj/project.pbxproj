@@ -71,6 +71,7 @@
 		D100000BD100000BD100000B /* TranscriptModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D100000CD100000CD100000C /* TranscriptModelsTests.swift */; };
 		D100000DD100000DD100000D /* TranscriptFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D100000ED100000ED100000E /* TranscriptFormatterTests.swift */; };
 		D100000FD100000FD100000F /* TranscriptManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000010D1000010D1000010 /* TranscriptManagerTests.swift */; };
+		D1000012D1000012D1000012 /* TranscriptFileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000011D1000011D1000011 /* TranscriptFileTests.swift */; };
 		E030DFBE722B018BC9FBDF84 /* ClearCaptionsPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE57404B3A4DB24087AC301 /* ClearCaptionsPopup.swift */; };
 		E1000001E1000001E1000001 /* VibeCaptionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000002E1000002E1000002 /* VibeCaptionError.swift */; };
 		E1000003E1000003E1000003 /* RecoveryAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000004E1000004E1000004 /* RecoveryAction.swift */; };
@@ -142,6 +143,7 @@
 		D100000CD100000CD100000C /* TranscriptModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptModelsTests.swift; sourceTree = "<group>"; };
 		D100000ED100000ED100000E /* TranscriptFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptFormatterTests.swift; sourceTree = "<group>"; };
 		D1000010D1000010D1000010 /* TranscriptManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptManagerTests.swift; sourceTree = "<group>"; };
+		D1000011D1000011D1000011 /* TranscriptFileTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptFileTests.swift; sourceTree = "<group>"; };
 		E1000002E1000002E1000002 /* VibeCaptionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeCaptionError.swift; sourceTree = "<group>"; };
 		E1000004E1000004E1000004 /* RecoveryAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecoveryAction.swift; sourceTree = "<group>"; };
 		E1000006E1000006E1000006 /* ErrorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandler.swift; sourceTree = "<group>"; };
@@ -351,6 +353,7 @@
 				D100000CD100000CD100000C /* TranscriptModelsTests.swift */,
 				D100000ED100000ED100000E /* TranscriptFormatterTests.swift */,
 				D1000010D1000010D1000010 /* TranscriptManagerTests.swift */,
+				D1000011D1000011D1000011 /* TranscriptFileTests.swift */,
 				E100000AE100000AE100000A /* ErrorHandlingTests.swift */,
 				F1000006F1000006F1000006 /* AudioDeviceManagerTests.swift */,
 				0C72BCAC2F2E2AC5005682CF /* OverlayContentViewTests.swift */,
@@ -547,6 +550,7 @@
 				D100000BD100000BD100000B /* TranscriptModelsTests.swift in Sources */,
 				D100000DD100000DD100000D /* TranscriptFormatterTests.swift in Sources */,
 				D100000FD100000FD100000F /* TranscriptManagerTests.swift in Sources */,
+				D1000012D1000012D1000012 /* TranscriptFileTests.swift in Sources */,
 				0C72BC9E2F2E1CD1005682CF /* OverlayViewModelTests.swift in Sources */,
 				0C72BC9F2F2E1CD1005682CF /* OverlayWindowTests.swift in Sources */,
 				E1000009E1000009E1000009 /* ErrorHandlingTests.swift in Sources */,

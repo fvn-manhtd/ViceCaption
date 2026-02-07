@@ -103,8 +103,8 @@ public final class CaptionPipeline: ObservableObject {
         setState(.listening)
     }
 
-    public func stop() {
-        stopInternal(transitionState: .idle)
+    public func stop(trigger: TranscriptSessionEndTrigger = .manualStop) {
+        stopInternal(transitionState: .idle, endTrigger: trigger)
     }
 
     public func pause() {
@@ -269,7 +269,7 @@ public final class CaptionPipeline: ObservableObject {
         }
     }
 
-    private func stopInternal(transitionState: PipelineState) {
+    private func stopInternal(transitionState: PipelineState, endTrigger: TranscriptSessionEndTrigger) {
         captureEngine.stopCapture()
         stopSegmentProcessing()
         resetAudioProcessors()
@@ -279,12 +279,7 @@ public final class CaptionPipeline: ObservableObject {
             self.resetTranslationTracking()
         }
 
-        transcriptManager.endCurrentSession()
-        do {
-            try transcriptManager.saveSession()
-        } catch {
-            logger.error("Failed to save transcript: \(error.localizedDescription)")
-        }
+        _ = transcriptManager.endCurrentSession(trigger: endTrigger)
 
         setState(transitionState)
     }
@@ -300,7 +295,7 @@ public final class CaptionPipeline: ObservableObject {
         Task { @MainActor [weak self] in
             self?.lastError = error
         }
-        stopInternal(transitionState: .error)
+        stopInternal(transitionState: .error, endTrigger: .pipelineError)
     }
 
     private func loadModelsIfNeeded() async throws {

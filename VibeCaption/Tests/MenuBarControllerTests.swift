@@ -109,14 +109,7 @@ class MenuBarControllerTests: XCTestCase {
         await waitForState(.listening)
         try? await Task.sleep(nanoseconds: 50_000_000)
         
-        XCTAssertEqual(item.title, "Pause Listening")
-        
-        // Change State -> Paused
-        pipeline.pause()
-        await waitForState(.paused)
-        try? await Task.sleep(nanoseconds: 50_000_000)
-        
-        XCTAssertEqual(item.title, "Resume Listening")
+        XCTAssertEqual(item.title, "Stop Listening")
     }
     
     func testOverlayToggle() {
@@ -148,6 +141,50 @@ class MenuBarControllerTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
         
         XCTAssertEqual(item.title, "Hide Overlay")
+    }
+
+    func testOpenTranscriptFolderCreatesDirectory() {
+        let temporaryRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let transcriptDirectory = temporaryRoot.appendingPathComponent("missing/subfolder", isDirectory: true)
+        settingsManager.transcriptStoragePath = transcriptDirectory.path
+
+        var openedURL: URL?
+        menuBarController = MenuBarController(
+            appStateManager: appStateManager,
+            settingsManager: settingsManager,
+            pipeline: pipeline,
+            openURLHandler: { url in
+                openedURL = url
+                return true
+            },
+            presentAlert: { _, _ in
+                XCTFail("Unexpected alert while opening transcript folder")
+            }
+        )
+
+        defer {
+            try? FileManager.default.removeItem(at: temporaryRoot)
+        }
+
+        let mirror = Mirror(reflecting: menuBarController!)
+        guard let statusItem = mirror.children.first(where: { $0.label == "statusItem" })?.value as? NSStatusItem,
+              let menu = statusItem.menu else {
+            XCTFail("Could not access status item menu")
+            return
+        }
+
+        guard let openItem = menu.items.first(where: { $0.title == "Open Transcript Folder" }) else {
+            XCTFail("Open Transcript Folder item not found")
+            return
+        }
+
+        _ = menu.performActionForItem(at: menu.index(of: openItem))
+
+        var isDirectory: ObjCBool = false
+        XCTAssertTrue(FileManager.default.fileExists(atPath: transcriptDirectory.path, isDirectory: &isDirectory))
+        XCTAssertTrue(isDirectory.boolValue)
+        XCTAssertEqual(openedURL?.path, transcriptDirectory.path)
     }
 
     private func waitForState(_ state: AppState, timeout: TimeInterval = 1.0) async {

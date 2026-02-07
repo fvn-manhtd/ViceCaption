@@ -79,6 +79,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Check for first launch
         checkFirstLaunch()
     }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        if transcriptManager?.hasActiveSession == true {
+            pipeline.stop(trigger: .appQuit)
+        }
+    }
     
     private func checkFirstLaunch() {
         if !settingsManager.setupWizardCompleted {
@@ -98,6 +104,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Initialize Transcript Manager
         transcriptManager = TranscriptManager(settingsManager: settingsManager)
+        transcriptManager.onSaveFailure = { [weak self] error in
+            DispatchQueue.main.async {
+                self?.presentTranscriptSaveError(error)
+            }
+        }
 
         // Initialize Model Manager
         modelManager = ModelManager(settingsManager: settingsManager)
@@ -143,10 +154,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appStateManager.$isOverlayVisible
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
-            .sink { [weak viewModel] isVisible in
+            .sink { [weak self, weak viewModel] isVisible in
+                guard let self = self else { return }
                 if viewModel?.isVisible != isVisible {
                     if isVisible { viewModel?.show() }
                     else { viewModel?.hide() }
+                }
+
+                if !isVisible && self.transcriptManager.hasActiveSession {
+                    self.pipeline.stop(trigger: .overlayHidden)
                 }
             }
             .store(in: &cancellables)
@@ -207,5 +223,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         logger.info("=== End Audio Devices ===")
+    }
+
+    private func presentTranscriptSaveError(_ error: TranscriptManagerError) {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Transcript Save Failed"
+        alert.informativeText = error.localizedDescription
+        alert.runModal()
     }
 }

@@ -11,6 +11,16 @@ import os.log
 
 // MARK: - TranscriptManager
 
+/// Source of session-ending save events.
+public enum TranscriptSessionEndTrigger: String {
+    case manualStop
+    case appQuit
+    case overlayHidden
+    case pipelineError
+    case replacedByNewSession
+    case periodicAutosave
+}
+
 /// Manages transcript sessions and their persistence.
 ///
 /// The TranscriptManager handles:
@@ -53,6 +63,18 @@ public final class TranscriptManager: ObservableObject {
     
     /// File manager for file operations.
     private let fileManager: FileManager
+
+    /// Autosave cadence in seconds for long-running sessions.
+    private let autosaveInterval: TimeInterval
+
+    /// Tracks whether session data changed since last save/autosave.
+    private var hasPendingAutosaveChanges: Bool = false
+
+    /// Timestamp of the last successful autosave.
+    private var lastAutosaveDate: Date?
+
+    /// Callback invoked when automatic save fails.
+    public var onSaveFailure: ((TranscriptManagerError) -> Void)?
     
     // MARK: - Computed Properties
     
@@ -74,6 +96,12 @@ public final class TranscriptManager: ObservableObject {
     public var hasActiveSession: Bool {
         currentSession?.isActive ?? false
     }
+
+    /// Returns `true` if the current session has transcript blocks to persist.
+    public var hasSavableContent: Bool {
+        guard let session = currentSession else { return false }
+        return !session.blocks.isEmpty
+    }
     
     // MARK: - Initialization
     
@@ -86,11 +114,13 @@ public final class TranscriptManager: ObservableObject {
     public init(
         settingsManager: SettingsManager,
         formatter: TranscriptFormatter = TranscriptFormatter(),
-        fileManager: FileManager = .default
+        fileManager: FileManager = .default,
+        autosaveInterval: TimeInterval = 30
     ) {
         self.settingsManager = settingsManager
         self.formatter = formatter
         self.fileManager = fileManager
+        self.autosaveInterval = autosaveInterval
         logger.debug("TranscriptManager initialized")
     }
     
@@ -100,20 +130,32 @@ public final class TranscriptManager: ObservableObject {
     ///
     /// If there is an existing session, it will be ended before starting the new one.
     public func startNewSession() {
-        if currentSession != nil {
-            endCurrentSession()
+        if hasActiveSession {
+            _ = endCurrentSession(trigger: .replacedByNewSession)
         }
         
         currentSession = TranscriptSession()
         displayStartIndex = 0
         pauseDisplayStartIndex = 0
+        hasPendingAutosaveChanges = false
+        lastAutosaveDate = nil
         logger.info("New transcript session started")
     }
     
     /// Ends the current session.
-    public func endCurrentSession() {
-        currentSession?.endSession()
-        logger.info("Transcript session ended")
+    @discardableResult
+    public func endCurrentSession(trigger: TranscriptSessionEndTrigger = .manualStop) -> URL? {
+        guard currentSession != nil else {
+            logger.debug("No active session to end")
+            return nil
+        }
+
+        if hasActiveSession {
+            currentSession?.endSession()
+            logger.info("Transcript session ended")
+        }
+
+        return persistCurrentSessionIfNeeded(trigger: trigger)
     }
     
     // MARK: - Block Management
@@ -129,6 +171,7 @@ public final class TranscriptManager: ObservableObject {
         }
         
         currentSession?.addBlock(block)
+        markSessionChanged()
         logger.debug("Added transcript block: \(block.japaneseText.prefix(20))...")
     }
 
@@ -148,6 +191,7 @@ public final class TranscriptManager: ObservableObject {
         let updated = session.updateBlock(id: id, englishText: englishText)
         if updated {
             currentSession = session
+            markSessionChanged()
             logger.debug("Updated transcript block with translation: \(id.uuidString)")
         }
 
@@ -165,6 +209,7 @@ public final class TranscriptManager: ObservableObject {
         
         let marker = PauseMarker()
         currentSession?.addPauseMarker(marker)
+        markSessionChanged()
         logger.debug("Added pause marker at \(marker.timestamp)")
     }
     
@@ -178,6 +223,7 @@ public final class TranscriptManager: ObservableObject {
         }
         
         currentSession?.addPauseMarker(marker)
+        markSessionChanged()
         logger.debug("Added pause marker at \(marker.timestamp)")
     }
     
@@ -209,6 +255,7 @@ public final class TranscriptManager: ObservableObject {
         // Reset display indices
         displayStartIndex = 0
         pauseDisplayStartIndex = 0
+        markSessionChanged()
         
         logger.info("Display cleared and data discarded")
     }
@@ -225,29 +272,18 @@ public final class TranscriptManager: ObservableObject {
             logger.error("Cannot save: no active session")
             throw TranscriptManagerError.noActiveSession
         }
-        
-        // Get the storage path from settings
-        let storagePath = settingsManager.transcriptStoragePath
-        let expandedPath = (storagePath as NSString).expandingTildeInPath
-        
-        // Ensure directory exists
-        if !fileManager.fileExists(atPath: expandedPath) {
-            try fileManager.createDirectory(
-                atPath: expandedPath,
-                withIntermediateDirectories: true
-            )
+
+        guard !session.blocks.isEmpty else {
+            logger.info("Skipping save for empty session")
+            throw TranscriptManagerError.emptySession
         }
-        
-        // Generate filename and full path
-        let filename = formatter.generateFilename(for: session)
-        let fileURL = URL(fileURLWithPath: expandedPath).appendingPathComponent(filename)
-        
-        // Format session content
-        let content = formatter.formatForFile(session: session)
-        
-        // Write to file
-        try content.write(to: fileURL, atomically: true, encoding: .utf8)
-        
+
+        let fileURL = try finalFileURL(for: session)
+        try write(session: session, to: fileURL)
+        try removeAutosaveFileIfPresent(for: session)
+
+        hasPendingAutosaveChanges = false
+        lastAutosaveDate = Date()
         logger.info("Session saved to: \(fileURL.path)")
         return fileURL
     }
@@ -257,12 +293,159 @@ public final class TranscriptManager: ObservableObject {
     /// - Returns: The expected file URL, or nil if there is no session.
     public func expectedFileURL() -> URL? {
         guard let session = currentSession else { return nil }
-        
+
+        do {
+            return try finalFileURL(for: session)
+        } catch {
+            logger.error("Failed to compute expected file URL: \(error.localizedDescription)")
+            return nil
+        }
+    }
+
+    // MARK: - Private Methods
+
+    private func markSessionChanged() {
+        hasPendingAutosaveChanges = true
+        maybeAutosave()
+    }
+
+    private func maybeAutosave() {
+        guard autosaveInterval > 0 else { return }
+        guard hasPendingAutosaveChanges else { return }
+        guard let session = currentSession, session.isActive else { return }
+
+        let now = Date()
+        if let lastAutosaveDate, now.timeIntervalSince(lastAutosaveDate) < autosaveInterval {
+            return
+        }
+
+        do {
+            try writeAutosave(for: session)
+            hasPendingAutosaveChanges = false
+            lastAutosaveDate = now
+            logger.debug("Periodic autosave completed")
+        } catch {
+            handleAutomaticSaveFailure(error, trigger: .periodicAutosave)
+        }
+    }
+
+    private func persistCurrentSessionIfNeeded(trigger: TranscriptSessionEndTrigger) -> URL? {
+        guard let session = currentSession else { return nil }
+
+        if session.blocks.isEmpty {
+            do {
+                try removeAutosaveFileIfPresent(for: session)
+            } catch {
+                logger.error("Failed to clean autosave file: \(error.localizedDescription)")
+            }
+            logger.info("Skipping transcript save for empty session")
+            return nil
+        }
+
+        do {
+            let savedURL = try saveSession()
+            logger.info("Session saved after trigger: \(trigger.rawValue)")
+            return savedURL
+        } catch {
+            handleAutomaticSaveFailure(error, trigger: trigger)
+            return nil
+        }
+    }
+
+    private func writeAutosave(for session: TranscriptSession) throws {
+        guard !session.blocks.isEmpty else {
+            try removeAutosaveFileIfPresent(for: session)
+            return
+        }
+
+        let autosaveURL = try autosaveFileURL(for: session)
+        try write(session: session, to: autosaveURL)
+    }
+
+    private func write(session: TranscriptSession, to url: URL) throws {
+        let content = formatter.formatForFile(session: session)
+
+        do {
+            try content.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            throw asTranscriptError(error, path: url.path)
+        }
+    }
+
+    private func transcriptDirectoryURL() throws -> URL {
         let storagePath = settingsManager.transcriptStoragePath
         let expandedPath = (storagePath as NSString).expandingTildeInPath
+        let directoryURL = URL(fileURLWithPath: expandedPath, isDirectory: true)
+
+        var isDirectory: ObjCBool = false
+        if fileManager.fileExists(atPath: expandedPath, isDirectory: &isDirectory) {
+            guard isDirectory.boolValue else {
+                throw TranscriptManagerError.saveFailed(
+                    underlyingError: NSError(
+                        domain: NSCocoaErrorDomain,
+                        code: NSFileWriteUnsupportedSchemeError,
+                        userInfo: [NSLocalizedDescriptionKey: "Transcript storage path is not a directory"]
+                    )
+                )
+            }
+            return directoryURL
+        }
+
+        do {
+            try fileManager.createDirectory(
+                at: directoryURL,
+                withIntermediateDirectories: true,
+                attributes: nil
+            )
+            return directoryURL
+        } catch {
+            throw asTranscriptError(error, path: expandedPath)
+        }
+    }
+
+    private func finalFileURL(for session: TranscriptSession) throws -> URL {
+        let directoryURL = try transcriptDirectoryURL()
         let filename = formatter.generateFilename(for: session)
-        
-        return URL(fileURLWithPath: expandedPath).appendingPathComponent(filename)
+        return directoryURL.appendingPathComponent(filename, isDirectory: false)
+    }
+
+    private func autosaveFileURL(for session: TranscriptSession) throws -> URL {
+        let directoryURL = try transcriptDirectoryURL()
+        let filename = formatter.generateFilename(for: session)
+        return directoryURL.appendingPathComponent("\(filename).autosave", isDirectory: false)
+    }
+
+    private func removeAutosaveFileIfPresent(for session: TranscriptSession) throws {
+        let url = try autosaveFileURL(for: session)
+        guard fileManager.fileExists(atPath: url.path) else { return }
+        do {
+            try fileManager.removeItem(at: url)
+        } catch {
+            throw asTranscriptError(error, path: url.path)
+        }
+    }
+
+    private func asTranscriptError(_ error: Error, path: String? = nil) -> TranscriptManagerError {
+        if let transcriptError = error as? TranscriptManagerError {
+            return transcriptError
+        }
+
+        if let cocoaError = error as? CocoaError, cocoaError.code == .fileWriteOutOfSpace {
+            return .diskFull(path: path)
+        }
+
+        let nsError = error as NSError
+        if nsError.domain == NSCocoaErrorDomain && nsError.code == NSFileWriteOutOfSpaceError {
+            return .diskFull(path: path)
+        }
+
+        return .saveFailed(underlyingError: error)
+    }
+
+    private func handleAutomaticSaveFailure(_ error: Error, trigger: TranscriptSessionEndTrigger) {
+        let transcriptError = asTranscriptError(error)
+        logger.error("Automatic save failed (\(trigger.rawValue)): \(transcriptError.localizedDescription)")
+        onSaveFailure?(transcriptError)
     }
 }
 
@@ -272,6 +455,12 @@ public final class TranscriptManager: ObservableObject {
 public enum TranscriptManagerError: LocalizedError {
     /// No active session exists.
     case noActiveSession
+
+    /// Session has no transcript blocks to save.
+    case emptySession
+
+    /// Disk is full while writing transcript data.
+    case diskFull(path: String?)
     
     /// Failed to save the session to a file.
     case saveFailed(underlyingError: Error)
@@ -280,6 +469,13 @@ public enum TranscriptManagerError: LocalizedError {
         switch self {
         case .noActiveSession:
             return "No active transcript session"
+        case .emptySession:
+            return "Transcript session is empty, nothing to save"
+        case .diskFull(let path):
+            if let path {
+                return "Disk is full. Could not save transcript to \(path)"
+            }
+            return "Disk is full. Could not save transcript"
         case .saveFailed(let error):
             return "Failed to save transcript: \(error.localizedDescription)"
         }
