@@ -187,11 +187,11 @@ This checklist tracks the implementation progress of VibeCaption, following the 
   - [x] Add update UI to Settings
   - [x] Configure signing and notarization
 
-- [ ] **26. Error Modals & Recovery Flows**
-  - [ ] Enhance `ErrorModalView` with specific recovery actions
-  - [ ] Implement `RecoveryActionHandler`
-  - [ ] Wire recovery flows (e.g., Error -> Fix Now -> Wizard)
-  - [ ] test: Verify error recovery navigation
+- [x] **26. Error Modals & Recovery Flows**
+  - [x] Enhance `ErrorModalView` with specific recovery actions
+  - [x] Implement `RecoveryActionHandler`
+  - [x] Wire recovery flows (e.g., Error -> Fix Now -> Wizard)
+  - [x] test: Verify error recovery navigation
 
 - [ ] **27. Final Polish & End-to-End Testing**
   - [ ] UI Polish (Animations, Dark mode, Accessibility)
