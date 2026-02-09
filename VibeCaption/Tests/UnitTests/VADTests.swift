@@ -80,6 +80,24 @@ final class VADTests: XCTestCase {
         XCTAssertEqual(result, .speech)
         XCTAssertTrue(vad.isSpeechDetected)
     }
+
+    func testModerateSpeechLevelTriggersSpeechWithDefaultThresholds() {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16000, channels: 1)!
+        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 512)!
+        buffer.frameLength = 512
+
+        let channelData = buffer.floatChannelData![0]
+        for i in 0..<512 {
+            channelData[i] = 0.03 * sin(Float(i) * 0.1)
+        }
+
+        _ = vad.process(buffer)
+        _ = vad.process(buffer)
+        let result = vad.process(buffer)
+
+        XCTAssertEqual(result, .speech)
+        XCTAssertTrue(vad.isSpeechDetected)
+    }
     
     func testSilenceHysteresis() {
         // First get into speech state
@@ -121,6 +139,16 @@ final class VADTests: XCTestCase {
         XCTAssertTrue(vad.isSpeechDetected)
         
         vad.reset()
+        XCTAssertFalse(vad.isSpeechDetected)
+    }
+
+    func testZeroLengthBufferReturnsStableState() {
+        let format = AVAudioFormat(standardFormatWithSampleRate: 16000, channels: 1)!
+        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 512)!
+        buffer.frameLength = 0
+
+        let result = vad.process(buffer)
+        XCTAssertEqual(result, .silence)
         XCTAssertFalse(vad.isSpeechDetected)
     }
 }

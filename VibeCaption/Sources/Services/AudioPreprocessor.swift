@@ -120,6 +120,10 @@ public final class AudioPreprocessor: AudioPreprocessorProtocol {
         using converter: AVAudioConverter,
         to outputFormat: AVAudioFormat
     ) -> AVAudioPCMBuffer? {
+        guard inputBuffer.frameLength > 0 else {
+            return nil
+        }
+
         // Calculate output frame capacity
         let ratio = outputFormat.sampleRate / inputBuffer.format.sampleRate
         let outputFrameCapacity = AVAudioFrameCount(Double(inputBuffer.frameLength) * ratio)
@@ -142,6 +146,11 @@ public final class AudioPreprocessor: AudioPreprocessorProtocol {
         guard status != .error else {
             // Only log if it's a real error, sometimes end of stream can cause issues but here we process chunks
              logger.error("Conversion failed: \(error?.localizedDescription ?? "Unknown")")
+            return nil
+        }
+
+        guard outputBuffer.frameLength > 0 else {
+            logger.debug("Converted buffer had zero frames; falling back to input buffer")
             return nil
         }
         

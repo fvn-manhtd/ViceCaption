@@ -130,6 +130,9 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     
     /// Logger instance.
     private let logger = Logger(subsystem: "com.vibecaption", category: "AudioCaptureEngine")
+
+    /// Persists requested voice processing state across engine reconfiguration.
+    private var preferredNoiseSuppressionEnabled: Bool = true
     
     // MARK: - Initialization
     
@@ -156,7 +159,7 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     /// - Parameter inputDevice: The audio device to use for capture.
     /// - Throws: `VibeCaptionError.audioRoutingFailed` if the device is not accessible.
     public func configure(inputDevice: AudioDevice) throws {
-        try configure(inputDevice: inputDevice, noiseSuppressionEnabled: true)
+        try configure(inputDevice: inputDevice, noiseSuppressionEnabled: preferredNoiseSuppressionEnabled)
     }
 
     /// Configures the engine to use the specified input device.
@@ -165,6 +168,7 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     /// - Parameter noiseSuppressionEnabled: Whether to enable system noise suppression (Voice Processing I/O).
     /// - Throws: `VibeCaptionError.audioRoutingFailed` if the device is not accessible.
     public func configure(inputDevice: AudioDevice, noiseSuppressionEnabled: Bool = true) throws {
+        preferredNoiseSuppressionEnabled = noiseSuppressionEnabled
         logger.info("Configuring input device: \(inputDevice.name)")
         
         // Verify device is an input device
@@ -218,6 +222,7 @@ public final class AudioCaptureEngine: ObservableObject, AudioCaptureEngineProto
     ///
     /// - Parameter enabled: Whether to enable noise suppression.
     public func setNoiseSuppression(_ enabled: Bool) {
+        preferredNoiseSuppressionEnabled = enabled
         if #available(macOS 10.14, *) {
             do {
                 try audioEngine.inputNode.setVoiceProcessingEnabled(enabled)

@@ -25,20 +25,22 @@ class VoiceActivityDetector: ObservableObject {
     @Published var isSpeechDetected: Bool = false
     
     // Configuration
-    var speechThreshold: Float = 0.05 // -26dB roughly
-    var silenceThreshold: Float = 0.02 // -34dB roughly
+    // Tuned for typical meeting/system-audio levels where RMS often sits below 0.05.
+    // Higher defaults can prevent segment start and make transcription appear "stuck".
+    var speechThreshold: Float = 0.008 // ~ -42 dBFS
+    var silenceThreshold: Float = 0.0025 // ~ -52 dBFS
     
     // State
     private var consecutiveSpeechFrames = 0
     private var consecutiveSilenceFrames = 0
     
     // Hysteresis configuration
-    private let requiredSpeechFrames = 3 // ~30ms at 10ms buffers
-    private let requiredSilenceFrames = 10 // ~100ms
+    private let requiredSpeechFrames = 2 // Faster activation for live calls
+    private let requiredSilenceFrames = 8
     
     // MARK: - Initialization
     
-    init(speechThreshold: Float = 0.05, silenceThreshold: Float = 0.02) {
+    init(speechThreshold: Float = 0.008, silenceThreshold: Float = 0.0025) {
         self.speechThreshold = speechThreshold
         self.silenceThreshold = silenceThreshold
     }
@@ -52,7 +54,9 @@ class VoiceActivityDetector: ObservableObject {
         }
         
         let frameLength = Int(buffer.frameLength)
-        let channels = Int(buffer.format.channelCount)
+        guard frameLength > 0 else {
+            return isSpeechDetected ? .speech : .silence
+        }
         var sumSquares: Float = 0
         
         // Calculate RMS (Energy) of the buffer

@@ -390,8 +390,28 @@ public final class CaptionPipeline: ObservableObject {
             return
         }
 
-        try captureEngine.configure(inputDevice: inputDevice)
-        logger.info("Capture input configured: \(inputDevice.name)")
+        let performanceEnabled = settingsManager?.performanceModeEnabled ?? false
+        let userNoiseSuppressionEnabled = settingsManager?.noiseSuppressionEnabled ?? true
+        let isLikelyVirtualInput = inputDevice.isBlackHole ||
+            inputDevice.name.localizedCaseInsensitiveContains("aggregate") ||
+            inputDevice.uid.localizedCaseInsensitiveContains("aggregate")
+        let shouldEnableNoiseSuppression = userNoiseSuppressionEnabled && !performanceEnabled && !isLikelyVirtualInput
+        self.captureEngine.setNoiseSuppression(shouldEnableNoiseSuppression)
+        if userNoiseSuppressionEnabled && isLikelyVirtualInput {
+            self.logger.info("Voice processing disabled for virtual input device: \(inputDevice.name)")
+        }
+
+        try self.captureEngine.configure(inputDevice: inputDevice)
+        self.logger.info("Capture input configured: \(self.captureEngine.currentInputDevice?.name ?? inputDevice.name)")
+
+        if let selectedInputUID,
+           let actualInput = self.captureEngine.currentInputDevice,
+           actualInput.uid != selectedInputUID {
+            throw VibeCaptionError.audioRoutingFailed(
+                device: inputDevice.name,
+                reason: "Could not bind selected input. Engine is using \"\(actualInput.name)\" instead."
+            )
+        }
     }
 
     private func cappedTranslationBlocks(from blocks: [TranscriptBlock]) -> [TranscriptBlock] {

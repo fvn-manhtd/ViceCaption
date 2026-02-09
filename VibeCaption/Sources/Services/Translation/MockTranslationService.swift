@@ -17,8 +17,13 @@ public class MockTranslationService: TranslationServiceProtocol {
         
         public var mode: Mode
         public var delayRange: Range<TimeInterval>
+        public var prefixUnknownWithMockTag: Bool
         
-        public static let `default` = Configuration(mode: .highConfidence, delayRange: 0.3..<1.0)
+        public static let `default` = Configuration(
+            mode: .highConfidence,
+            delayRange: 0.3..<1.0,
+            prefixUnknownWithMockTag: true
+        )
     }
     
     public var config: Configuration
@@ -67,11 +72,12 @@ public class MockTranslationService: TranslationServiceProtocol {
         
         let translatedText: String
         let confidence: Double
+        let normalizedText = Self.normalizedLookupText(text)
         
         if sourceLanguage == .japanese && targetLanguage == .english {
-            translatedText = commonPhrases[text] ?? "[MOCK] \(text)"
+            translatedText = commonPhrases[normalizedText] ?? fallbackText(for: text)
         } else {
-             translatedText = "[MOCK] \(text)"
+            translatedText = fallbackText(for: text)
         }
         
         switch config.mode {
@@ -90,5 +96,17 @@ public class MockTranslationService: TranslationServiceProtocol {
             processingTime: delay,
             targetLanguage: targetLanguage
         )
+    }
+
+    private func fallbackText(for text: String) -> String {
+        if config.prefixUnknownWithMockTag {
+            return "[MOCK] \(text)"
+        }
+        return text
+    }
+
+    private static func normalizedLookupText(_ text: String) -> String {
+        let punctuation = CharacterSet(charactersIn: "。！？!?、,.")
+        return text.trimmingCharacters(in: .whitespacesAndNewlines.union(punctuation))
     }
 }

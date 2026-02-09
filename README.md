@@ -18,7 +18,8 @@ This command performs the following:
 
 
 ```bash
-xcodebuild test -scheme VibeCaption -destination 'platform=macOS' CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED="NO"
+ xcodebuild -project VibeCaption.xcodeproj -scheme VibeCaption -configuration Debug build
+    CODE_SIGNING_ALLOWED=NO
 ```
 
 

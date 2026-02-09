@@ -1,7 +1,11 @@
+import AVFoundation
 import Foundation
+import Speech
+import os.log
 
 /// Scenarios for configurable mock behavior
 enum MockASRScenario: Equatable {
+    case live
     case successHighConfidence
     case successLowConfidence
     case failure
@@ -10,11 +14,26 @@ enum MockASRScenario: Equatable {
 
 enum MockASRError: Error, LocalizedError, Equatable {
     case simulatedFailure
+    case modelNotLoaded
+    case speechRecognitionNotAuthorized
+    case speechRecognizerUnavailable
+    case audioEncodingFailed
+    case transcriptionFailed(String)
     
     var errorDescription: String? {
         switch self {
         case .simulatedFailure:
             return "Simulated ASR failure"
+        case .modelNotLoaded:
+            return "ASR model is not loaded"
+        case .speechRecognitionNotAuthorized:
+            return "Speech recognition permission was not granted"
+        case .speechRecognizerUnavailable:
+            return "Speech recognizer is currently unavailable"
+        case .audioEncodingFailed:
+            return "Failed to prepare audio for speech recognition"
+        case .transcriptionFailed(let message):
+            return "Speech recognition failed: \(message)"
         }
     }
 }
@@ -23,6 +42,8 @@ enum MockASRError: Error, LocalizedError, Equatable {
 final class MockASRService: ASRServiceProtocol {
     private(set) var isModelLoaded: Bool = false
     private(set) var scenario: MockASRScenario
+    private let recognizerLocale = Locale(identifier: "ja-JP")
+    private let logger = Logger(subsystem: "com.vibecaption", category: "MockASRService")
     
     /// Create a mock ASR service
     /// - Parameter scenario: Behavior configuration (success/low/failure/empty)
@@ -31,8 +52,22 @@ final class MockASRService: ASRServiceProtocol {
     }
     
     func loadModel() async throws {
-        // Simulate fast load
-        try await Task.sleep(nanoseconds: 50_000_000) // 50ms
+        if scenario == .live {
+            let status = await Self.requestSpeechAuthorization()
+            guard status == .authorized else {
+                throw MockASRError.speechRecognitionNotAuthorized
+            }
+
+            guard SFSpeechRecognizer(locale: recognizerLocale) != nil else {
+                throw MockASRError.speechRecognizerUnavailable
+            }
+
+            isModelLoaded = true
+            return
+        }
+
+        // Simulate fast load for deterministic scenarios
+        try await Task.sleep(nanoseconds: 50_000_000)
         isModelLoaded = true
     }
     
@@ -41,13 +76,21 @@ final class MockASRService: ASRServiceProtocol {
     }
     
     func transcribe(_ audio: AudioSegment) async throws -> ASRResult {
-        // Simulated latency based on audio length (0.5s - 2.0s)
-        let dur = max(0.0, audio.duration)
-        let delay = Self.computeDelay(forDuration: dur)
+        guard isModelLoaded else {
+            throw MockASRError.modelNotLoaded
+        }
+
         let start = Date()
-        try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        if scenario != .live {
+            // Simulated latency based on audio length (0.5s - 2.0s)
+            let dur = max(0.0, audio.duration)
+            let delay = Self.computeDelay(forDuration: dur)
+            try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        }
         
         switch scenario {
+        case .live:
+            return try await transcribeLive(audio)
         case .failure:
             throw MockASRError.simulatedFailure
         case .empty:
@@ -56,6 +99,144 @@ final class MockASRService: ASRServiceProtocol {
             let segs = makeSegments(for: audio, highConfidence: scenario == .successHighConfidence)
             return ASRResult(segments: segs, processingTime: Date().timeIntervalSince(start))
         }
+    }
+
+    private func transcribeLive(_ audio: AudioSegment) async throws -> ASRResult {
+        let start = Date()
+
+        guard !audio.audioData.isEmpty else {
+            return ASRResult(segments: [], processingTime: 0)
+        }
+
+        guard let recognizer = SFSpeechRecognizer(locale: recognizerLocale) else {
+            throw MockASRError.speechRecognizerUnavailable
+        }
+
+        if !recognizer.isAvailable {
+            throw MockASRError.speechRecognizerUnavailable
+        }
+
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("vibecaption-speech-\(UUID().uuidString).caf")
+        try Self.writeAudioSegment(audio, to: tempURL)
+        defer {
+            try? FileManager.default.removeItem(at: tempURL)
+        }
+
+        let request = SFSpeechURLRecognitionRequest(url: tempURL)
+        request.shouldReportPartialResults = false
+
+        let recognitionResult = try await Self.performRecognition(
+            recognizer: recognizer,
+            request: request
+        )
+
+        let text = recognitionResult.bestTranscription.formattedString
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !text.isEmpty else {
+            return ASRResult(segments: [], processingTime: Date().timeIntervalSince(start))
+        }
+
+        let transcriptionSegments = recognitionResult.bestTranscription.segments
+        let avgConfidence: Double
+        if transcriptionSegments.isEmpty {
+            avgConfidence = 0.7
+        } else {
+            let total = transcriptionSegments.reduce(0.0) { partial, segment in
+                partial + Double(segment.confidence)
+            }
+            avgConfidence = min(1.0, max(0.0, total / Double(transcriptionSegments.count)))
+        }
+
+        logger.debug("Live ASR recognized text: \(text)")
+
+        let segment = ASRSegment(
+            text: text,
+            startTime: audio.startTime,
+            endTime: audio.endTime,
+            speakerID: nil,
+            confidence: avgConfidence
+        )
+
+        return ASRResult(
+            segments: [segment],
+            processingTime: Date().timeIntervalSince(start)
+        )
+    }
+
+    private static func requestSpeechAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
+        let currentStatus = SFSpeechRecognizer.authorizationStatus()
+        guard currentStatus == .notDetermined else {
+            return currentStatus
+        }
+
+        return await withCheckedContinuation { continuation in
+            SFSpeechRecognizer.requestAuthorization { status in
+                continuation.resume(returning: status)
+            }
+        }
+    }
+
+    private static func performRecognition(
+        recognizer: SFSpeechRecognizer,
+        request: SFSpeechURLRecognitionRequest
+    ) async throws -> SFSpeechRecognitionResult {
+        try await withCheckedThrowingContinuation { continuation in
+            var hasResumed = false
+            var recognitionTask: SFSpeechRecognitionTask?
+            recognitionTask = recognizer.recognitionTask(with: request) { result, error in
+                if hasResumed {
+                    return
+                }
+
+                if let error {
+                    hasResumed = true
+                    recognitionTask?.cancel()
+                    continuation.resume(throwing: MockASRError.transcriptionFailed(error.localizedDescription))
+                    return
+                }
+
+                guard let result else {
+                    return
+                }
+
+                if result.isFinal {
+                    hasResumed = true
+                    recognitionTask?.cancel()
+                    continuation.resume(returning: result)
+                }
+            }
+        }
+    }
+
+    private static func writeAudioSegment(_ audio: AudioSegment, to url: URL) throws {
+        guard let format = AVAudioFormat(
+            commonFormat: .pcmFormatFloat32,
+            sampleRate: 16_000,
+            channels: 1,
+            interleaved: false
+        ),
+        let buffer = AVAudioPCMBuffer(
+            pcmFormat: format,
+            frameCapacity: AVAudioFrameCount(audio.audioData.count)
+        ),
+        let channelData = buffer.floatChannelData?.pointee else {
+            throw MockASRError.audioEncodingFailed
+        }
+
+        buffer.frameLength = AVAudioFrameCount(audio.audioData.count)
+        for (index, sample) in audio.audioData.enumerated() {
+            channelData[index] = sample
+        }
+
+        let file = try AVAudioFile(
+            forWriting: url,
+            settings: format.settings,
+            commonFormat: .pcmFormatFloat32,
+            interleaved: false
+        )
+        try file.write(from: buffer)
     }
     
     // MARK: - Helpers

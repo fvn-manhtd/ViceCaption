@@ -135,8 +135,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         updateManager = UpdateManager(settingsManager: settingsManager)
 
-        let asrService = MockASRService()
-        let translationService = MockTranslationService()
+        let asrService = MockASRService(scenario: .live)
+        let translationService = MockTranslationService(
+            config: .init(
+                mode: .highConfidence,
+                delayRange: 0.3..<1.0,
+                prefixUnknownWithMockTag: false
+            )
+        )
 
         pipeline = CaptionPipeline(
             asrService: asrService,
