@@ -87,12 +87,12 @@ public final class CaptionPipeline: ObservableObject {
 
     public func start() async throws {
         let snapshot = snapshotState()
-        guard snapshot == .idle else {
-            if snapshot == .paused {
-                resume()
-            }
+        if snapshot == .paused {
+            resume()
             return
         }
+        // Allow explicit restart attempts after errors.
+        guard snapshot == .idle || snapshot == .error else { return }
 
         await resetStatistics()
         await MainActor.run { [weak self] in

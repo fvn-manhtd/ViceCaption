@@ -156,6 +156,37 @@ final class CaptionPipelineTests: XCTestCase {
         XCTAssertEqual(harness.appStateManager.currentState, .idle)
     }
 
+    func testPipelineRetryAfterErrorAttemptsStartAgain() async throws {
+        let harness = try TestHarness(captureStartError: TestCaptureError.deviceDisconnected)
+
+        do {
+            try await harness.pipeline.start()
+            XCTFail("Expected initial capture start to fail")
+        } catch {
+            // expected
+        }
+
+        var deadline = Date().addingTimeInterval(1.0)
+        while Date() < deadline, harness.pipeline.currentState != .error {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        XCTAssertEqual(harness.pipeline.currentState, .error)
+
+        do {
+            try await harness.pipeline.start()
+            XCTFail("Expected retry to attempt capture start and fail")
+        } catch {
+            // expected
+        }
+
+        deadline = Date().addingTimeInterval(1.0)
+        while Date() < deadline, harness.pipeline.currentState != .error {
+            try await Task.sleep(nanoseconds: 20_000_000)
+        }
+        XCTAssertEqual(harness.pipeline.currentState, .error)
+        XCTAssertEqual(harness.appStateManager.currentState, .idle)
+    }
+
     func testPipelinePublishesAudioLevelFromCaptureEngine() async throws {
         let harness = try TestHarness()
         defer { harness.pipeline.stop() }
