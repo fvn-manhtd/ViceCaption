@@ -26,7 +26,7 @@ class CaptionPipeline: ObservableObject {
         self.captureEngine = captureEngine
         self.vad = VoiceActivityDetector()
         self.segmenter = AudioSegmenter()
-        self.asrService = ASRServiceFactory.getService(useMock: true)
+        self.asrService = ASRServiceFactory.getService(useMock: true, engine: .appleSpeech)
         self.translationService = TranslationServiceFactory.shared.getService(useMock: true) // Using Mock for now as per requirements
         
         setupPipeline()

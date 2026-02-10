@@ -7,6 +7,26 @@
 
 import Foundation
 
+// MARK: - ASREngineType Enum
+
+/// The speech recognition engine to use for transcription.
+public enum ASREngineType: String, CaseIterable, Codable {
+    /// Apple's built-in Speech framework (SFSpeechRecognizer).
+    /// Low latency, on-device, no model download required.
+    case appleSpeech
+
+    /// OpenAI Whisper via SwiftWhisper.
+    /// Higher accuracy for specialized vocabulary, requires model download.
+    case whisper
+
+    public var displayName: String {
+        switch self {
+        case .appleSpeech: return "Apple Speech"
+        case .whisper: return "Whisper"
+        }
+    }
+}
+
 // MARK: - FontSize Enum
 
 /// Font size options for the overlay display.
@@ -90,6 +110,11 @@ public struct AppSettings: Equatable, Codable {
 
     /// Optional remote model catalog URL used to discover model updates.
     public var modelCatalogURL: String?
+
+    // MARK: - ASR Engine Settings
+
+    /// The speech recognition engine to use.
+    public var asrEngine: ASREngineType
     
     // MARK: - Default Values
     
@@ -145,6 +170,9 @@ public struct AppSettings: Equatable, Codable {
 
     /// Default URL for remote model update catalog.
     public static let defaultModelCatalogURL: String? = nil
+
+    /// Default ASR engine — Apple Speech for low-latency real-time transcription.
+    public static let defaultASREngine: ASREngineType = .appleSpeech
     
     // MARK: - Initialization
     
@@ -163,6 +191,7 @@ public struct AppSettings: Equatable, Codable {
         self.appUpdateCheckIntervalHours = Self.defaultAppUpdateCheckIntervalHours
         self.enforceCriticalAppUpdates = Self.defaultEnforceCriticalAppUpdates
         self.modelCatalogURL = Self.defaultModelCatalogURL
+        self.asrEngine = Self.defaultASREngine
     }
     
     /// Creates settings with custom values.
@@ -179,7 +208,8 @@ public struct AppSettings: Equatable, Codable {
         autoAppUpdatesEnabled: Bool = defaultAutoAppUpdatesEnabled,
         appUpdateCheckIntervalHours: Int = defaultAppUpdateCheckIntervalHours,
         enforceCriticalAppUpdates: Bool = defaultEnforceCriticalAppUpdates,
-        modelCatalogURL: String? = defaultModelCatalogURL
+        modelCatalogURL: String? = defaultModelCatalogURL,
+        asrEngine: ASREngineType = defaultASREngine
     ) {
         self.audioInputDeviceID = audioInputDeviceID
         self.monitoringOutputDeviceID = monitoringOutputDeviceID
@@ -194,5 +224,6 @@ public struct AppSettings: Equatable, Codable {
         self.appUpdateCheckIntervalHours = appUpdateCheckIntervalHours
         self.enforceCriticalAppUpdates = enforceCriticalAppUpdates
         self.modelCatalogURL = modelCatalogURL
+        self.asrEngine = asrEngine
     }
 }

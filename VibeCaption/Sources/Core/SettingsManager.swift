@@ -43,6 +43,7 @@ public final class SettingsManager: ObservableObject {
         static let enforceCriticalAppUpdates = "enforceCriticalAppUpdates"
         static let modelCatalogURL = "modelCatalogURL"
         static let modelLastUpdateCheckDate = "modelLastUpdateCheckDate"
+        static let asrEngine = "asrEngine"
     }
     
     // MARK: - Properties
@@ -301,6 +302,24 @@ public final class SettingsManager: ObservableObject {
             logger.debug("Model last update check date changed")
         }
     }
+
+    // MARK: - ASR Engine Settings
+
+    /// The speech recognition engine to use for transcription.
+    public var asrEngine: ASREngineType {
+        get {
+            guard let rawValue = userDefaults.string(forKey: Keys.asrEngine),
+                  let engine = ASREngineType(rawValue: rawValue) else {
+                return AppSettings.defaultASREngine
+            }
+            return engine
+        }
+        set {
+            userDefaults.set(newValue.rawValue, forKey: Keys.asrEngine)
+            notifyChange()
+            logger.debug("ASR engine set to: \(newValue.displayName)")
+        }
+    }
     
     // MARK: - Convenience Accessors
     
@@ -319,7 +338,8 @@ public final class SettingsManager: ObservableObject {
             autoAppUpdatesEnabled: autoAppUpdatesEnabled,
             appUpdateCheckIntervalHours: appUpdateCheckIntervalHours,
             enforceCriticalAppUpdates: enforceCriticalAppUpdates,
-            modelCatalogURL: modelCatalogURL?.absoluteString
+            modelCatalogURL: modelCatalogURL?.absoluteString,
+            asrEngine: asrEngine
         )
     }
     
@@ -345,6 +365,7 @@ public final class SettingsManager: ObservableObject {
         userDefaults.removeObject(forKey: Keys.enforceCriticalAppUpdates)
         userDefaults.removeObject(forKey: Keys.modelCatalogURL)
         userDefaults.removeObject(forKey: Keys.modelLastUpdateCheckDate)
+        userDefaults.removeObject(forKey: Keys.asrEngine)
         
         notifyChange()
         validatePaths()

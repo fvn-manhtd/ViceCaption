@@ -59,16 +59,24 @@ final class ASRServiceTests: XCTestCase {
     }
 
     func testFactoryReturnsCorrectImplementation() {
-        // Setup dependencies for factory
-        let settings = SettingsManager() // Assuming default init exists or is simple
+        let settings = SettingsManager()
         let modelManager = ModelManager(settingsManager: settings)
         
+        // Mock always returns MockASRService regardless of engine
         let s1 = ASRServiceFactory.getService(modelManager: modelManager, useMock: true)
         XCTAssertTrue(s1 is MockASRService)
 
-        let s2 = ASRServiceFactory.getService(modelManager: modelManager, useMock: false)
-        XCTAssertFalse(s2 is MockASRService)
-        XCTAssertTrue(s2 is WhisperASRService)
+        // Apple Speech engine
+        let s2 = ASRServiceFactory.getService(engine: .appleSpeech)
+        XCTAssertTrue(s2 is SpeechASRService)
+
+        // Whisper engine with model manager
+        let s3 = ASRServiceFactory.getService(modelManager: modelManager, engine: .whisper)
+        XCTAssertTrue(s3 is WhisperASRService)
+
+        // Whisper engine without model manager falls back to Apple Speech
+        let s4 = ASRServiceFactory.getService(engine: .whisper)
+        XCTAssertTrue(s4 is SpeechASRService, "Should fallback to SpeechASRService when no ModelManager provided")
     }
 
     func testSpeakerIDAssignmentConsistent() async throws {
