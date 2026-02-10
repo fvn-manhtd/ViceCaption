@@ -37,6 +37,7 @@
 		AA900001AA900001AA900001 /* UpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA900002AA900002AA900002 /* UpdateManager.swift */; };
 		AA900003AA900003AA900003 /* Services/UpdateManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA900004AA900004AA900004 /* Services/UpdateManagerTests.swift */; };
 		AA900005AA900005AA900005 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = AA900006AA900006AA900006 /* Sparkle */; };
+		AA900008AA900008AA900008 /* SwiftWhisper in Frameworks */ = {isa = PBXBuildFile; productRef = AA900009AA900009AA900009 /* SwiftWhisper */; };
 		AA900021AA900021AA900021 /* model-catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = AA900020AA900020AA900020 /* model-catalog.json */; };
 		AEA32704C0B8D948A594BB0C /* SetupWizard/AudioTestStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9D6D80A0C4F40439B5ABC3 /* SetupWizard/AudioTestStepView.swift */; };
 		B1000001B1000001B1000001 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000002B1000002B1000002 /* AppState.swift */; };
@@ -57,9 +58,12 @@
 		B210000DB210000DB210000D /* Translation/TranslationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B200000DB200000DB200000D /* Translation/TranslationResult.swift */; };
 		B210000EB210000EB210000E /* Translation/Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = B200000EB200000EB200000E /* Translation/Language.swift */; };
 		B210000FB210000FB210000F /* Translation/MockTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B200000FB200000FB200000F /* Translation/MockTranslationService.swift */; };
-		B2100010B2100010B2100010 /* AudioSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000010B2000010B2000010 /* AudioSegment.swift */; };
-		B2100011B2100011B2100011 /* CaptionPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000011B2000011B2000011 /* CaptionPipelineTests.swift */; };
-		B85B5FB0EB096A2B971E8A10 /* Settings/DiagnosticsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A00929098B82A27056A7F5 /* Settings/DiagnosticsTabView.swift */; };
+			B2100010B2100010B2100010 /* AudioSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000010B2000010B2000010 /* AudioSegment.swift */; };
+			B2100011B2100011B2100011 /* CaptionPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000011B2000011B2000011 /* CaptionPipelineTests.swift */; };
+			B2100012B2100012B2100012 /* ASR/WhisperASRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000012B2000012B2000012 /* ASR/WhisperASRService.swift */; };
+			B2100013B2100013B2100013 /* Translation/NLLBTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000013B2000013B2000013 /* Translation/NLLBTokenizer.swift */; };
+			B2100014B2100014B2100014 /* Translation/NLLBTranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2000014B2000014B2000014 /* Translation/NLLBTranslationService.swift */; };
+			B85B5FB0EB096A2B971E8A10 /* Settings/DiagnosticsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A00929098B82A27056A7F5 /* Settings/DiagnosticsTabView.swift */; };
 		C1000001C1000001C1000001 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1000002C1000002C1000002 /* AppSettings.swift */; };
 		C1000003C1000003C1000003 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1000004C1000004C1000004 /* SettingsManager.swift */; };
 		C1000005C1000005C1000005 /* SettingsManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1000006C1000006C1000006 /* SettingsManagerTests.swift */; };
@@ -149,9 +153,12 @@
 		B200000DB200000DB200000D /* Translation/TranslationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translation/TranslationResult.swift; sourceTree = "<group>"; };
 		B200000EB200000EB200000E /* Translation/Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translation/Language.swift; sourceTree = "<group>"; };
 		B200000FB200000FB200000F /* Translation/MockTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translation/MockTranslationService.swift; sourceTree = "<group>"; };
-		B2000010B2000010B2000010 /* AudioSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSegment.swift; sourceTree = "<group>"; };
-		B2000011B2000011B2000011 /* CaptionPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionPipelineTests.swift; sourceTree = "<group>"; };
-		B4D7E85C4B2C9A23E3593760 /* Settings/UpdatesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/UpdatesTabView.swift; sourceTree = "<group>"; };
+			B2000010B2000010B2000010 /* AudioSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSegment.swift; sourceTree = "<group>"; };
+			B2000011B2000011B2000011 /* CaptionPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionPipelineTests.swift; sourceTree = "<group>"; };
+			B2000012B2000012B2000012 /* ASR/WhisperASRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASR/WhisperASRService.swift; sourceTree = "<group>"; };
+			B2000013B2000013B2000013 /* Translation/NLLBTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translation/NLLBTokenizer.swift; sourceTree = "<group>"; };
+			B2000014B2000014B2000014 /* Translation/NLLBTranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translation/NLLBTranslationService.swift; sourceTree = "<group>"; };
+			B4D7E85C4B2C9A23E3593760 /* Settings/UpdatesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings/UpdatesTabView.swift; sourceTree = "<group>"; };
 		C1000002C1000002C1000002 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		C1000004C1000004C1000004 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		C1000006C1000006C1000006 /* SettingsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManagerTests.swift; sourceTree = "<group>"; };
@@ -189,6 +196,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA900005AA900005AA900005 /* Sparkle in Frameworks */,
+				AA900008AA900008AA900008 /* SwiftWhisper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,15 +330,18 @@
 				B2000006B2000006B2000006 /* AudioSegmenter.swift */,
 				B2000007B2000007B2000007 /* VoiceActivityDetector.swift */,
 				B2000008B2000008B2000008 /* ASR/ASRServiceProtocol.swift */,
-				B2000009B2000009B2000009 /* ASR/ASRResult.swift */,
-				B200000AB200000AB200000A /* ASR/ASRSegment.swift */,
-				B200000BB200000BB200000B /* ASR/MockASRService.swift */,
-				B200000CB200000CB200000C /* Translation/TranslationServiceProtocol.swift */,
-				B200000DB200000DB200000D /* Translation/TranslationResult.swift */,
-				B200000EB200000EB200000E /* Translation/Language.swift */,
-				B200000FB200000FB200000F /* Translation/MockTranslationService.swift */,
-				F1000007F1000007F1000007 /* ModelManager.swift */,
-				AA900002AA900002AA900002 /* UpdateManager.swift */,
+					B2000009B2000009B2000009 /* ASR/ASRResult.swift */,
+					B200000AB200000AB200000A /* ASR/ASRSegment.swift */,
+					B200000BB200000BB200000B /* ASR/MockASRService.swift */,
+					B2000012B2000012B2000012 /* ASR/WhisperASRService.swift */,
+					B200000CB200000CB200000C /* Translation/TranslationServiceProtocol.swift */,
+					B200000DB200000DB200000D /* Translation/TranslationResult.swift */,
+					B200000EB200000EB200000E /* Translation/Language.swift */,
+					B200000FB200000FB200000F /* Translation/MockTranslationService.swift */,
+					B2000013B2000013B2000013 /* Translation/NLLBTokenizer.swift */,
+					B2000014B2000014B2000014 /* Translation/NLLBTranslationService.swift */,
+					F1000007F1000007F1000007 /* ModelManager.swift */,
+					AA900002AA900002AA900002 /* UpdateManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -412,6 +423,7 @@
 			name = VibeCaption;
 			packageProductDependencies = (
 				AA900006AA900006AA900006 /* Sparkle */,
+				AA900009AA900009AA900009 /* SwiftWhisper */,
 			);
 			productName = VibeCaption;
 			productReference = A1000008A1000008A1000008 /* VibeCaption.app */;
@@ -465,6 +477,7 @@
 			mainGroup = A100000EA100000EA100000E;
 			packageReferences = (
 				AA900007AA900007AA900007 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				AA90000AAA90000AAA90000A /* XCRemoteSwiftPackageReference "SwiftWhisper" */,
 			);
 			productRefGroup = A1000012A1000012A1000012 /* Products */;
 			projectDirPath = "";
@@ -525,14 +538,17 @@
 				B2100006B2100006B2100006 /* AudioSegmenter.swift in Sources */,
 				B2100007B2100007B2100007 /* VoiceActivityDetector.swift in Sources */,
 				B2100008B2100008B2100008 /* ASR/ASRServiceProtocol.swift in Sources */,
-				B2100009B2100009B2100009 /* ASR/ASRResult.swift in Sources */,
-				B210000AB210000AB210000A /* ASR/ASRSegment.swift in Sources */,
-				B210000BB210000BB210000B /* ASR/MockASRService.swift in Sources */,
-				B210000CB210000CB210000C /* Translation/TranslationServiceProtocol.swift in Sources */,
-				B210000DB210000DB210000D /* Translation/TranslationResult.swift in Sources */,
-				B210000EB210000EB210000E /* Translation/Language.swift in Sources */,
-				B210000FB210000FB210000F /* Translation/MockTranslationService.swift in Sources */,
-				B2100010B2100010B2100010 /* AudioSegment.swift in Sources */,
+					B2100009B2100009B2100009 /* ASR/ASRResult.swift in Sources */,
+					B210000AB210000AB210000A /* ASR/ASRSegment.swift in Sources */,
+					B210000BB210000BB210000B /* ASR/MockASRService.swift in Sources */,
+					B2100012B2100012B2100012 /* ASR/WhisperASRService.swift in Sources */,
+					B210000CB210000CB210000C /* Translation/TranslationServiceProtocol.swift in Sources */,
+					B210000DB210000DB210000D /* Translation/TranslationResult.swift in Sources */,
+					B210000EB210000EB210000E /* Translation/Language.swift in Sources */,
+					B210000FB210000FB210000F /* Translation/MockTranslationService.swift in Sources */,
+					B2100013B2100013B2100013 /* Translation/NLLBTokenizer.swift in Sources */,
+					B2100014B2100014B2100014 /* Translation/NLLBTranslationService.swift in Sources */,
+					B2100010B2100010B2100010 /* AudioSegment.swift in Sources */,
 				F1000010F1000010F1000010 /* ModelManager.swift in Sources */,
 				F1000011F1000011F1000011 /* ModelInfo.swift in Sources */,
 				F1000012F1000012F1000012 /* ModelStatus.swift in Sources */,
@@ -864,6 +880,14 @@
 				minimumVersion = 2.6.0;
 			};
 		};
+		AA90000AAA90000AAA90000A /* XCRemoteSwiftPackageReference "SwiftWhisper" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exPHAT/SwiftWhisper";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -871,6 +895,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AA900007AA900007AA900007 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		AA900009AA900009AA900009 /* SwiftWhisper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA90000AAA90000AAA90000A /* XCRemoteSwiftPackageReference "SwiftWhisper" */;
+			productName = SwiftWhisper;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

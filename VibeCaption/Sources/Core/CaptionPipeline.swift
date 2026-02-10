@@ -41,6 +41,7 @@ public final class CaptionPipeline: ObservableObject {
     private let performanceTranslationConcurrencyLimit: Int
 
     private let logger = Logger(subsystem: "com.vibecaption", category: "CaptionPipeline")
+    private let maxConsecutiveASRErrorsBeforeStop = 3
 
     private var segmentContinuation: AsyncStream<AudioSegment>.Continuation?
     private var segmentTask: Task<Void, Never>?
@@ -51,6 +52,7 @@ public final class CaptionPipeline: ObservableObject {
 
     private let stateLock = NSLock()
     private var stateSnapshot: PipelineState = .idle
+    private var consecutiveASRErrors: Int = 0
 
     init(
         captureEngine: AudioCaptureEngineProtocol = AudioCaptureEngine(),
@@ -98,6 +100,7 @@ public final class CaptionPipeline: ObservableObject {
         await MainActor.run { [weak self] in
             self?.lastError = nil
         }
+        consecutiveASRErrors = 0
 
         do {
             try await loadModelsIfNeeded()
@@ -242,6 +245,7 @@ public final class CaptionPipeline: ObservableObject {
         do {
             let result = try await asrService.transcribe(segment)
             if Task.isCancelled { return }
+            consecutiveASRErrors = 0
 
             let blocks = convertToTranscriptBlocks(result)
             await MainActor.run { [weak self] in
@@ -253,7 +257,26 @@ public final class CaptionPipeline: ObservableObject {
 
             startTranslation(for: blocks)
         } catch {
-            handlePipelineError(error)
+            if error is CancellationError {
+                return
+            }
+            await handleASRSegmentFailure(error)
+        }
+    }
+
+    private func handleASRSegmentFailure(_ error: Error) async {
+        consecutiveASRErrors += 1
+        logger.error(
+            "ASR failed for segment (\(self.consecutiveASRErrors)/\(self.maxConsecutiveASRErrorsBeforeStop)): \(error.localizedDescription)"
+        )
+
+        await MainActor.run { [weak self] in
+            self?.lastError = error
+            self?.statistics.recordDroppedSegment()
+        }
+
+        if consecutiveASRErrors >= maxConsecutiveASRErrorsBeforeStop {
+            handlePipelineError(VibeCaptionError.asrFailed(reason: error.localizedDescription))
         }
     }
 
@@ -321,6 +344,7 @@ public final class CaptionPipeline: ObservableObject {
         captureEngine.stopCapture()
         stopSegmentProcessing()
         resetAudioProcessors()
+        consecutiveASRErrors = 0
 
         Task { @MainActor [weak self] in
             guard let self = self else { return }

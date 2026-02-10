@@ -55,7 +55,7 @@ public enum NLLBTranslationError: Error, LocalizedError {
 /// let result = try await service.translate("こんにちは", from: .japanese, to: .english)
 /// print(result.translatedText) // "Hello"
 /// ```
-public actor NLLBTranslationService: TranslationServiceProtocol {
+final class NLLBTranslationService: TranslationServiceProtocol {
     
     // MARK: - Properties
     
@@ -64,7 +64,7 @@ public actor NLLBTranslationService: TranslationServiceProtocol {
     private var decoder: MLModel?
     private var tokenizer: NLLBTokenizer?
     
-    public private(set) var isModelLoaded: Bool = false
+    private(set) var isModelLoaded: Bool = false
     
     /// Maximum output tokens for decoder
     private let maxOutputTokens: Int = 128
@@ -76,8 +76,11 @@ public actor NLLBTranslationService: TranslationServiceProtocol {
         return config
     }
     
-    /// Model ID used for looking up in ModelManager
-    private let modelID = "nllb-200-distilled"
+    /// Preferred model IDs for looking up in ModelManager (high quality first).
+    private let preferredModelIDs = [
+        "nllb-200-600m-optional",
+        "nllb-200-distilled"
+    ]
     
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.vibecaption",
@@ -86,51 +89,69 @@ public actor NLLBTranslationService: TranslationServiceProtocol {
     
     // MARK: - Initialization
     
-    public init(modelManager: ModelManager) {
+    init(modelManager: ModelManager) {
         self.modelManager = modelManager
     }
     
     // MARK: - TranslationServiceProtocol
     
-    public func loadModel() async throws {
+    func loadModel() async throws {
         // Prevent reloading if already loaded
         guard !isModelLoaded else { return }
-        
+
         // 1. Get model info from ModelManager
-        guard let modelInfo = modelManager.getModel(id: modelID) else {
-            logger.error("NLLB model not found in catalog: \(self.modelID)")
+        guard let modelInfo = resolveTranslationModelInfo() else {
+            logger.error("NLLB model not found in catalog")
             throw VibeCaptionError.modelMissing(modelName: "NLLB-200")
         }
-        
+
         guard let modelPath = modelManager.getModelPath(for: modelInfo) else {
-            logger.error("Could not get model path for: \(self.modelID)")
+            logger.error("Could not get model path for: \(modelInfo.id)")
             throw VibeCaptionError.modelMissing(modelName: "NLLB-200")
         }
-        
-        // Check if model files exist
-        let encoderPath = modelPath.appendingPathComponent("NLLB_Encoder.mlmodelc")
-        let decoderPath = modelPath.appendingPathComponent("NLLB_Decoder.mlmodelc")
-        let vocabPath = modelPath.appendingPathComponent("tokenizer.json")
-        
-        // Also try .mlpackage format
-        let encoderPackagePath = modelPath.appendingPathComponent("NLLB_Encoder.mlpackage")
-        let decoderPackagePath = modelPath.appendingPathComponent("NLLB_Decoder.mlpackage")
-        
+
         let fileManager = FileManager.default
-        
-        // Determine which format we have
-        let usePackage = fileManager.fileExists(atPath: encoderPackagePath.path)
-        let actualEncoderPath = usePackage ? encoderPackagePath : encoderPath
-        let actualDecoderPath = usePackage ? decoderPackagePath : decoderPath
-        
-        guard fileManager.fileExists(atPath: actualEncoderPath.path) else {
-            logger.error("Encoder model not found at: \(actualEncoderPath.path)")
+
+        guard fileManager.fileExists(atPath: modelPath.path) else {
+            logger.error("NLLB model directory not found at: \(modelPath.path)")
+            throw VibeCaptionError.modelMissing(modelName: "NLLB-200")
+        }
+
+        let encoderCandidates = ["NLLB_Encoder.mlmodelc", "NLLB_Encoder.mlpackage"]
+        let decoderCandidates = ["NLLB_Decoder.mlmodelc", "NLLB_Decoder.mlpackage"]
+        let vocabCandidates = ["tokenizer.json", "vocab.json", "sentencepiece.bpe.model", "tokenizer.model"]
+
+        guard let actualEncoderPath = resolveArtifact(
+            namedAnyOf: encoderCandidates,
+            under: modelPath,
+            fileManager: fileManager
+        ) else {
+            if hasUnsupportedPyTorchArtifact(in: modelPath, fileManager: fileManager) {
+                throw VibeCaptionError.coreMLLoadFailed(
+                    modelName: "NLLB-200",
+                    reason: "Found pytorch_model.bin only. Install CoreML artifacts (NLLB_Encoder/NLLB_Decoder + tokenizer)."
+                )
+            }
+            logger.error("Encoder model not found in: \(modelPath.path)")
             throw VibeCaptionError.modelMissing(modelName: "NLLB-200 Encoder")
         }
-        
-        guard fileManager.fileExists(atPath: actualDecoderPath.path) else {
-            logger.error("Decoder model not found at: \(actualDecoderPath.path)")
+
+        guard let actualDecoderPath = resolveArtifact(
+            namedAnyOf: decoderCandidates,
+            under: modelPath,
+            fileManager: fileManager
+        ) else {
+            logger.error("Decoder model not found in: \(modelPath.path)")
             throw VibeCaptionError.modelMissing(modelName: "NLLB-200 Decoder")
+        }
+
+        guard let tokenizerPath = resolveArtifact(
+            namedAnyOf: vocabCandidates,
+            under: modelPath,
+            fileManager: fileManager
+        ) else {
+            logger.error("Tokenizer file not found in: \(modelPath.path)")
+            throw VibeCaptionError.modelMissing(modelName: "NLLB-200 Tokenizer")
         }
         
         logger.info("Loading NLLB-200 models from: \(modelPath.path)")
@@ -138,28 +159,13 @@ public actor NLLBTranslationService: TranslationServiceProtocol {
         do {
             // 2. Load tokenizer
             let loadedTokenizer = NLLBTokenizer()
-            
-            // Try different vocabulary file locations
-            let possibleVocabPaths = [
-                vocabPath,
-                modelPath.appendingPathComponent("vocab.json"),
-                modelPath.appendingPathComponent("sentencepiece.bpe.model"),
-                modelPath.appendingPathComponent("tokenizer.model")
-            ]
-            
-            var vocabLoaded = false
-            for possiblePath in possibleVocabPaths {
-                if fileManager.fileExists(atPath: possiblePath.path) {
-                    try loadedTokenizer.loadVocabulary(from: possiblePath)
-                    vocabLoaded = true
-                    logger.info("Loaded vocabulary from: \(possiblePath.path)")
-                    break
-                }
+
+            if tokenizerPath.pathExtension == "model" {
+                try loadedTokenizer.loadSentencePieceModel(from: tokenizerPath)
+            } else {
+                try loadedTokenizer.loadVocabulary(from: tokenizerPath)
             }
-            
-            if !vocabLoaded {
-                logger.warning("Vocabulary file not found, tokenization may fail")
-            }
+            logger.info("Loaded vocabulary from: \(tokenizerPath.path)")
             
             // 3. Load CoreML models
             let loadedEncoder = try MLModel(contentsOf: actualEncoderPath, configuration: modelConfiguration)
@@ -183,11 +189,62 @@ public actor NLLBTranslationService: TranslationServiceProtocol {
             throw VibeCaptionError.coreMLLoadFailed(modelName: "NLLB-200", reason: error.localizedDescription)
         }
     }
-    
-    public nonisolated func unloadModel() {
-        Task {
-            await performUnload()
+
+    private func resolveTranslationModelInfo() -> ModelInfo? {
+        let fileManager = FileManager.default
+
+        for modelID in preferredModelIDs {
+            if let model = modelManager.getModel(id: modelID),
+               let modelPath = modelManager.getModelPath(for: model),
+               fileManager.fileExists(atPath: modelPath.path) {
+                return model
+            }
         }
+
+        return modelManager.models.first(where: { model in
+            guard model.id.localizedCaseInsensitiveContains("nllb"),
+                  let modelPath = modelManager.getModelPath(for: model) else {
+                return false
+            }
+            return fileManager.fileExists(atPath: modelPath.path)
+        }) ?? modelManager.models.first(where: { $0.id.localizedCaseInsensitiveContains("nllb") })
+    }
+
+    private func resolveArtifact(
+        namedAnyOf names: [String],
+        under root: URL,
+        fileManager: FileManager
+    ) -> URL? {
+        for name in names {
+            let directPath = root.appendingPathComponent(name)
+            if fileManager.fileExists(atPath: directPath.path) {
+                return directPath
+            }
+        }
+
+        guard let enumerator = fileManager.enumerator(
+            at: root,
+            includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else {
+            return nil
+        }
+
+        for case let url as URL in enumerator {
+            if names.contains(url.lastPathComponent) {
+                return url
+            }
+        }
+
+        return nil
+    }
+
+    private func hasUnsupportedPyTorchArtifact(in root: URL, fileManager: FileManager) -> Bool {
+        resolveArtifact(namedAnyOf: ["pytorch_model.bin"], under: root, fileManager: fileManager) != nil
+    }
+    
+    func unloadModel() {
+        performUnload()
     }
     
     private func performUnload() {
@@ -198,7 +255,7 @@ public actor NLLBTranslationService: TranslationServiceProtocol {
         logger.info("NLLB-200 model unloaded")
     }
     
-    public func translate(_ text: String, from sourceLanguage: Language, to targetLanguage: Language) async throws -> TranslationResult {
+    func translate(_ text: String, from sourceLanguage: Language, to targetLanguage: Language) async throws -> TranslationResult {
         let startTime = Date()
         
         guard isModelLoaded, let encoder = encoder, let decoder = decoder, let tokenizer = tokenizer else {

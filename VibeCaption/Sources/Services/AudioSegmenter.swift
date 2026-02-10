@@ -7,8 +7,9 @@ class AudioSegmenter {
     
     // Configuration
     var minSegmentDuration: TimeInterval = 0.2
-    var maxSegmentDuration: TimeInterval = 2.5
-    var silencePadding: TimeInterval = 0.15 // Keep some silence after speech chunks
+    // Increase defaults so long utterances survive short pauses before segmentation.
+    var maxSegmentDuration: TimeInterval = 12.0
+    var silencePadding: TimeInterval = 0.45
     
     // Callback
     private var segmentCallback: ((AudioSegment) -> Void)?

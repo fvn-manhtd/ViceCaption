@@ -202,6 +202,23 @@ final class CaptionPipelineTests: XCTestCase {
 
         XCTAssertGreaterThan(harness.pipeline.audioLevel, 0)
     }
+
+    func testPipelineContinuesAfterTransientASRFailures() async throws {
+        let harness = try TestHarness(
+            asrError: TestASRError.transientFailure,
+            asrFailingCalls: 2
+        )
+        defer { harness.pipeline.stop() }
+
+        try await harness.pipeline.start()
+        harness.emitSpeechThenSilence()
+        harness.emitSpeechThenSilence()
+        harness.emitSpeechThenSilence()
+
+        let blocks = try await harness.waitForBlocks(minimum: 1, timeout: 4.0)
+        XCTAssertFalse(blocks.isEmpty)
+        XCTAssertNotEqual(harness.pipeline.currentState, .error)
+    }
 }
 
 private struct TestHarness {
@@ -217,6 +234,7 @@ private struct TestHarness {
     init(
         translationDelay: TimeInterval = 0.05,
         asrError: Error? = nil,
+        asrFailingCalls: Int? = nil,
         asrSegments: [ASRSegment]? = nil,
         translationMap: [String: String] = [:],
         translationRequiresLoadedModel: Bool = false,
@@ -247,7 +265,11 @@ private struct TestHarness {
         let resolvedSegments = asrSegments ?? [
             ASRSegment(text: "こんにちは", startTime: 0, endTime: 1, speakerID: nil, confidence: 0.9)
         ]
-        let asrService = TestASRService(error: asrError, segments: resolvedSegments)
+        let asrService = TestASRService(
+            error: asrError,
+            segments: resolvedSegments,
+            failingCalls: asrFailingCalls
+        )
         translationService = TestTranslationService(
             delay: translationDelay,
             translations: translationMap,
@@ -469,10 +491,17 @@ private final class TestASRService: ASRServiceProtocol {
     private(set) var isModelLoaded: Bool = false
     private let error: Error?
     private let segments: [ASRSegment]
+    private var remainingFailingCalls: Int?
+    private let lock = NSLock()
 
-    init(error: Error? = nil, segments: [ASRSegment]) {
+    init(error: Error? = nil, segments: [ASRSegment], failingCalls: Int? = nil) {
         self.error = error
         self.segments = segments
+        if let failingCalls {
+            self.remainingFailingCalls = max(0, failingCalls)
+        } else {
+            self.remainingFailingCalls = nil
+        }
     }
 
     func loadModel() async throws {
@@ -484,7 +513,16 @@ private final class TestASRService: ASRServiceProtocol {
     }
 
     func transcribe(_ audio: AudioSegment) async throws -> ASRResult {
-        if let error {
+        lock.lock()
+        let failsRemaining = remainingFailingCalls
+        if let failsRemaining, failsRemaining > 0 {
+            remainingFailingCalls = failsRemaining - 1
+            lock.unlock()
+            throw error ?? TestASRError.transientFailure
+        }
+        lock.unlock()
+
+        if remainingFailingCalls == nil, let error {
             throw error
         }
 
@@ -503,6 +541,10 @@ private final class TestASRService: ASRServiceProtocol {
         }
         return ASRResult(segments: mappedSegments, processingTime: 0.01)
     }
+}
+
+private enum TestASRError: Error {
+    case transientFailure
 }
 
 private enum TestTranslationError: Error {
