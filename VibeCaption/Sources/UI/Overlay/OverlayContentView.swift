@@ -84,6 +84,20 @@ struct OverlayContentView: View {
                             .id(block.id)
                             .animation(.easeInOut(duration: 0.25), value: transcriptManager.displayableBlocks.count)
                         }
+                        
+                        // Live in-progress block (partial streaming result)
+                        if let liveBlock = transcriptManager.liveBlock {
+                            CaptionBlockView(
+                                block: liveBlock,
+                                fontSize: settingsManager.overlayFontSize
+                            )
+                            .id("live-block")
+                            .opacity(0.7)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .strokeBorder(Color.accentColor.opacity(0.4), lineWidth: 1)
+                            )
+                        }
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 8)
@@ -95,6 +109,12 @@ struct OverlayContentView: View {
                         }
                         autoHideController.recordActivity()
                         onAutoScroll?(newID)
+                    }
+                    .onChange(of: transcriptManager.liveBlock?.id) { _ in
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            proxy.scrollTo("live-block", anchor: .bottom)
+                        }
+                        autoHideController.recordActivity()
                     }
                 }
                 .frame(maxWidth: containerMaxWidth, minHeight: suggestedHeight)

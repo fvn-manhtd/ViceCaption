@@ -45,6 +45,7 @@ public final class CaptionPipeline: ObservableObject {
 
     private var segmentContinuation: AsyncStream<AudioSegment>.Continuation?
     private var segmentTask: Task<Void, Never>?
+    private var progressTask: Task<Void, Never>?
     @MainActor private var translationTasks: [UUID: Task<Void, Never>] = [:]
     @MainActor private var translationTaskOrder: [UUID] = []
     @MainActor private var translationInFlightCount: Int = 0
@@ -189,6 +190,38 @@ public final class CaptionPipeline: ObservableObject {
         segmenter.setSegmentCallback { [weak self] segment in
             self?.enqueueSegment(segment)
         }
+
+        segmenter.setProgressCallback { [weak self] snapshot in
+            self?.handleProgressSnapshot(snapshot)
+        }
+    }
+
+    private func handleProgressSnapshot(_ snapshot: AudioSegment) {
+        let snapshot2 = snapshotState()
+        guard snapshot2 == .listening || snapshot2 == .translating else { return }
+
+        // Cancel any previous progressive transcription to avoid stale updates
+        progressTask?.cancel()
+        progressTask = Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                let result = try await self.asrService.transcribe(snapshot)
+                if Task.isCancelled { return }
+
+                let blocks = self.convertToTranscriptBlocks(result)
+                // Use the last block as the live preview (most recent text)
+                if let latestBlock = blocks.last {
+                    await MainActor.run { [weak self] in
+                        self?.transcriptManager.liveBlock = latestBlock
+                    }
+                }
+            } catch {
+                // Progressive failures are non-fatal; just skip this snapshot
+                if !(error is CancellationError) {
+                    self.logger.debug("Progressive ASR skipped: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 
     private func bindCaptureEngine() {
@@ -242,6 +275,10 @@ public final class CaptionPipeline: ObservableObject {
 
         let startTime = Date()
 
+        // Cancel any in-flight progressive transcription since we have the final segment
+        progressTask?.cancel()
+        progressTask = nil
+
         do {
             let result = try await asrService.transcribe(segment)
             if Task.isCancelled { return }
@@ -250,6 +287,8 @@ public final class CaptionPipeline: ObservableObject {
             let blocks = convertToTranscriptBlocks(result)
             await MainActor.run { [weak self] in
                 guard let self = self else { return }
+                // Clear the live block since we now have the final result
+                self.transcriptManager.liveBlock = nil
                 blocks.forEach { self.transcriptManager.addBlock($0) }
             }
 
@@ -346,8 +385,12 @@ public final class CaptionPipeline: ObservableObject {
         resetAudioProcessors()
         consecutiveASRErrors = 0
 
+        progressTask?.cancel()
+        progressTask = nil
+
         Task { @MainActor [weak self] in
             guard let self = self else { return }
+            self.transcriptManager.liveBlock = nil
             self.resetTranslationTracking()
         }
 
@@ -375,7 +418,11 @@ public final class CaptionPipeline: ObservableObject {
             try await asrService.loadModel()
         }
         if !translationService.isModelLoaded {
-            try await translationService.loadModel()
+            do {
+                try await translationService.loadModel()
+            } catch {
+                logger.warning("Translation model failed to load: \(error.localizedDescription). Continuing with transcription only.")
+            }
         }
 
         await MainActor.run { [weak self] in

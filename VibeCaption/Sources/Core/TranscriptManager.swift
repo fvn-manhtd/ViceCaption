@@ -49,6 +49,10 @@ public final class TranscriptManager: ObservableObject {
     /// Index of the first pause marker to display.
     @Published public private(set) var pauseDisplayStartIndex: Int = 0
     
+    /// In-progress partial transcript block shown during real-time streaming.
+    /// Set to `nil` when the final block replaces it.
+    @Published public var liveBlock: TranscriptBlock? = nil
+    
     /// The settings manager for configuration.
     private let settingsManager: SettingsManager
     
@@ -151,7 +155,9 @@ public final class TranscriptManager: ObservableObject {
         }
 
         if hasActiveSession {
-            currentSession?.endSession()
+            var session = currentSession!
+            session.endSession()
+            currentSession = session
             logger.info("Transcript session ended")
         }
 
@@ -165,12 +171,13 @@ public final class TranscriptManager: ObservableObject {
     /// - Parameter block: The block to add.
     /// - Note: Does nothing if there is no active session.
     public func addBlock(_ block: TranscriptBlock) {
-        guard currentSession != nil else {
+        guard var session = currentSession else {
             logger.warning("Cannot add block: no active session")
             return
         }
         
-        currentSession?.addBlock(block)
+        session.addBlock(block)
+        currentSession = session
         markSessionChanged()
         logger.debug("Added transcript block: \(block.japaneseText.prefix(20))...")
     }
@@ -202,13 +209,14 @@ public final class TranscriptManager: ObservableObject {
     ///
     /// - Note: Does nothing if there is no active session.
     public func addPauseMarker() {
-        guard currentSession != nil else {
+        guard var session = currentSession else {
             logger.warning("Cannot add pause marker: no active session")
             return
         }
         
         let marker = PauseMarker()
-        currentSession?.addPauseMarker(marker)
+        session.addPauseMarker(marker)
+        currentSession = session
         markSessionChanged()
         logger.debug("Added pause marker at \(marker.timestamp)")
     }
@@ -217,12 +225,13 @@ public final class TranscriptManager: ObservableObject {
     ///
     /// - Parameter marker: The pause marker to add.
     public func addPauseMarker(_ marker: PauseMarker) {
-        guard currentSession != nil else {
+        guard var session = currentSession else {
             logger.warning("Cannot add pause marker: no active session")
             return
         }
         
-        currentSession?.addPauseMarker(marker)
+        session.addPauseMarker(marker)
+        currentSession = session
         markSessionChanged()
         logger.debug("Added pause marker at \(marker.timestamp)")
     }
@@ -246,11 +255,12 @@ public final class TranscriptManager: ObservableObject {
     /// This removes the currently hidden blocks and pause markers from the session.
     /// The data cannot be recovered after this operation.
     public func clearAndDiscard() {
-        guard currentSession != nil else { return }
+        guard var session = currentSession else { return }
         
         // Remove hidden content
-        currentSession?.removeBlocks(fromIndex: 0)
-        currentSession?.removePauseMarkers(fromIndex: 0)
+        session.removeBlocks(fromIndex: 0)
+        session.removePauseMarkers(fromIndex: 0)
+        currentSession = session
         
         // Reset display indices
         displayStartIndex = 0

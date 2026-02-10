@@ -7,12 +7,17 @@ class AudioSegmenter {
     
     // Configuration
     var minSegmentDuration: TimeInterval = 0.2
-    // Increase defaults so long utterances survive short pauses before segmentation.
-    var maxSegmentDuration: TimeInterval = 12.0
-    var silencePadding: TimeInterval = 0.45
+    // Keep max duration short enough for perceived real-time transcription while
+    // still capturing coherent Japanese sentences.
+    var maxSegmentDuration: TimeInterval = 5.0
+    var silencePadding: TimeInterval = 0.3
     
-    // Callback
+    /// How often to emit a progressive audio snapshot while a segment is recording.
+    var progressInterval: TimeInterval = 1.5
+    
+    // Callbacks
     private var segmentCallback: ((AudioSegment) -> Void)?
+    private var progressCallback: ((AudioSegment) -> Void)?
     
     // Internal buffering
     private var buffer: [Float] = []
@@ -25,6 +30,7 @@ class AudioSegmenter {
     // State
     private var isRecordingSegment = false
     private var silenceDurationInsideSegment: TimeInterval = 0
+    private var lastProgressEmitTime: TimeInterval = 0
     
     // MARK: - Initialization
     
@@ -34,6 +40,10 @@ class AudioSegmenter {
     
     func setSegmentCallback(_ callback: @escaping (AudioSegment) -> Void) {
         self.segmentCallback = callback
+    }
+    
+    func setProgressCallback(_ callback: @escaping (AudioSegment) -> Void) {
+        self.progressCallback = callback
     }
     
     func process(_ buffer: AVAudioPCMBuffer, vadResult: VADResult) {
@@ -78,6 +88,12 @@ class AudioSegmenter {
             // Checks for termination
             let currentSegmentDuration = Double(self.buffer.count) / sampleRate
             
+            // Emit progressive snapshot for real-time display
+            if currentSegmentDuration >= progressInterval,
+               currentTime - lastProgressEmitTime >= progressInterval {
+                emitProgressSnapshot()
+            }
+            
             let isMaxDurationReached = currentSegmentDuration >= maxSegmentDuration
             let isSilenceTimeout = silenceDurationInsideSegment >= silencePadding
             
@@ -96,6 +112,7 @@ class AudioSegmenter {
         silenceDurationInsideSegment = 0
         segmentStartTime = nil
         currentTime = 0
+        lastProgressEmitTime = 0
     }
     
     // MARK: - Private Helpers
@@ -132,5 +149,20 @@ class AudioSegmenter {
         isRecordingSegment = false
         silenceDurationInsideSegment = 0
         segmentStartTime = nil
+        lastProgressEmitTime = 0
+    }
+    
+    private func emitProgressSnapshot() {
+        guard let start = segmentStartTime, !buffer.isEmpty else { return }
+        let duration = Double(buffer.count) / sampleRate
+        guard duration >= minSegmentDuration else { return }
+        
+        let snapshot = AudioSegment(
+            startTime: start,
+            endTime: start + duration,
+            audioData: buffer
+        )
+        lastProgressEmitTime = currentTime
+        progressCallback?(snapshot)
     }
 }

@@ -36,7 +36,7 @@ class VoiceActivityDetector: ObservableObject {
     
     // Hysteresis configuration
     private let requiredSpeechFrames = 2 // Faster activation for live calls
-    private let requiredSilenceFrames = 8
+    private let requiredSilenceFrames = 5
     
     // MARK: - Initialization
     
